@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/view/sign_up_view.dart';
 import 'view/splash_screen.dart'; // Correct import for splash screen from view folder
 
 class App extends StatelessWidget {
@@ -9,7 +10,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Mitho Bites',
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(), // Set the SplashScreen as home screen
+      home: (SplashScreen()), // Set the SplashScreen as home screen
     );
   }
 }
