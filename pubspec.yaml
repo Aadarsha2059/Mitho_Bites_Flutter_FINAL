@@ -1,0 +1,35 @@
+name: fooddelivery_b
+description: "A new Flutter project."
+
+# Prevent accidental publishing to pub.dev
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# Version and build number for your application
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+# Dependencies specify other packages your app needs to function.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Assets folder reference should be inside flutter section
+  # Remove 'assets:' section from here
+  cupertino_icons: ^1.0.8
+  dartz: ^0.10.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Linting package for good coding practices
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Assets section: Make sure the path is correct
+  assets:
+    - assets/images/logo.png
