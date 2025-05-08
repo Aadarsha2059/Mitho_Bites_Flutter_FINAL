@@ -19,7 +19,8 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _logoController;
   late AnimationController _textController;
   late Animation<double> _logoAnimation;
@@ -50,8 +51,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       duration: Duration(milliseconds: 1800),
     );
 
-    _textSlideAnimation = Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0))
-        .animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
+    _textSlideAnimation = Tween<Offset>(
+      begin: Offset(0, 1),
+      end: Offset(0, 0),
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
 
     _textController.forward();
 
@@ -64,10 +67,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
 
     _blinkController.repeat(reverse: true);
-    _blinkAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_blinkController);
+    _blinkAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(_blinkController);
 
     // Simulate loading before moving to home
-    Timer(Duration(seconds: 4), () {
+    Timer(Duration(seconds: 6), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -134,7 +140,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               ),
               SizedBox(height: 30),
               const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrangeAccent),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.deepOrangeAccent,
+                ),
                 strokeWidth: 4.0,
               ),
               SizedBox(height: 30),

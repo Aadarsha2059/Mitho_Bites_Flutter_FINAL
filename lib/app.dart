@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/view/about_us_view.dart';
+import 'package:fooddelivery_b/view/forgot_password_view.dart';
 import 'package:fooddelivery_b/view/sign_up_view.dart';
 import 'view/splash_screen.dart'; // Correct import for splash screen from view folder
 
