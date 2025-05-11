@@ -93,7 +93,7 @@ class _AboutUsViewState extends State<AboutUsView> {
                   duration: const Duration(milliseconds: 800),
                   opacity: _opacity,
                   child: Image.asset(
-                    "assets/images/logo.png",
+                    "assets/images/efood.png",
                     width: 120,
                     height: 120,
                   ),

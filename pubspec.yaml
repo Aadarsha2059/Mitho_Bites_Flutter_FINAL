@@ -1,35 +1,50 @@
 name: fooddelivery_b
 description: "A new Flutter project."
 
-# Prevent accidental publishing to pub.dev
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
-# Version and build number for your application
 version: 1.0.0+1
 
 environment:
   sdk: ^3.7.2
 
-# Dependencies specify other packages your app needs to function.
 dependencies:
   flutter:
     sdk: flutter
-
-  # Assets folder reference should be inside flutter section
-  # Remove 'assets:' section from here
   cupertino_icons: ^1.0.8
   dartz: ^0.10.1
+  fluttertoast: ^8.2.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # Linting package for good coding practices
   flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true
 
-  # Assets section: Make sure the path is correct
   assets:
     - assets/images/logo.png
+    - assets/images/efood.png
+    - assets/images/add.png
+    - assets/images/app_logo.png
+    - assets/images/cat_offer.png
+    - assets/images/cat_sri.png
+    - assets/images/cat_3.png
+    - assets/images/cat_4.png
+    - assets/images/res_1.png
+    - assets/images/res_2.png
+    - assets/images/res_3.png
+    - assets/images/m_res_1.png
+    - assets/images/m_res_2.png
+    - assets/images/item_1.png
+    - assets/images/item_2.png
+    - assets/images/item_3.png
+    - assets/images/aadarsha.jpeg
+
+  fonts:
+    - family: Metropolis
+      fonts:
+        - asset: assets/fonts/Metropolis-Regular.otf
+        - asset: assets/fonts/Metropolis-Bold.otf
+          weight: 700

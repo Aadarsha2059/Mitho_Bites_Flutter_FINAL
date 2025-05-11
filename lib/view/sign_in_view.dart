@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/view/about_us_view.dart';
 import 'package:fooddelivery_b/view/forgot_password_view.dart';
 import 'package:fooddelivery_b/view/sign_up_view.dart';
+import 'package:fooddelivery_b/view/dashboard_view.dart'; // Add the import for DashboardView
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,18 +13,21 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  // New method to handle login validation
   void _login() {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
+    // Check if both fields are filled
     if (username.isEmpty || password.isEmpty) {
       _showAlertDialog(
         title: "Missing Fields",
-        content: "Please do enter both the entry fields to login further.",
+        content: "Please enter both the username and password to login.",
       );
       return;
     }
 
+    // Check if password length is less than 6 characters
     if (password.length < 6) {
       _showAlertDialog(
         title: "Weak Password",
@@ -32,27 +36,34 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    print("Login with: $username");
-  }
-
-  void _showAlertDialog({required String title, required String content}) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
+    // If all validations pass, navigate to DashboardView
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DashboardView()),
     );
   }
 
+  // Method to show alert dialogs
+  void _showAlertDialog({required String title, required String content}) {
+    showDialog(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: [
+              TextButton(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            ],
+          ),
+    );
+  }
+
+  // Method to navigate to SignUp page
   void _navigateToSignUp() {
     Navigator.push(
       context,
@@ -93,8 +104,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.info_outline_rounded,
-                      color: Colors.white, size: 30),
+                  icon: const Icon(
+                    Icons.info_outline_rounded,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                   tooltip: 'About Us',
                   onPressed: () {
                     Navigator.push(
@@ -260,7 +274,9 @@ class _LoginPageState extends State<LoginPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xfff5f6f7),
                             padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -274,7 +290,9 @@ class _LoginPageState extends State<LoginPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xff949393),
                             padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
