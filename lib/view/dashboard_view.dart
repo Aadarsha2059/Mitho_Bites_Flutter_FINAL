@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:fooddelivery_b/view/users_profile_view.dart'; // Import UserProfileView page
+import 'package:fooddelivery_b/view/menu_view.dart'; // ✅ Import MenuView page
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -297,8 +297,12 @@ class _DashboardViewState extends State<DashboardView> {
         onTap: (int index) {
           setState(() {
             _selectedIndex = index;
-            if (_selectedIndex == 2) {
-              // Navigate to UserProfileView when Profile icon is tapped
+            if (_selectedIndex == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MenuView()),
+              );
+            } else if (_selectedIndex == 2) {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => UserProfileView()),
@@ -312,14 +316,8 @@ class _DashboardViewState extends State<DashboardView> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.menu), label: "Menu"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: "Profile", // "Profile" icon will navigate here
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: "More", // "Profile" icon will navigate here
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: "More"),
         ],
       ),
     );
