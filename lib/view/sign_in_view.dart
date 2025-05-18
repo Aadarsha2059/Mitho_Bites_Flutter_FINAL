@@ -13,12 +13,10 @@ class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  // New method to handle login validation
   void _login() {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    // Check if both fields are filled
     if (username.isEmpty || password.isEmpty) {
       _showAlertDialog(
         title: "Missing Fields",
@@ -27,43 +25,38 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // Check if password length is less than 6 characters
-    if (password.length < 6) {
+    if (username != "admin" || password != "adminadmin") {
       _showAlertDialog(
-        title: "Weak Password",
-        content: "Password must be at least 6 characters long.",
+        title: "Login Failed",
+        content: "Incorrect username or password.",
       );
       return;
     }
 
-    // If all validations pass, navigate to DashboardView
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => DashboardView()),
     );
   }
 
-  // Method to show alert dialogs
   void _showAlertDialog({required String title, required String content}) {
     showDialog(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Text(title),
-            content: Text(content),
-            actions: [
-              TextButton(
-                child: Text("OK"),
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                },
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
           ),
+        ],
+      ),
     );
   }
 
-  // Method to navigate to SignUp page
   void _navigateToSignUp() {
     Navigator.push(
       context,
@@ -76,7 +69,6 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient Background
           Container(
             height: double.infinity,
             width: double.infinity,
@@ -88,8 +80,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-
-          // Header with Title and About Icon
           Padding(
             padding: const EdgeInsets.only(top: 60.0, left: 22, right: 22),
             child: Row(
@@ -120,8 +110,6 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
-
-          // White content container
           Padding(
             padding: const EdgeInsets.only(top: 200.0),
             child: Container(
@@ -139,7 +127,6 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Logo
                     Align(
                       alignment: Alignment.topRight,
                       child: CircleAvatar(
@@ -148,8 +135,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Page title
                     Text(
                       "Login Page",
                       style: TextStyle(
@@ -168,8 +153,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 30),
-
-                    // Username
                     TextField(
                       controller: _usernameController,
                       decoration: InputDecoration(
@@ -184,8 +167,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Password
                     TextField(
                       controller: _passwordController,
                       obscureText: true,
@@ -201,8 +182,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Forgot password
                     Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
@@ -226,8 +205,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Login Button
                     Container(
                       width: double.infinity,
                       height: 55,
@@ -253,8 +230,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 30),
-
-                    // Social login message
                     Center(
                       child: Text(
                         "We can login with other options as well..",
@@ -262,8 +237,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 16),
-
-                    // Social Login Buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -301,8 +274,6 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     SizedBox(height: 40),
-
-                    // Sign Up
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Column(
