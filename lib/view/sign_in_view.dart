@@ -230,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 30),
-                    Center(
+                    // Center(
                       child: Text(
                         "We can login with other options as well..",
                         style: TextStyle(color: Colors.black),
