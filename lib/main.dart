@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
-import 'app.dart'; // Import App widget
+import 'package:fooddelivery_b/common/globs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'app.dart';
+import 'utils/globs.dart';
 
-void main() {
-  runApp(const App()); // Run the App
+Future<void> main() async {
+  
+  WidgetsFlutterBinding.ensureInitialized();
+  prefs = await SharedPreferences.getInstance(); // initialize global prefs
+  runApp(const App());
 }

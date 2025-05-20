@@ -14,6 +14,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   dartz: ^0.10.1
   fluttertoast: ^8.2.4
+  flutter_easyloading: ^3.0.5
+  flutter_timezone: ^1.0.6
+  shared_preferences: ^2.2.2
+  get_it: ^7.6.0 
 
 dev_dependencies:
   flutter_test:
@@ -24,30 +28,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/logo.png
-    - assets/images/efood.png
-    - assets/images/add.png
-    - assets/images/app_logo.png
-    - assets/images/cat_offer.png
-    - assets/images/cat_sri.png
-    - assets/images/cat_3.png
-    - assets/images/cat_4.png
-    - assets/images/res_1.png
-    - assets/images/res_2.png
-    - assets/images/res_3.png
-    - assets/images/m_res_1.png
-    - assets/images/m_res_2.png
-    - assets/images/item_1.png
-    - assets/images/item_2.png
-    - assets/images/item_3.png
-    - assets/images/aadarsha.jpeg
-    - assets/images/menu_1.png
-    - assets/images/menu_2.png
-    - assets/images/menu_3.png
-    - assets/images/menu_4.png
-    - assets/images/btn_next.png
-    - assets/images/shopping_cart.png
-    - assets/images/search.png
+    - assets/images/
+    - assets/fonts/
 
   fonts:
     - family: Metropolis

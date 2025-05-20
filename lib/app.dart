@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/more/more_options_view.dart';
+import 'package:fooddelivery_b/more/my_order_view.dart';
 import 'package:fooddelivery_b/view/about_us_view.dart';
 import 'package:fooddelivery_b/view/dashboard_view.dart';
 import 'package:fooddelivery_b/view/forgot_password_view.dart';
@@ -16,7 +18,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Mitho Bites',
       debugShowCheckedModeBanner: false,
-      home: (SplashScreen()), // Set the SplashScreen as home screen
+      home: (MoreOptionsView()), // Set the SplashScreen as home screen
     );
   }
 }
