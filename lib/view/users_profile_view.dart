@@ -53,7 +53,7 @@ class UserProfileView extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    MaterialPageRoute(builder: (context) => SignInPage()),
                   );
                 },
                 child: const Text("OK", style: TextStyle(color: Colors.green)),

@@ -18,7 +18,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Mitho Bites',
       debugShowCheckedModeBanner: false,
-      home: (MoreOptionsView()), // Set the SplashScreen as home screen
+      home: (SplashScreen()), // Set the SplashScreen as home screen
     );
   }
 }

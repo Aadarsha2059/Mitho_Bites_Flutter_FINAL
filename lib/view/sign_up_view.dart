@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/model/sign_up_model.dart';
+
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -6,70 +8,23 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
-
-  void _signup() {
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-    final phone = _phoneController.text.trim();
-    final address = _addressController.text.trim();
-
-    if (username.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty ||
-        phone.isEmpty ||
-        address.isEmpty) {
-      _showAlertDialog(
-        title: "Missing Fields",
-        content: "Please fill in all the fields to sign up.",
-      );
-      return;
-    }
-
-    if (password.length < 6) {
-      _showAlertDialog(
-        title: "Weak Password",
-        content: "Password must be at least 6 characters long.",
-      );
-      return;
-    }
-
-    if (password != confirmPassword) {
-      _showAlertDialog(
-        title: "Password Mismatch",
-        content: "Passwords do not match. Please retype them correctly.",
-      );
-      return;
-    }
-
-    // For now, just print the values
-    print("Signup with: $username, $phone, $address");
-  }
-
-  void _showAlertDialog({required String title, required String content}) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () => Navigator.of(ctx).pop(),
-          ),
-        ],
-      ),
-    );
-  }
+  final SignUpModel _model = SignUpModel();
 
   void _navigateToLogin() {
-    print("Navigate back to Login Page");
-    Navigator.pop(context); // Assuming you push this screen from login
+    Navigator.pop(context);
+  }
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: Colors.grey.shade200,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+    );
   }
 
   @override
@@ -77,7 +32,6 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient Background
           Container(
             height: double.infinity,
             width: double.infinity,
@@ -101,7 +55,6 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
 
-          // White Container
           Padding(
             padding: const EdgeInsets.only(top: 200.0),
             child: Container(
@@ -119,7 +72,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Logo
                     Align(
                       alignment: Alignment.topRight,
                       child: CircleAvatar(
@@ -128,8 +80,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Heading
                     Text(
                       "Sign Up",
                       style: TextStyle(
@@ -149,45 +99,45 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     SizedBox(height: 30),
 
-                    // Username
                     TextField(
-                      controller: _usernameController,
+                      controller: _model.fullNameController,
+                      decoration: _inputDecoration("Full Name", Icons.person_outline),
+                    ),
+                    SizedBox(height: 20),
+
+                    TextField(
+                      controller: _model.usernameController,
                       decoration: _inputDecoration("Username", Icons.person),
                     ),
                     SizedBox(height: 20),
 
-                    // Password
                     TextField(
-                      controller: _passwordController,
+                      controller: _model.passwordController,
                       obscureText: true,
                       decoration: _inputDecoration("Password", Icons.lock),
                     ),
                     SizedBox(height: 20),
 
-                    // Confirm Password
                     TextField(
-                      controller: _confirmPasswordController,
+                      controller: _model.confirmPasswordController,
                       obscureText: true,
                       decoration: _inputDecoration("Confirm Password", Icons.lock_outline),
                     ),
                     SizedBox(height: 20),
 
-                    // Phone
                     TextField(
-                      controller: _phoneController,
+                      controller: _model.phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: _inputDecoration("Phone", Icons.phone),
                     ),
                     SizedBox(height: 20),
 
-                    // Address
                     TextField(
-                      controller: _addressController,
+                      controller: _model.addressController,
                       decoration: _inputDecoration("Address", Icons.home),
                     ),
                     SizedBox(height: 30),
 
-                    // Sign Up Button
                     Container(
                       width: double.infinity,
                       height: 55,
@@ -198,7 +148,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                       ),
                       child: ElevatedButton(
-                        onPressed: _signup,
+                        onPressed: () => _model.submit(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
@@ -214,7 +164,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     SizedBox(height: 40),
 
-                    // Navigate to Login
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Column(
@@ -248,19 +197,6 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon),
-      filled: true,
-      fillColor: Colors.grey.shade200,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
       ),
     );
   }

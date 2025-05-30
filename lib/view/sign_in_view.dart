@@ -1,66 +1,38 @@
+// lib/view/signin_view.dart
 import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/view/about_us_view.dart';
+import 'package:fooddelivery_b/view/dashboard_view.dart';
 import 'package:fooddelivery_b/view/forgot_password_view.dart';
 import 'package:fooddelivery_b/view/sign_up_view.dart';
-import 'package:fooddelivery_b/view/dashboard_view.dart'; // Add the import for DashboardView
+import 'package:fooddelivery_b/model/signin_model.dart';
 
-class LoginPage extends StatefulWidget {
+class SignInPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SignInPageState createState() => _SignInPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _SignInPageState extends State<SignInPage> {
+  final SignInModel _model = SignInModel();
 
-  void _login() {
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text;
-
-    if (username.isEmpty || password.isEmpty) {
-      _showAlertDialog(
-        title: "Missing Fields",
-        content: "Please enter both the username and password to login.",
-      );
-      return;
-    }
-
-    if (username != "admin" || password != "adminadmin") {
-      _showAlertDialog(
-        title: "Login Failed",
-        content: "Incorrect username or password.",
-      );
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => DashboardView()),
-    );
+  @override
+  void dispose() {
+    _model.dispose();
+    super.dispose();
   }
 
-  void _showAlertDialog({required String title, required String content}) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
+  void _handleLogin() {
+    if (_model.validateInputs(context)) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => DashboardView()),
+      );
+    }
   }
 
   void _navigateToSignUp() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SignUpPage()),
+      MaterialPageRoute(builder: (_) => SignUpPage()),
     );
   }
 
@@ -69,6 +41,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Stack(
         children: [
+          // Gradient Background
           Container(
             height: double.infinity,
             width: double.infinity,
@@ -80,6 +53,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
+
+          // Header
           Padding(
             padding: const EdgeInsets.only(top: 60.0, left: 22, right: 22),
             child: Row(
@@ -94,11 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.info_outline_rounded,
-                    color: Colors.white,
-                    size: 30,
-                  ),
+                  icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 30),
                   tooltip: 'About Us',
                   onPressed: () {
                     Navigator.push(
@@ -110,6 +81,8 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
+
+          // White Container
           Padding(
             padding: const EdgeInsets.only(top: 200.0),
             child: Container(
@@ -153,8 +126,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 30),
+
+                    // Username
                     TextField(
-                      controller: _usernameController,
+                      controller: _model.usernameController,
                       decoration: InputDecoration(
                         labelText: "Username",
                         prefixIcon: Icon(Icons.person),
@@ -167,8 +142,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
+
+                    // Password
                     TextField(
-                      controller: _passwordController,
+                      controller: _model.passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: "Password",
@@ -182,15 +159,15 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
+
+                    // Forgot Password
                     Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => ForgotPasswordPage(),
-                            ),
+                            MaterialPageRoute(builder: (_) => ForgotPasswordPage()),
                           );
                         },
                         child: Text(
@@ -205,6 +182,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
+
+                    // Login Button
                     Container(
                       width: double.infinity,
                       height: 55,
@@ -215,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       child: ElevatedButton(
-                        onPressed: _login,
+                        onPressed: _handleLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
@@ -230,6 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 30),
+
                     Center(
                       child: Text(
                         "We can login with other options as well..",
@@ -237,6 +217,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 16),
+
+                    // Social Buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -246,10 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                           label: Text("Facebook"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xfff5f6f7),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -262,10 +241,7 @@ class _LoginPageState extends State<LoginPage> {
                           label: Text("Google"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xff949393),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -274,6 +250,8 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     SizedBox(height: 40),
+
+                    // Sign Up Navigation
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Column(

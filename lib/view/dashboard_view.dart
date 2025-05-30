@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fooddelivery_b/view/users_profile_view.dart'; // Import UserProfileView page
-import 'package:fooddelivery_b/view/menu_view.dart'; // ✅ Import MenuView page
+import 'package:fooddelivery_b/view/users_profile_view.dart';
+import 'package:fooddelivery_b/view/menu_view.dart';
+import 'package:fooddelivery_b/model/dashboard_model.dart'; // 👈 Import the model
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -10,83 +11,23 @@ class DashboardView extends StatefulWidget {
 }
 
 class _DashboardViewState extends State<DashboardView> {
+  final DashboardModel _model = DashboardModel(); // 👈 Instance of model
   TextEditingController txtSearch = TextEditingController();
   int _selectedIndex = 0;
-
-  final List<Map<String, String>> catArr = [
-    {"image": "assets/images/cat_offer.png", "name": "Burger"},
-    {"image": "assets/images/cat_sri.png", "name": "Dal-Bhat"},
-    {"image": "assets/images/cat_3.png", "name": "Chinese"},
-    {"image": "assets/images/cat_4.png", "name": "Indian"},
-  ];
-
-  final List<Map<String, String>> popArr = [
-    {"image": "assets/images/res_1.png", "name": "Koteshwor Rooftop"},
-    {"image": "assets/images/res_2.png", "name": "Dillibazar Delicious"},
-    {"image": "assets/images/res_3.png", "name": "Kapan Crunch Restro"},
-  ];
-
-  final List<Map<String, String>> mostPopArr = [
-    {"image": "assets/images/m_res_1.png", "name": "Pizza"},
-    {"image": "assets/images/m_res_2.png", "name": "Desserts"},
-  ];
-
-  final List<Map<String, String>> recentArr = [
-    {"image": "assets/images/item_1.png", "name": "Chicken Mo:Mo"},
-    {"image": "assets/images/item_2.png", "name": "Buff Sukuti Set"},
-    {"image": "assets/images/item_3.png", "name": "Sel Roti & Aloo Tarkari"},
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: Colors.deepOrange,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.asset("assets/images/logo.png"),
-        ),
-        title: const Text(
-          "Mitho-Bites Nepal",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            fontFamily: 'Roboto',
-          ),
-        ),
-        actions: [
-          IconButton(icon: const Icon(Icons.shopping_cart), onPressed: () {}),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Namaste, Aadarsha! 🙏",
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Montserrat',
-                color: Colors.black87,
-              ),
-            ),
+            _buildGreeting(),
             const SizedBox(height: 6),
-            Row(
-              children: [
-                const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                const SizedBox(width: 4),
-                Text(
-                  "Kathmandu, Nepal",
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontFamily: 'Montserrat',
-                  ),
-                ),
-              ],
-            ),
+            _buildLocation(),
             const SizedBox(height: 16),
             _buildSearchBar(),
             const SizedBox(height: 24),
@@ -94,22 +35,64 @@ class _DashboardViewState extends State<DashboardView> {
             _buildHorizontalCategoryList(),
             const SizedBox(height: 24),
             _buildSectionTitle("🔥 Popular Restaurants"),
-            ...popArr
-                .map((res) => _buildListTile(res['image']!, res['name']!))
-                .toList(),
+            ..._model.popArr.map((res) => _buildListTile(res['image']!, res['name']!)),
             const SizedBox(height: 24),
             _buildSectionTitle("⭐ Most Loved Dishes"),
-            _buildHorizontalCardList(mostPopArr),
+            _buildHorizontalCardList(_model.mostPopArr),
             const SizedBox(height: 24),
             _buildSectionTitle("🕘 Recently Ordered"),
-            ...recentArr
-                .map((item) => _buildListTile(item['image']!, item['name']!))
-                .toList(),
+            ..._model.recentArr.map((item) => _buildListTile(item['image']!, item['name']!)),
             const SizedBox(height: 100),
           ],
         ),
       ),
       bottomNavigationBar: _buildBottomNavBar(),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.deepOrange,
+      elevation: 0,
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset("assets/images/logo.png"),
+      ),
+      title: const Text(
+        "Mitho-Bites Nepal",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
+          fontFamily: 'Roboto',
+        ),
+      ),
+      actions: [
+        IconButton(icon: const Icon(Icons.shopping_cart), onPressed: () {}),
+      ],
+    );
+  }
+
+  Widget _buildGreeting() {
+    return Text(
+      "Namaste, Aadarsha! 🙏",
+      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Montserrat',
+            color: Colors.black87,
+          ),
+    );
+  }
+
+  Widget _buildLocation() {
+    return Row(
+      children: [
+        const Icon(Icons.location_on, size: 16, color: Colors.grey),
+        const SizedBox(width: 4),
+        Text(
+          "Kathmandu, Nepal",
+          style: TextStyle(color: Colors.grey[700], fontFamily: 'Montserrat'),
+        ),
+      ],
     );
   }
 
@@ -146,10 +129,7 @@ class _DashboardViewState extends State<DashboardView> {
           ),
           TextButton(
             onPressed: () {},
-            child: const Text(
-              "View All",
-              style: TextStyle(fontFamily: 'Montserrat'),
-            ),
+            child: const Text("View All", style: TextStyle(fontFamily: 'Montserrat')),
           ),
         ],
       ),
@@ -161,9 +141,9 @@ class _DashboardViewState extends State<DashboardView> {
       height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: catArr.length,
+        itemCount: _model.catArr.length,
         itemBuilder: (context, index) {
-          var cat = catArr[index];
+          var cat = _model.catArr[index];
           return _buildCategoryCard(cat['image']!, cat['name']!);
         },
       ),
@@ -249,12 +229,7 @@ class _DashboardViewState extends State<DashboardView> {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.asset(
-              image,
-              height: 100,
-              width: 150,
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset(image, height: 100, width: 150, fit: BoxFit.cover),
           ),
           Padding(
             padding: const EdgeInsets.all(8),
