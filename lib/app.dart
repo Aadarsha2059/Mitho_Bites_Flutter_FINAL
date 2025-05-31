@@ -5,6 +5,7 @@ import 'package:fooddelivery_b/view/forgot_password_view.dart';
 import 'package:fooddelivery_b/view/sign_up_view.dart';
 import 'package:fooddelivery_b/view/users_profile_view.dart';
 import 'package:fooddelivery_b/view/menu_view.dart';
+import 'package:fooddelivery_b/view/more_view.dart';
 
 import 'view/splash_screen_view.dart'; // Correct import for splash screen from view folder
 

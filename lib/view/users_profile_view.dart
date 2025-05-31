@@ -91,7 +91,7 @@ class UserProfileView extends StatelessWidget {
               child: CircleAvatar(
                 radius: 60,
                 backgroundImage: const AssetImage(
-                  'assets/images/aadarsha.jpeg',
+                  'assets/images/aadarshaaaaaaaa.png',
                 ),
               ),
             ),
