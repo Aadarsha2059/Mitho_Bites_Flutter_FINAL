@@ -18,6 +18,7 @@ dependencies:
   flutter_timezone: ^1.0.6
   shared_preferences: ^2.2.2
   get_it: ^7.6.0 
+  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:
@@ -36,4 +37,6 @@ flutter:
       fonts:
         - asset: assets/fonts/Metropolis-Regular.otf
         - asset: assets/fonts/Metropolis-Bold.otf
-          weight: 700
+        - asset: assets/fonts/Metropolis-ExtraBold.otf  
+        - asset: assets/fonts/Metropolis-Medium.otf
+        - asset: assets/fonts/Metropolis-SemiBold.otf

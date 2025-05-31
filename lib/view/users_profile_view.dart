@@ -1,67 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fooddelivery_b/model/users_profile_model.dart';
 import 'package:fooddelivery_b/view/sign_in_view.dart';
 import 'dashboard_view.dart';
-import 'sign_up_view.dart';
 
 class UserProfileView extends StatelessWidget {
-  final TextEditingController txtName = TextEditingController(
-    text: "Aadarsha Dhakal",
-  );
-  final TextEditingController txtEmail = TextEditingController(
-    text: "aadarsha@example.com",
-  );
-  final TextEditingController txtMobile = TextEditingController(
-    text: "9800000000",
-  );
-  final TextEditingController txtAddress = TextEditingController(
-    text: "Kathmandu, Nepal",
-  );
-  final TextEditingController txtPassword = TextEditingController();
-  final TextEditingController txtConfirmPassword = TextEditingController();
+  final UserProfileModel model = UserProfileModel();
 
   UserProfileView({super.key});
-
-  void _saveProfile(BuildContext context) {
-    Fluttertoast.showToast(
-      msg: "Saved changes",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-    );
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardView()),
-      );
-    });
-  }
-
-  void _signOut(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text("Sign Out"),
-            content: const Text("Are you sure you want to sign out?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignInPage()),
-                  );
-                },
-                child: const Text("OK", style: TextStyle(color: Colors.green)),
-              ),
-            ],
-          ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,12 +32,10 @@ class UserProfileView extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 25),
-            Center(
+            const Center(
               child: CircleAvatar(
                 radius: 60,
-                backgroundImage: const AssetImage(
-                  'assets/images/aadarsha.jpeg',
-                ),
+                backgroundImage: AssetImage('assets/images/aadarsha.jpeg'),
               ),
             ),
             const SizedBox(height: 10),
@@ -101,7 +44,12 @@ class UserProfileView extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             TextButton.icon(
-              onPressed: () => _signOut(context),
+              onPressed: () => model.signOut(context, () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => SignInPage()),
+                );
+              }),
               icon: const Icon(Icons.logout, color: Colors.red),
               label: const Text(
                 "Sign Out",
@@ -113,48 +61,50 @@ class UserProfileView extends StatelessWidget {
             ProfileField(
               icon: Icons.person,
               label: "Name",
-              controller: txtName,
+              controller: model.nameController,
             ),
             ProfileField(
               icon: Icons.email,
               label: "Email",
-              controller: txtEmail,
+              controller: model.emailController,
               inputType: TextInputType.emailAddress,
             ),
             ProfileField(
               icon: Icons.phone,
               label: "Mobile No",
-              controller: txtMobile,
+              controller: model.mobileController,
               inputType: TextInputType.phone,
             ),
             ProfileField(
               icon: Icons.home,
               label: "Address",
-              controller: txtAddress,
+              controller: model.addressController,
             ),
             ProfileField(
               icon: Icons.lock,
               label: "Password",
-              controller: txtPassword,
+              controller: model.passwordController,
               obscureText: true,
             ),
             ProfileField(
               icon: Icons.lock_outline,
               label: "Confirm Password",
-              controller: txtConfirmPassword,
+              controller: model.confirmPasswordController,
               obscureText: true,
             ),
             const SizedBox(height: 25),
             ElevatedButton.icon(
               icon: const Icon(Icons.save),
               label: const Text("Save Profile"),
-              onPressed: () => _saveProfile(context),
+              onPressed: () => model.saveProfile(context, () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DashboardView()),
+                );
+              }),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 219, 217, 222),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 14,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),

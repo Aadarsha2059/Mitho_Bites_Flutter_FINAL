@@ -59,7 +59,7 @@ class _DashboardViewState extends State<DashboardView> {
         child: Image.asset("assets/images/logo.png"),
       ),
       title: const Text(
-        "Mitho-Bites Nepal",
+        "Mitho-Bites 2025",
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 22,
@@ -275,7 +275,7 @@ class _DashboardViewState extends State<DashboardView> {
             if (_selectedIndex == 1) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const MenuView()),
+                MaterialPageRoute(builder: (context) =>  MenuPage()),
               );
             } else if (_selectedIndex == 2) {
               Navigator.push(

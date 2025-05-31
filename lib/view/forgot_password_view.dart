@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/model/forgot_password_model.dart';
+
 
 class ForgotPasswordPage extends StatefulWidget {
   @override
@@ -6,42 +8,33 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final _emailController = TextEditingController();
+  final model = ForgotPasswordModel();
 
-  void _sendResetLink() {
-    final email = _emailController.text.trim();
+  @override
+  void dispose() {
+    model.emailController.dispose();
+    super.dispose();
+  }
 
-    if (email.isEmpty || !email.contains('@')) {
-      _showDialog(
-        title: 'Invalid Email',
-        content: 'Please enter a valid email address to reset your password.',
-      );
-      return;
-    }
-
-    // Simulate sending email
-    _showDialog(
-      title: 'Reset Link Sent',
-      content:
-          'A password reset link has been sent to your email. Please check your inbox.',
+  void _showDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text("OK"),
+          ),
+        ],
+      ),
     );
   }
 
-  void _showDialog({required String title, required String content}) {
-    showDialog(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Text(title),
-            content: Text(content),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: Text("OK"),
-              ),
-            ],
-          ),
-    );
+  void _handleReset() {
+    final result = model.validateAndSendLink();
+    _showDialog(result['title']!, result['content']!);
   }
 
   @override
@@ -49,7 +42,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient Background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -66,8 +58,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 60),
-
-                    // Title
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -75,13 +65,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(255, 133, 182, 255),
+                          color: Color.fromARGB(255, 133, 182, 255),
                         ),
                       ),
                     ),
                     const SizedBox(height: 40),
-
-                    // Card-like white container
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -97,7 +85,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                       child: Column(
                         children: [
-                          // Instruction
                           Text(
                             "Enter your registered email below. We’ll send you a link to reset your password.",
                             textAlign: TextAlign.center,
@@ -107,10 +94,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             ),
                           ),
                           const SizedBox(height: 30),
-
-                          // Email field
                           TextField(
-                            controller: _emailController,
+                            controller: model.emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: "Enter Address",
@@ -124,8 +109,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             ),
                           ),
                           const SizedBox(height: 30),
-
-                          // Reset Password Button
                           Container(
                             width: double.infinity,
                             height: 55,
@@ -136,7 +119,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               ),
                             ),
                             child: ElevatedButton(
-                              onPressed: _sendResetLink,
+                              onPressed: _handleReset,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.transparent,
                                 shadowColor: Colors.transparent,
@@ -154,8 +137,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             ),
                           ),
                           const SizedBox(height: 20),
-
-                          // Back to Login
                           TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: Text(
