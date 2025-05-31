@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fooddelivery_b/view/users_profile_view.dart'; // Import UserProfileView page
-import 'package:fooddelivery_b/view/menu_view.dart'; // ✅ Import MenuView page
+import 'package:fooddelivery_b/model/dashboard_model.dart';
+import 'package:fooddelivery_b/view/users_profile_view.dart';
+import 'package:fooddelivery_b/view/menu_view.dart';
+
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -10,32 +12,13 @@ class DashboardView extends StatefulWidget {
 }
 
 class _DashboardViewState extends State<DashboardView> {
-  TextEditingController txtSearch = TextEditingController();
-  int _selectedIndex = 0;
+  final DashboardModel model = DashboardModel();
 
-  final List<Map<String, String>> catArr = [
-    {"image": "assets/images/cat_offer.png", "name": "Burger"},
-    {"image": "assets/images/cat_sri.png", "name": "Dal-Bhat"},
-    {"image": "assets/images/cat_3.png", "name": "Chinese"},
-    {"image": "assets/images/cat_4.png", "name": "Indian"},
-  ];
-
-  final List<Map<String, String>> popArr = [
-    {"image": "assets/images/res_1.png", "name": "Koteshwor Rooftop"},
-    {"image": "assets/images/res_2.png", "name": "Dillibazar Delicious"},
-    {"image": "assets/images/res_3.png", "name": "Kapan Crunch Restro"},
-  ];
-
-  final List<Map<String, String>> mostPopArr = [
-    {"image": "assets/images/m_res_1.png", "name": "Pizza"},
-    {"image": "assets/images/m_res_2.png", "name": "Desserts"},
-  ];
-
-  final List<Map<String, String>> recentArr = [
-    {"image": "assets/images/item_1.png", "name": "Chicken Mo:Mo"},
-    {"image": "assets/images/item_2.png", "name": "Buff Sukuti Set"},
-    {"image": "assets/images/item_3.png", "name": "Sel Roti & Aloo Tarkari"},
-  ];
+  @override
+  void dispose() {
+    model.disposeControllers();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,10 +51,10 @@ class _DashboardViewState extends State<DashboardView> {
             Text(
               "Namaste, Aadarsha! 🙏",
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Montserrat',
-                color: Colors.black87,
-              ),
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Montserrat',
+                    color: Colors.black87,
+                  ),
             ),
             const SizedBox(height: 6),
             Row(
@@ -94,15 +77,15 @@ class _DashboardViewState extends State<DashboardView> {
             _buildHorizontalCategoryList(),
             const SizedBox(height: 24),
             _buildSectionTitle("🔥 Popular Restaurants"),
-            ...popArr
+            ...model.popArr
                 .map((res) => _buildListTile(res['image']!, res['name']!))
                 .toList(),
             const SizedBox(height: 24),
             _buildSectionTitle("⭐ Most Loved Dishes"),
-            _buildHorizontalCardList(mostPopArr),
+            _buildHorizontalCardList(model.mostPopArr),
             const SizedBox(height: 24),
             _buildSectionTitle("🕘 Recently Ordered"),
-            ...recentArr
+            ...model.recentArr
                 .map((item) => _buildListTile(item['image']!, item['name']!))
                 .toList(),
             const SizedBox(height: 100),
@@ -115,7 +98,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   Widget _buildSearchBar() {
     return TextField(
-      controller: txtSearch,
+      controller: model.txtSearch,
       decoration: InputDecoration(
         hintText: "Search for momo, thakali, sel roti...",
         prefixIcon: const Icon(Icons.search),
@@ -161,9 +144,9 @@ class _DashboardViewState extends State<DashboardView> {
       height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: catArr.length,
+        itemCount: model.catArr.length,
         itemBuilder: (context, index) {
-          var cat = catArr[index];
+          var cat = model.catArr[index];
           return _buildCategoryCard(cat['image']!, cat['name']!);
         },
       ),
@@ -293,16 +276,16 @@ class _DashboardViewState extends State<DashboardView> {
         ],
       ),
       child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
+        currentIndex: model.selectedIndex,
         onTap: (int index) {
           setState(() {
-            _selectedIndex = index;
-            if (_selectedIndex == 1) {
+            model.updateSelectedIndex(index);
+            if (model.selectedIndex == 1) {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const MenuView()),
               );
-            } else if (_selectedIndex == 2) {
+            } else if (model.selectedIndex == 2) {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => UserProfileView()),

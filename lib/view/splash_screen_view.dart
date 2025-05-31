@@ -77,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen>
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => LoginPage(),
+          builder: (_) => SignInView(),
         ), // Navigate to LoginPage after splash
       );
     });

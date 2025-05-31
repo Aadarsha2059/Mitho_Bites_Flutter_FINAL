@@ -53,7 +53,7 @@ class UserProfileView extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    MaterialPageRoute(builder: (context) => SignInView()),
                   );
                 },
                 child: const Text("OK", style: TextStyle(color: Colors.green)),
@@ -116,10 +116,10 @@ class UserProfileView extends StatelessWidget {
               controller: txtName,
             ),
             ProfileField(
-              icon: Icons.email,
-              label: "Email",
+              icon: Icons.verified_user_rounded,
+              label: "Username",
               controller: txtEmail,
-              inputType: TextInputType.emailAddress,
+              inputType: TextInputType.text,
             ),
             ProfileField(
               icon: Icons.phone,

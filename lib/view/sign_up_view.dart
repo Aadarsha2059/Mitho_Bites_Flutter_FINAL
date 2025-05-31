@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/model/sign_up_model.dart';
+
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -6,70 +8,31 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
+  late SignUpModel _model;
 
-  void _signup() {
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-    final phone = _phoneController.text.trim();
-    final address = _addressController.text.trim();
-
-    if (username.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty ||
-        phone.isEmpty ||
-        address.isEmpty) {
-      _showAlertDialog(
-        title: "Missing Fields",
-        content: "Please fill in all the fields to sign up.",
-      );
-      return;
-    }
-
-    if (password.length < 6) {
-      _showAlertDialog(
-        title: "Weak Password",
-        content: "Password must be at least 6 characters long.",
-      );
-      return;
-    }
-
-    if (password != confirmPassword) {
-      _showAlertDialog(
-        title: "Password Mismatch",
-        content: "Passwords do not match. Please retype them correctly.",
-      );
-      return;
-    }
-
-    // For now, just print the values
-    print("Signup with: $username, $phone, $address");
+  @override
+  void initState() {
+    super.initState();
+    _model = SignUpModel(context: context);
   }
 
-  void _showAlertDialog({required String title, required String content}) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () => Navigator.of(ctx).pop(),
-          ),
-        ],
+  @override
+  void dispose() {
+    _model.dispose();
+    super.dispose();
+  }
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: Colors.grey.shade200,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
-  }
-
-  void _navigateToLogin() {
-    print("Navigate back to Login Page");
-    Navigator.pop(context); // Assuming you push this screen from login
   }
 
   @override
@@ -77,10 +40,8 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient Background
+          // Background gradient
           Container(
-            height: double.infinity,
-            width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xffB81736), Color(0xff281537)],
@@ -88,6 +49,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 end: Alignment.bottomCenter,
               ),
             ),
+            height: double.infinity,
+            width: double.infinity,
             child: const Padding(
               padding: EdgeInsets.only(top: 60.0, left: 22),
               child: Text(
@@ -101,12 +64,10 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
 
-          // White Container
+          // White card
           Padding(
             padding: const EdgeInsets.only(top: 200.0),
             child: Container(
-              height: double.infinity,
-              width: double.infinity,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -119,7 +80,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Logo
                     Align(
                       alignment: Alignment.topRight,
                       child: CircleAvatar(
@@ -128,8 +88,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-
-                    // Heading
                     Text(
                       "Sign Up",
                       style: TextStyle(
@@ -149,45 +107,47 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     SizedBox(height: 30),
 
-                    // Username
+                    // Form fields
                     TextField(
-                      controller: _usernameController,
+                      controller: _model.fullNameController,
+                      decoration: _inputDecoration("Full Name", Icons.person_outline),
+                    ),
+                    SizedBox(height: 20),
+
+                    TextField(
+                      controller: _model.usernameController,
                       decoration: _inputDecoration("Username", Icons.person),
                     ),
                     SizedBox(height: 20),
 
-                    // Password
                     TextField(
-                      controller: _passwordController,
+                      controller: _model.passwordController,
                       obscureText: true,
                       decoration: _inputDecoration("Password", Icons.lock),
                     ),
                     SizedBox(height: 20),
 
-                    // Confirm Password
                     TextField(
-                      controller: _confirmPasswordController,
+                      controller: _model.confirmPasswordController,
                       obscureText: true,
                       decoration: _inputDecoration("Confirm Password", Icons.lock_outline),
                     ),
                     SizedBox(height: 20),
 
-                    // Phone
                     TextField(
-                      controller: _phoneController,
+                      controller: _model.phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: _inputDecoration("Phone", Icons.phone),
                     ),
                     SizedBox(height: 20),
 
-                    // Address
                     TextField(
-                      controller: _addressController,
+                      controller: _model.addressController,
                       decoration: _inputDecoration("Address", Icons.home),
                     ),
                     SizedBox(height: 30),
 
-                    // Sign Up Button
+                    // Sign up button
                     Container(
                       width: double.infinity,
                       height: 55,
@@ -198,7 +158,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                       ),
                       child: ElevatedButton(
-                        onPressed: _signup,
+                        onPressed: _model.signup,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
@@ -214,7 +174,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     SizedBox(height: 40),
 
-                    // Navigate to Login
+                    // Navigate to login
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Column(
@@ -228,7 +188,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: _navigateToLogin,
+                            onTap: _model.navigateToLogin,
                             child: Text(
                               "Back to Login",
                               style: TextStyle(
@@ -248,19 +208,6 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon),
-      filled: true,
-      fillColor: Colors.grey.shade200,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
       ),
     );
   }

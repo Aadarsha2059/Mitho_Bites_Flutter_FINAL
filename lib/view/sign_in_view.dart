@@ -1,67 +1,36 @@
+// lib/view/sign_in_view.dart
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/model/sign_in_model.dart';
 import 'package:fooddelivery_b/view/about_us_view.dart';
 import 'package:fooddelivery_b/view/forgot_password_view.dart';
 import 'package:fooddelivery_b/view/sign_up_view.dart';
-import 'package:fooddelivery_b/view/dashboard_view.dart'; // Add the import for DashboardView
+import 'package:fooddelivery_b/view/dashboard_view.dart';
 
-class LoginPage extends StatefulWidget {
+class SignInView extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SignInViewState createState() => _SignInViewState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _SignInViewState extends State<SignInView> {
+  final SignInModel _model = SignInModel();
 
   void _login() {
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text;
-
-    if (username.isEmpty || password.isEmpty) {
-      _showAlertDialog(
-        title: "Missing Fields",
-        content: "Please enter both the username and password to login.",
+    if (_model.validateCredentials(context)) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => DashboardView()),
       );
-      return;
     }
-
-    if (username != "admin" || password != "adminadmin") {
-      _showAlertDialog(
-        title: "Login Failed",
-        content: "Incorrect username or password.",
-      );
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => DashboardView()),
-    );
-  }
-
-  void _showAlertDialog({required String title, required String content}) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   void _navigateToSignUp() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SignUpPage()),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => SignUpPage()));
+  }
+
+  @override
+  void dispose() {
+    _model.dispose();
+    super.dispose();
   }
 
   @override
@@ -70,8 +39,6 @@ class _LoginPageState extends State<LoginPage> {
       body: Stack(
         children: [
           Container(
-            height: double.infinity,
-            width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xffB81736), Color(0xff281537)],
@@ -94,18 +61,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.info_outline_rounded,
-                    color: Colors.white,
-                    size: 30,
-                  ),
+                  icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 30),
                   tooltip: 'About Us',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => AboutUsView()),
-                    );
-                  },
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AboutUsView())),
                 ),
               ],
             ),
@@ -113,14 +71,9 @@ class _LoginPageState extends State<LoginPage> {
           Padding(
             padding: const EdgeInsets.only(top: 200.0),
             child: Container(
-              height: double.infinity,
-              width: double.infinity,
               decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                ),
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(40), topRight: Radius.circular(40)),
               ),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -135,26 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Text(
-                      "Login Page",
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff281537),
-                      ),
-                    ),
+                    Text("Login Page", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xff281537))),
                     SizedBox(height: 8),
-                    Text(
-                      "Mitho_Bites Nepal",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Color(0xffB81736),
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
+                    Text("Mitho_Bites Nepal", style: TextStyle(fontSize: 18, color: Color(0xffB81736), fontStyle: FontStyle.italic)),
                     SizedBox(height: 30),
                     TextField(
-                      controller: _usernameController,
+                      controller: _model.usernameController,
                       decoration: InputDecoration(
                         labelText: "Username",
                         prefixIcon: Icon(Icons.person),
@@ -168,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 20),
                     TextField(
-                      controller: _passwordController,
+                      controller: _model.passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: "Password",
@@ -185,14 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ForgotPasswordPage(),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ForgotPasswordPage())),
                         child: Text(
                           "Forgot Password?",
                           style: TextStyle(
@@ -219,23 +151,13 @@ class _LoginPageState extends State<LoginPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
-                        child: const Text(
-                          "Login",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
+                        child: const Text("Login", style: TextStyle(fontSize: 18, color: Colors.white)),
                       ),
                     ),
                     SizedBox(height: 30),
-                    Center(
-                      child: Text(
-                        "We can login with other options as well..",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
+                    Center(child: Text("We can login with other options as well..")),
                     SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -246,13 +168,8 @@ class _LoginPageState extends State<LoginPage> {
                           label: Text("Facebook"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xfff5f6f7),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
                         SizedBox(width: 20),
@@ -262,13 +179,8 @@ class _LoginPageState extends State<LoginPage> {
                           label: Text("Google"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xff949393),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
                       ],
@@ -279,23 +191,10 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            "Don't have an account?",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                            ),
-                          ),
+                          Text("Don't have an account?", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                           GestureDetector(
                             onTap: _navigateToSignUp,
-                            child: Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17,
-                                color: Colors.black,
-                              ),
-                            ),
+                            child: Text("Sign Up", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black)),
                           ),
                         ],
                       ),

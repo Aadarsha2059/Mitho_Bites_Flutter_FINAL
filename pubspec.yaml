@@ -24,34 +24,14 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/logo.png
-    - assets/images/efood.png
-    - assets/images/add.png
-    - assets/images/app_logo.png
-    - assets/images/cat_offer.png
-    - assets/images/cat_sri.png
-    - assets/images/cat_3.png
-    - assets/images/cat_4.png
-    - assets/images/res_1.png
-    - assets/images/res_2.png
-    - assets/images/res_3.png
-    - assets/images/m_res_1.png
-    - assets/images/m_res_2.png
-    - assets/images/item_1.png
-    - assets/images/item_2.png
-    - assets/images/item_3.png
-    - assets/images/aadarsha.jpeg
-    - assets/images/menu_1.png
-    - assets/images/menu_2.png
-    - assets/images/menu_3.png
-    - assets/images/menu_4.png
-    - assets/images/btn_next.png
-    - assets/images/shopping_cart.png
-    - assets/images/search.png
-
+    - assets/images/
+    - assets/icons/
   fonts:
     - family: Metropolis
       fonts:
         - asset: assets/fonts/Metropolis-Regular.otf
         - asset: assets/fonts/Metropolis-Bold.otf
-          weight: 700
+        - asset: assets/fonts/Metropolis-ExtraBold.otf
+        - asset: assets/fonts/Metropolis-SemiBold.otf
+        - asset: assets/fonts/Metropolis-Medium.otf
+
