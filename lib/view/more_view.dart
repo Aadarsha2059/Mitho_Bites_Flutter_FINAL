@@ -45,11 +45,11 @@ class MoreView extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const OrderHistoryPage())),
           ),
           _buildMoreItem(
-            icon: Icons.local_offer,
-            title: 'Offers & Coupons',
+            icon: Icons.food_bank,
+            title: 'Khana Khajana',
             onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const OffersPage())),
-            iconColor: Colors.green.shade100,
+                MaterialPageRoute(builder: (_) => const KhanaKhajanaPage())),
+            iconColor: Colors.red.shade100,
           ),
           _buildMoreItem(
             icon: Icons.stars,
@@ -112,31 +112,48 @@ class OrderHistoryPage extends StatelessWidget {
   }
 }
 
-class OffersPage extends StatelessWidget {
-  const OffersPage({super.key});
+class KhanaKhajanaPage extends StatelessWidget {
+  const KhanaKhajanaPage({super.key});
+
+  final List<String> foodFacts = const [
+    "1. Carrots were originally purple in color.",
+    "2. Honey never spoils. Archaeologists found 3000-year-old honey in Egyptian tombs!",
+    "3. Apples float because 25% of their volume is air.",
+    "4. Bananas are berries, but strawberries are not!",
+    "5. Dark chocolate is rich in antioxidants and improves heart health.",
+    "6. Watermelons are 92% water – perfect for hydration.",
+    "7. Broccoli contains more protein than steak (per calorie)!",
+    "8. Yogurt boosts digestion and contains probiotics.",
+    "9. Garlic can help reduce blood pressure naturally.",
+    "10. Spinach was made popular by Popeye – and it’s actually very rich in iron.",
+    "11. Avocados contain healthy fats good for brain function.",
+    "12. Chia seeds can absorb up to 10x their weight in water.",
+    "13. Oats help reduce cholesterol and are great for your heart.",
+    "14. Lemons have more sugar than strawberries – yet still taste sour.",
+    "15. Mushrooms are the only plant-based source of natural vitamin D.",
+    "16. Red bell peppers have more vitamin C than oranges.",
+    "17. Eating spicy food may boost your metabolism.",
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Offers & Coupons'), backgroundColor: Colors.deepOrange),
-      body: ListView(
+      appBar: AppBar(title: const Text('Khana Khajana'), backgroundColor: Colors.deepOrange),
+      body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        children: const [
-          Card(
+        itemCount: foodFacts.length,
+        itemBuilder: (context, index) {
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8),
             child: ListTile(
-              title: Text('50% OFF on your first order'),
-              subtitle: Text('Use code: FIRST50'),
-              trailing: Icon(Icons.card_giftcard),
+              leading: const Icon(Icons.food_bank_outlined, color: Colors.deepOrange),
+              title: Text(
+                foodFacts[index],
+                style: const TextStyle(fontSize: 16),
+              ),
             ),
-          ),
-          Card(
-            child: ListTile(
-              title: Text('Free delivery on orders above Rs.500'),
-              subtitle: Text('No coupon needed'),
-              trailing: Icon(Icons.delivery_dining),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

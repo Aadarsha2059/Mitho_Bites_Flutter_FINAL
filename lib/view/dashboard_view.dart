@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/model/dashboard_model.dart';
+import 'package:fooddelivery_b/view/more_view.dart';
+import 'package:fooddelivery_b/view/partypalace_view.dart';
 import 'package:fooddelivery_b/view/users_profile_view.dart';
 import 'package:fooddelivery_b/view/menu_view.dart';
 
@@ -288,7 +290,12 @@ class _DashboardViewState extends State<DashboardView> {
             } else if (model.selectedIndex == 2) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UserProfileView()),
+                MaterialPageRoute(builder: (context) =>  PartyPalaceView()),
+              );
+            } else if (model.selectedIndex == 3) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>  MoreView()),
               );
             }
           });
@@ -299,7 +306,7 @@ class _DashboardViewState extends State<DashboardView> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.menu), label: "Menu"),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore Palaces"),
           BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: "More"),
         ],
       ),

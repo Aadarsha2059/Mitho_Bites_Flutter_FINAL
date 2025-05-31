@@ -6,9 +6,10 @@ import 'package:fooddelivery_b/view/sign_up_view.dart';
 import 'package:fooddelivery_b/view/users_profile_view.dart';
 import 'package:fooddelivery_b/view/menu_view.dart';
 import 'package:fooddelivery_b/view/more_view.dart';
+import 'package:fooddelivery_b/view/partypalace_view.dart';
 
-import 'view/splash_screen_view.dart'; // Correct import for splash screen from view folder
 
+import 'view/splash_screen_view.dart'; 
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -17,7 +18,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Mitho Bites',
       debugShowCheckedModeBanner: false,
-      home: (SplashScreen()), // Set the SplashScreen as home screen
+      home: (DashboardView()), 
     );
   }
 }

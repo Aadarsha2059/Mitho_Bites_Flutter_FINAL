@@ -12,8 +12,15 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  flutter_rating_bar: ^4.0.0
   dartz: ^0.10.1
   fluttertoast: ^8.2.4
+
+  # ✅ Google Maps & Location dependencies
+  google_maps_flutter: ^2.5.0
+  location: ^5.0.3
+  geolocator: ^10.1.0
+  permission_handler: ^11.3.0
 
 dev_dependencies:
   flutter_test:
@@ -26,6 +33,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+
   fonts:
     - family: Metropolis
       fonts:
@@ -34,4 +42,3 @@ flutter:
         - asset: assets/fonts/Metropolis-ExtraBold.otf
         - asset: assets/fonts/Metropolis-SemiBold.otf
         - asset: assets/fonts/Metropolis-Medium.otf
-
