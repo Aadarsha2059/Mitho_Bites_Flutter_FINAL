@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/features/user/presentation/view/login_view.dart';
 import 'package:fooddelivery_b/theme/theme_data.dart';
 import 'package:fooddelivery_b/view/about_us_view.dart';
 import 'package:fooddelivery_b/view/dashboard_view.dart';
@@ -21,7 +22,7 @@ class App extends StatelessWidget {
       title: 'Mitho Bites',
       debugShowCheckedModeBanner: false,
       theme: getApplicationTheme(), // Apply the custom theme
-      home: const DashboardView(), // Set your home screen
+      home: const LoginView(), // Set your home screen
     );
   }
 }
