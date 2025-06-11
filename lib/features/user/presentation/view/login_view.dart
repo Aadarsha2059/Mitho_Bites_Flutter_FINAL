@@ -55,7 +55,7 @@ class _LoginViewState extends State<LoginView> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    // You can add info button if needed, or remove
+                    //  add info button if needed, or remove
                     // IconButton(
                     //   icon: const Icon(Icons.info_outline_rounded, color: Colors.white, size: 30),
                     //   tooltip: 'About Us',

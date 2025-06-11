@@ -20,7 +20,7 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
     if (event.context.mounted) {
       Navigator.push(
         event.context,
-        MaterialPageRoute(builder: (_) => const RegisterView()),
+        MaterialPageRoute(builder: (_) => RegisterView()),
       );
     }
   }
