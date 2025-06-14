@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
+import 'package:fooddelivery_b/app/constant/api_constants.dart';
 import 'package:fooddelivery_b/core/network/dio_error_interceptor.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
