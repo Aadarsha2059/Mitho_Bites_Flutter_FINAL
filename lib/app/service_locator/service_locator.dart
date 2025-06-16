@@ -35,6 +35,10 @@ Future<void> _initStuModule() async {
     () => UserLocalDatasource(hiveservice: serviceLocator<HiveService>()),
   );
 
+  // serviceLocator.registerFactory(
+  //   () => UserRemoteDatasource(apiService: serviceLocator<ApiService>()),
+  // );
+
   serviceLocator.registerFactory(
     () => UserLocalRepository(
       userLocalDatasource: serviceLocator<UserLocalDatasource>(),
