@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:fooddelivery_b/app/constant/api_constants.dart';
+import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/features/user/data/datasource/user_data_source.dart';
 import 'package:fooddelivery_b/features/user/data/model/user_api_model.dart';

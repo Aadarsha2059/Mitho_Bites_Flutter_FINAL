@@ -10,7 +10,6 @@ class RegisterUserParams extends Equatable {
   final String fullname;
   final String username;
   final String password;
-  final String confirmpassword;
   final String phone;
   final String address;
 
@@ -18,7 +17,6 @@ class RegisterUserParams extends Equatable {
     required this.fullname,
     required this.username,
     required this.password,
-    required this.confirmpassword,
     required this.phone,
     required this.address,
   });
@@ -28,7 +26,7 @@ class RegisterUserParams extends Equatable {
     required this.fullname,
     required this.username,
     required this.password,
-    required this.confirmpassword,
+   
     required this.phone,
     required this.address,
   });
@@ -38,7 +36,6 @@ class RegisterUserParams extends Equatable {
     fullname,
     username,
     password,
-    confirmpassword,
     phone,
     address,
   ];
@@ -57,7 +54,7 @@ class UserRegisterUsecase
       fullname: params.fullname,
       username: params.username,
       password: params.password,
-      confirmpassword: params.confirmpassword,
+     
       phone: params.phone,
       address: params.address,
     );

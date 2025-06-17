@@ -1,3 +1,4 @@
+// register_event.dart
 abstract class RegisterEvent {}
 
 class FullNameChanged extends RegisterEvent {

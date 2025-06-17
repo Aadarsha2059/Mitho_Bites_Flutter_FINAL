@@ -3,8 +3,6 @@ import 'package:fooddelivery_b/features/user/presentation/view_model/register_vi
 import 'package:fooddelivery_b/features/user/presentation/view_model/register_view_model/register_view_model.dart';
 import 'package:provider/provider.dart';
 
-
-
 class RegisterView extends StatelessWidget {
   const RegisterView({super.key});
 

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
-import 'app.dart'; // Import App widget
+import 'package:hive_flutter/hive_flutter.dart';
+import 'app.dart';
+import 'core/network/hive_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const App()); // Run the App
+  await Hive.initFlutter();         // Initialize Hive for Flutter
+
+  await HiveService().init();       // Open Hive boxes
+
+  runApp(const App());
 }

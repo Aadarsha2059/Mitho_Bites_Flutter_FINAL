@@ -1,3 +1,4 @@
+// register_state.dart
 class RegisterState {
   final String fullName;
   final String username;
@@ -5,8 +6,9 @@ class RegisterState {
   final String confirmPassword;
   final String phone;
   final String address;
-  final String? errorMessage;
+
   final bool isSubmitting;
+  final String? errorMessage;
   final bool isSuccess;
 
   RegisterState({
@@ -16,8 +18,8 @@ class RegisterState {
     this.confirmPassword = '',
     this.phone = '',
     this.address = '',
-    this.errorMessage,
     this.isSubmitting = false,
+    this.errorMessage,
     this.isSuccess = false,
   });
 
@@ -28,8 +30,8 @@ class RegisterState {
     String? confirmPassword,
     String? phone,
     String? address,
-    String? errorMessage,
     bool? isSubmitting,
+    String? errorMessage,
     bool? isSuccess,
   }) {
     return RegisterState(
@@ -39,8 +41,8 @@ class RegisterState {
       confirmPassword: confirmPassword ?? this.confirmPassword,
       phone: phone ?? this.phone,
       address: address ?? this.address,
-      errorMessage: errorMessage,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      errorMessage: errorMessage,
       isSuccess: isSuccess ?? this.isSuccess,
     );
   }

@@ -13,6 +13,7 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
     on<LoginWithUsernameAndPasswordEvent>(_onLoginWithUsernameAndPassword);
   }
 
+
   void _onNavigateToRegisterView(
     NavigateToRegisterViewEvent event,
     Emitter<LoginState> emit,
