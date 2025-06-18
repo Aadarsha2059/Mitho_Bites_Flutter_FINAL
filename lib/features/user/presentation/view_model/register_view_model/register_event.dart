@@ -1,34 +1,25 @@
-// register_event.dart
-abstract class RegisterEvent {}
+import 'package:flutter/material.dart';
 
-class FullNameChanged extends RegisterEvent {
-  final String fullName;
-  FullNameChanged(this.fullName);
-}
+@immutable
+sealed class RegisterEvent {}
 
-class UsernameChanged extends RegisterEvent {
+
+class RegisterUserEvent extends RegisterEvent {
+  final BuildContext context;
+  final String fullname;
   final String username;
-  UsernameChanged(this.username);
-}
-
-class PasswordChanged extends RegisterEvent {
   final String password;
-  PasswordChanged(this.password);
-}
-
-class ConfirmPasswordChanged extends RegisterEvent {
-  final String confirmPassword;
-  ConfirmPasswordChanged(this.confirmPassword);
-}
-
-class PhoneChanged extends RegisterEvent {
   final String phone;
-  PhoneChanged(this.phone);
-}
-
-class AddressChanged extends RegisterEvent {
   final String address;
-  AddressChanged(this.address);
+
+  RegisterUserEvent({
+    required this.context,
+    required this.fullname,
+    required this.username,
+    required this.password,
+    required this.phone,
+    required this.address,
+  });
 }
 
-class SubmitRegistration extends RegisterEvent {}
+

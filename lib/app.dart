@@ -23,7 +23,7 @@ class App extends StatelessWidget {
       title: 'Mitho Bites',
       debugShowCheckedModeBanner: false,
       theme: getApplicationTheme(),
-      home: const LoginView(),
+      home: LoginView(),
     );
   }
 }
