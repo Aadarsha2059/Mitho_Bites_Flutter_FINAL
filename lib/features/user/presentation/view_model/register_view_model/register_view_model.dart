@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fooddelivery_b/core/common/snackbar/my_snackbar.dart';
@@ -9,7 +8,7 @@ import 'package:fooddelivery_b/features/user/presentation/view_model/register_vi
 class RegisterViewModel extends Bloc<RegisterEvent, RegisterState> {
   final UserRegisterUsecase _userRegisterUsecase;
 
-  RegisterViewModel(this._userRegisterUsecase, {required BuildContext context})
+  RegisterViewModel(this._userRegisterUsecase)
       : super(const RegisterState.initial()) {
     on<RegisterUserEvent>(_onRegisterUser);
   }
@@ -36,7 +35,7 @@ class RegisterViewModel extends Bloc<RegisterEvent, RegisterState> {
         showMySnackBar(
           context: event.context,
           message: l.message,
-          color: Colors.red, 
+          color: Colors.red,
         );
       },
       (r) {
@@ -49,4 +48,3 @@ class RegisterViewModel extends Bloc<RegisterEvent, RegisterState> {
     );
   }
 }
-

@@ -1,60 +1,58 @@
-import 'package:flutter/material.dart';
-import 'package:fooddelivery_b/features/user/data/model/user_hive_model.dart';
+
+
 import 'package:fooddelivery_b/app/constant/hive_table_constant.dart';
+import 'package:fooddelivery_b/features/user/data/model/user_hive_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class HiveService {
-  late Box<UserHiveModel> _userBox;
-
   Future<void> init() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = '${directory.path}/mydbb.db';
-    print(path);
-    Hive.init(path);
+    var directory = await getApplicationDocumentsDirectory();
 
-    // Register adapters only once
-    if (!Hive.isAdapterRegistered(HiveTableConstant.userTableId)) {
-      Hive.registerAdapter(UserHiveModelAdapter());
+    
+    final hiveDbDir = Directory('${directory.path}/mydbb.db');
+    if (!await hiveDbDir.exists()) {
+      await hiveDbDir.create(recursive: true);
     }
 
-    // Open box once and keep reference
-    _userBox = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
+    Hive.init(hiveDbDir.path);
+
+    // Register adapters
+    Hive.registerAdapter(UserHiveModelAdapter());
   }
 
   Future<void> register(UserHiveModel user) async {
-    await _userBox.put(user.userId, user);
+    var box = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
+    await box.put(user.userId, user);
   }
 
-  Future<void> deleteUser(String id) async {
-    await _userBox.delete(id);
+  Future<void> deleteAuth(String id) async {
+    var box = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
+    await box.delete(id);
   }
 
-  Future<List<UserHiveModel>> getAllUser() async {
-    return _userBox.values.toList();
+  Future<List<UserHiveModel>> getAllAuth() async {
+    var box = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
+    return box.values.toList();
   }
 
-  // Return null if login fails instead of throwing
   Future<UserHiveModel?> login(String username, String password) async {
+    var box = await Hive.openBox<UserHiveModel>(HiveTableConstant.userBox);
     try {
-      final user = _userBox.values.firstWhere(
-        (element) =>
-            element.username == username && element.password == password,
+      return box.values.firstWhere(
+        (element) => element.username == username && element.password == password,
       );
-      return user;
     } catch (e) {
-      // User not found or other error
       return null;
     }
   }
 
   Future<void> clearAll() async {
-    await _userBox.clear();
-    await Hive.deleteFromDisk();
+    await Hive.deleteBoxFromDisk(HiveTableConstant.userBox);
   }
 
   Future<void> close() async {
-    await _userBox.close();
     await Hive.close();
   }
 }

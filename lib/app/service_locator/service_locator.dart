@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/core/network/hive_service.dart';
 import 'package:fooddelivery_b/features/user/data/datasource/local_datasource/user_local_datasource.dart';
+import 'package:fooddelivery_b/features/user/data/datasource/remote_datasource/user_remote_datasource.dart';
 import 'package:fooddelivery_b/features/user/data/repository/local_repository/user_local_repository.dart';
 import 'package:fooddelivery_b/features/user/domain/use_case/user_get_current_usecase.dart';
 import 'package:fooddelivery_b/features/user/domain/use_case/user_login_usecase.dart';
@@ -17,7 +18,7 @@ Future<void> initDependencies() async {
   await _initHiveService();
 
   await initApiModule();
-  await _initStuModule();
+  await _initAuthModule();
 }
 
 Future<void> _initHiveService() async {
@@ -30,14 +31,14 @@ Future<void> initApiModule() async {
   serviceLocator.registerLazySingleton(() => ApiService(serviceLocator<Dio>()));
 }
 
-Future<void> _initStuModule() async {
+Future<void> _initAuthModule() async {
   serviceLocator.registerFactory(
     () => UserLocalDatasource(hiveservice: serviceLocator<HiveService>()),
   );
 
-  // serviceLocator.registerFactory(
-  //   () => UserRemoteDatasource(apiService: serviceLocator<ApiService>()),
-  // );
+  serviceLocator.registerFactory(
+    () => UserRemoteDatasource(apiService: serviceLocator<ApiService>()),
+  );
 
   serviceLocator.registerFactory(
     () => UserLocalRepository(
@@ -62,16 +63,15 @@ Future<void> _initStuModule() async {
     ),
   );
 
-  // serviceLocator.registerFactory(
-  //   ()=> RegisterViewModel(
-  //     serviceLocator<UserRegisterUsecase>(),
-
-  //   )
-  // )
+  serviceLocator.registerFactory(
+    () => RegisterViewModel(serviceLocator<UserRegisterUsecase>()),
+  );
 
   // register login view model withoug homeviewmodel to avoid circular dependency
 
-  // serviceLocator.registerFactory(
-  //   () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
-  // );
+  serviceLocator.registerFactory(
+    () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
+  );
 }
+
+

@@ -33,11 +33,7 @@ class UserLocalDatasource implements IUserDataSource {
     }
   }
 
-  @override
-  Future<UserEntity> getCurrentuser() async {
-    // TODO: implement registerUser
-    throw UnimplementedError();
-  }
+  
   
   @override
   Future<UserEntity> getCurrentUser() {
