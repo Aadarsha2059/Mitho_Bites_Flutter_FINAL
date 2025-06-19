@@ -17,7 +17,7 @@ final serviceLocator = GetIt.instance;
 Future<void> initDependencies() async {
   await _initHiveService();
 
-  await initApiModule();
+  await _initApiModule();
   await _initAuthModule();
 }
 
@@ -25,7 +25,7 @@ Future<void> _initHiveService() async {
   serviceLocator.registerLazySingleton(() => HiveService());
 }
 
-Future<void> initApiModule() async {
+Future<void> _initApiModule() async {
   //Dio instance
   serviceLocator.registerLazySingleton<Dio>(() => Dio());
   serviceLocator.registerLazySingleton(() => ApiService(serviceLocator<Dio>()));

@@ -9,7 +9,7 @@ import 'core/network/hive_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initDependencies();
-  await Hive.initFlutter(); // Initialize Hive for Flutter
+  await Hive.initFlutter(); 
 
   await HiveService().init(); // Open Hive boxes
 
