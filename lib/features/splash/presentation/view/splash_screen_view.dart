@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/features/splash/presentation/view_model/splash_screen_view_model.dart';
 import 'package:provider/provider.dart';  // We'll need provider package for ViewModel injection
+import 'package:lottie/lottie.dart';
 
 import 'package:fooddelivery_b/view/sign_in_view.dart';
 
@@ -103,9 +104,11 @@ class _SplashScreenViewState extends State<SplashScreenView>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ScaleTransition(
-                scale: _logoAnimation,
-                child: Image.asset('assets/images/logo.png', height: 120),
+              Lottie.asset(
+                'assets/lottie/splash_food.json',
+                height: 180,
+                repeat: true,
+                animate: true,
               ),
               SizedBox(height: 20),
               SlideTransition(
@@ -130,13 +133,6 @@ class _SplashScreenViewState extends State<SplashScreenView>
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 30),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.deepOrangeAccent,
-                ),
-                strokeWidth: 4.0,
               ),
               SizedBox(height: 30),
               FadeTransition(
