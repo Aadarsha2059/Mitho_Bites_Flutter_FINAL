@@ -8,34 +8,38 @@ class CategoryApiModel extends Equatable {
   @JsonKey(name: '_id')
   final String? categoryId;
   final String name;
-  final String? image;
+  @JsonKey(name: 'filepath')
+  final String? filepath;
 
   const CategoryApiModel({
     this.categoryId,
     required this.name,
-    required this.image,
+    this.filepath,
   });
   factory CategoryApiModel.fromJson(Map<String, dynamic> json) =>
       _$CategoryApiModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$CategoryApiModelToJson(this);
 
-  // to entity
+  // to entity - Convert filepath to full image URL
   FoodCategoryEntity toEntity() {
-    return FoodCategoryEntity(categoryId: categoryId, name: name, image: image);
+    String? imageUrl;
+    if (filepath != null && filepath!.isNotEmpty) {
+      imageUrl = 'http://10.0.2.2:3000/$filepath';
+    }
+    return FoodCategoryEntity(categoryId: categoryId, name: name, image: imageUrl);
   }
 
   //from entity
   factory CategoryApiModel.fromEntity(FoodCategoryEntity entity) {
-    final category = CategoryApiModel(name: entity.name, image: entity.image);
+    final category = CategoryApiModel(name: entity.name, filepath: entity.image);
     return category;
   }
   
   @override
-  // TODO: implement props
   List<Object?> get props => [
     categoryId,
     name,
-    image,
+    filepath,
   ];
 }

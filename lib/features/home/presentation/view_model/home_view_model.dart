@@ -9,10 +9,6 @@ class HomeViewModel extends Cubit<HomeState> {
 
   HomeViewModel({required this.loginViewModel}) : super(HomeState.initial());
 
-  void onTapTapped(int index) {
-    emit(state.copyWith(selectedIndex: index));
-  }
-
   void logout(BuildContext context) {
     Future.delayed(const Duration(seconds: 2), () {
       if (context.mounted) {

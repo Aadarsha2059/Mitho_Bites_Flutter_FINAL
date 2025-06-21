@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fooddelivery_b/features/food_category/presentation/state/category_state.dart';
+import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_event.dart';
+import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_view_model.dart';
 import 'package:fooddelivery_b/model/dashboard_model.dart';
 import 'package:fooddelivery_b/view/menu_view.dart';
 import 'package:fooddelivery_b/view/more_view.dart';
@@ -13,6 +18,7 @@ class DashboardView extends StatefulWidget {
 
 class _DashboardViewState extends State<DashboardView> {
   final DashboardModel model = DashboardModel();
+  int _selectedIndex = 0;
 
   @override
   void dispose() {
@@ -43,56 +49,75 @@ class _DashboardViewState extends State<DashboardView> {
           IconButton(icon: const Icon(Icons.shopping_cart), onPressed: () {}),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Namaste, Aadarsha! 🙏",
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Montserrat',
-                    color: Colors.black87,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                const SizedBox(width: 4),
-                Text(
-                  "Kathmandu, Nepal",
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontFamily: 'Montserrat',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildSearchBar(),
-            const SizedBox(height: 24),
-            _buildSectionTitle("🍱 Food Categories"),
-            _buildHorizontalCategoryList(),
-            const SizedBox(height: 24),
-            _buildSectionTitle("🔥 Popular Restaurants"),
-            ...model.popArr
-                .map((res) => _buildListTile(res['image']!, res['name']!))
-                .toList(),
-            const SizedBox(height: 24),
-            _buildSectionTitle("⭐ Most Loved Dishes"),
-            _buildHorizontalCardList(model.mostPopArr),
-            const SizedBox(height: 24),
-            _buildSectionTitle("🕘 Recently Ordered"),
-            ...model.recentArr
-                .map((item) => _buildListTile(item['image']!, item['name']!))
-                .toList(),
-            const SizedBox(height: 100),
-          ],
-        ),
-      ),
+      body: _buildBody(),
       bottomNavigationBar: _buildBottomNavBar(),
+    );
+  }
+
+  Widget _buildBody() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildHomeContent();
+      case 1:
+        return const MenuView();
+      case 2:
+        return PartyPalaceView();
+      case 3:
+        return const MoreView();
+      default:
+        return _buildHomeContent();
+    }
+  }
+
+  Widget _buildHomeContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Namaste, Aadarsha! 🙏",
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Montserrat',
+                  color: Colors.black87,
+                ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Icon(Icons.location_on, size: 16, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(
+                "Kathmandu, Nepal",
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildSearchBar(),
+          const SizedBox(height: 24),
+          _buildSectionTitle("🍱 Food Categories"),
+          _buildHorizontalCategoryList(),
+          const SizedBox(height: 24),
+          _buildSectionTitle("🔥 Popular Restaurants"),
+          ...model.popArr
+              .map((res) => _buildListTile(res['image']!, res['name']!))
+              .toList(),
+          const SizedBox(height: 24),
+          _buildSectionTitle("⭐ Most Loved Dishes"),
+          _buildHorizontalCardList(model.mostPopArr),
+          const SizedBox(height: 24),
+          _buildSectionTitle("🕘 Recently Ordered"),
+          ...model.recentArr
+              .map((item) => _buildListTile(item['image']!, item['name']!))
+              .toList(),
+          const SizedBox(height: 100),
+        ],
+      ),
     );
   }
 
@@ -140,16 +165,65 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Widget _buildHorizontalCategoryList() {
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: model.catArr.length,
-        itemBuilder: (context, index) {
-          var cat = model.catArr[index];
-          return _buildCategoryCard(cat['image']!, cat['name']!);
-        },
-      ),
+    return BlocBuilder<CategoryViewModel, CategoryState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const SizedBox(
+            height: 100,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.errorMessage != null) {
+          return SizedBox(
+            height: 100,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, color: Colors.red, size: 30),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Error: ${state.errorMessage}',
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<CategoryViewModel>().add(const LoadCategoriesEvent());
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (state.categories.isEmpty) {
+          return const SizedBox(
+            height: 100,
+            child: Center(
+              child: Text('No categories available'),
+            ),
+          );
+        }
+
+        return SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: state.categories.length,
+            itemBuilder: (context, index) {
+              final category = state.categories[index];
+              return _buildCategoryCard(category.image ?? '', category.name);
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -159,7 +233,13 @@ class _DashboardViewState extends State<DashboardView> {
       margin: const EdgeInsets.only(right: 12),
       child: Column(
         children: [
-          CircleAvatar(radius: 30, backgroundImage: AssetImage(image)),
+          CircleAvatar(
+            radius: 30,
+            backgroundImage: _getImageProvider(image),
+            onBackgroundImageError: (exception, stackTrace) {
+              print('Error loading category image: $exception');
+            },
+          ),
           const SizedBox(height: 6),
           Text(
             name,
@@ -169,10 +249,30 @@ class _DashboardViewState extends State<DashboardView> {
               fontFamily: 'Montserrat',
             ),
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
+  }
+
+  ImageProvider _getImageProvider(String image) {
+    if (image.isEmpty) {
+      // Return a default asset image if no image URL is provided
+      return const AssetImage('assets/images/cat_offer.png');
+    }
+    
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      // Network image from MERN backend
+      return CachedNetworkImageProvider(
+        image,
+        errorListener: (error) => print('Error loading image: $error'),
+      );
+    } else {
+      // Asset image (fallback)
+      return AssetImage(image);
+    }
   }
 
   Widget _buildListTile(String image, String title) {
@@ -271,25 +371,19 @@ class _DashboardViewState extends State<DashboardView> {
         ],
       ),
       child: BottomNavigationBar(
-        currentIndex: model.selectedIndex,
+        currentIndex: _selectedIndex,
         onTap: (int index) {
           setState(() {
-            model.updateSelectedIndex(index);
-            if (model.selectedIndex == 1) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const MenuView()));
-            } else if (model.selectedIndex == 2) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PartyPalaceView()));
-            } else if (model.selectedIndex == 3) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const MoreView()));
-            }
+            _selectedIndex = index;
           });
         },
+        type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.grey[500],
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.menu), label: "Menu"),
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore Palaces"),
+          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore"),
           BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: "More"),
         ],
       ),
