@@ -10,17 +10,18 @@ import 'package:fooddelivery_b/features/user/domain/use_case/user_login_usecase.
 import 'package:fooddelivery_b/features/user/domain/use_case/user_register_usecase.dart';
 import 'package:fooddelivery_b/features/user/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:fooddelivery_b/features/user/presentation/view_model/register_view_model/register_view_model.dart';
+import 'package:fooddelivery_b/features/splash/presentation/view_model/splash_screen_view_model.dart';
 
 import 'package:get_it/get_it.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
+  await _initSplashModule();
   await _initHiveService();
 
   await _initApiModule();
   await _initAuthModule();
- 
 }
 
 Future<void> _initHiveService() async {
@@ -74,6 +75,10 @@ Future<void> _initAuthModule() async {
   serviceLocator.registerFactory(
     () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
   );
+}
+
+Future<void> _initSplashModule() async {
+  serviceLocator.registerFactory(() => SplashViewModel());
 }
 
 

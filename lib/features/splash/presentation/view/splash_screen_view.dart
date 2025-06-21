@@ -1,152 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fooddelivery_b/features/splash/presentation/view_model/splash_screen_view_model.dart';
-import 'package:provider/provider.dart';  // We'll need provider package for ViewModel injection
+import 'package:fooddelivery_b/features/splash/presentation/view_model/splash_state.dart';
+import 'package:fooddelivery_b/features/user/presentation/view/login_view.dart';
 import 'package:lottie/lottie.dart';
 
-import 'package:fooddelivery_b/view/sign_in_view.dart';
-
 class SplashScreenView extends StatefulWidget {
+  const SplashScreenView({super.key});
+
   @override
-  _SplashScreenViewState createState() => _SplashScreenViewState();
+  State<SplashScreenView> createState() => _SplashScreenViewState();
 }
 
 class _SplashScreenViewState extends State<SplashScreenView>
     with TickerProviderStateMixin {
-  late AnimationController _logoController;
   late AnimationController _textController;
-  late Animation<double> _logoAnimation;
   late Animation<Offset> _textSlideAnimation;
-
-  late AnimationController _blinkController;
-  late Animation<double> _blinkAnimation;
-
-  late SplashScreenViewModel viewModel;
 
   @override
   void initState() {
     super.initState();
-
-    viewModel = SplashScreenViewModel();
-
-    // Logo bounce animation
-    _logoController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1500),
-    );
-
-    _logoAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
-    );
-
-    _logoController.forward();
+    context.read<SplashViewModel>().startTimer();
 
     // Text slide + fade animation
     _textController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1800),
+      duration: const Duration(milliseconds: 1800),
     );
 
     _textSlideAnimation = Tween<Offset>(
-      begin: Offset(0, 1),
-      end: Offset(0, 0),
+      begin: const Offset(0, 1),
+      end: Offset.zero,
     ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
 
     _textController.forward();
-
-    // Blinking animation for text
-    _blinkController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1000),
-      lowerBound: 0.0,
-      upperBound: 1.0,
-    );
-
-    _blinkController.repeat(reverse: true);
-    _blinkAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(_blinkController);
-
-    // Start timer from ViewModel
-    viewModel.startTimer(() {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => SignInView()),
-      );
-    });
   }
 
   @override
   void dispose() {
-    _logoController.dispose();
     _textController.dispose();
-    _blinkController.dispose();
-    viewModel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.orangeAccent.shade100,
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xffB81736), // Red
-              Color(0xff281537), // Dark Maroon
-            ],
+    return BlocListener<SplashViewModel, SplashState>(
+      listener: (context, state) {
+        if (state is SplashNavigateToLogin) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => LoginView()),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.orangeAccent.shade100,
+        body: Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xffB81736), // Red
+                Color(0xff281537), // Dark Maroon
+              ],
+            ),
           ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Lottie.asset(
-                'assets/lottie/splash_food.json',
-                height: 180,
-                repeat: true,
-                animate: true,
-              ),
-              SizedBox(height: 20),
-              SlideTransition(
-                position: _textSlideAnimation,
-                child: Column(
-                  children: [
-                    Text(
-                      "Mitho Bites",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      "Delicious foods at affordable price",
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Lottie.asset(
+                  'assets/lottie/splash_food.json',
+                  height: 180,
+                  repeat: true,
+                  animate: true,
                 ),
-              ),
-              SizedBox(height: 30),
-              FadeTransition(
-                opacity: _blinkAnimation,
-                child: const Text(
-                  "Quality FOODS give Quality LIFE",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                const SizedBox(height: 20),
+                SlideTransition(
+                  position: _textSlideAnimation,
+                  child: const Column(
+                    children: [
+                      Text(
+                        "Mitho Bites",
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        "Delicious foods at affordable price",
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 16,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),

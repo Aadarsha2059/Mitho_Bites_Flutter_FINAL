@@ -1,18 +1,13 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fooddelivery_b/features/splash/presentation/view_model/splash_state.dart';
 
-class SplashScreenViewModel extends ChangeNotifier {
-  Timer? _timer;
+class SplashViewModel extends Cubit<SplashState> {
+  SplashViewModel() : super(SplashInitial());
 
-  void startTimer(VoidCallback onTimerComplete) {
-    _timer = Timer(Duration(seconds: 6), () {
-      onTimerComplete();
+  void startTimer() {
+    Timer(const Duration(seconds: 5), () {
+      emit(SplashNavigateToLogin());
     });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 }
