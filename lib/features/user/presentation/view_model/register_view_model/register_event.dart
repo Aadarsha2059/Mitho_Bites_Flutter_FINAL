@@ -11,6 +11,7 @@ class RegisterUserEvent extends RegisterEvent {
   final String password;
   final String phone;
   final String address;
+  final String email;
 
   RegisterUserEvent({
     required this.context,
@@ -19,6 +20,7 @@ class RegisterUserEvent extends RegisterEvent {
     required this.password,
     required this.phone,
     required this.address,
+    required this.email,
   });
 }
 

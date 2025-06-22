@@ -12,6 +12,7 @@ class RegisterUserParams extends Equatable {
   final String password;
   final String phone;
   final String address;
+  final String email;
 
   const RegisterUserParams({
     required this.fullname,
@@ -19,6 +20,7 @@ class RegisterUserParams extends Equatable {
     required this.password,
     required this.phone,
     required this.address,
+    required this.email,
   });
 
   //initial constructor
@@ -26,9 +28,9 @@ class RegisterUserParams extends Equatable {
     required this.fullname,
     required this.username,
     required this.password,
-   
     required this.phone,
     required this.address,
+    required this.email,
   });
 
   @override
@@ -38,6 +40,7 @@ class RegisterUserParams extends Equatable {
     password,
     phone,
     address,
+    email,
   ];
 }
 
@@ -54,9 +57,9 @@ class UserRegisterUsecase
       fullname: params.fullname,
       username: params.username,
       password: params.password,
-     
       phone: params.phone,
       address: params.address,
+      email: params.email,
     );
     return _userRepository.registerUser(userEntity);
   }

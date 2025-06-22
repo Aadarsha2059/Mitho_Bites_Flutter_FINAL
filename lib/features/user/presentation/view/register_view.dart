@@ -13,6 +13,7 @@ class RegisterView extends StatelessWidget {
     text: 'aadarsha babu dhakal',
   );
   final _usernameController = TextEditingController(text: 'aadarsha2059');
+  final _emailController = TextEditingController(text: 'aadarsha@example.com');
   final _passwordController = TextEditingController(text: 'password123');
   final _confirmPasswordController = TextEditingController(text: 'password123');
   final _phoneController = TextEditingController(text: '9800000000');
@@ -148,6 +149,19 @@ class RegisterView extends StatelessWidget {
                       ),
                       _gap,
 
+                      // Email
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: _inputDecoration("Email", Icons.email),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter email';
+                          }
+                          return null;
+                        },
+                      ),
+                      _gap,
+
                       // Password
                       TextFormField(
                         controller: _passwordController,
@@ -224,6 +238,7 @@ class RegisterView extends StatelessWidget {
                                   context: context,
                                   fullname: _fullnameController.text,
                                   username: _usernameController.text,
+                                  email: _emailController.text,
                                   password: _passwordController.text,
                                   phone: _phoneController.text,
                                   address: _addressController.text,
