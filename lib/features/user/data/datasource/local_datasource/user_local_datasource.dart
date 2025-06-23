@@ -14,12 +14,12 @@ class UserLocalDatasource implements IUserDataSource {
     try {
       final userData = await _hiveService.login(username, password);
       if (userData != null && userData.password == password) {
-        return "Login successful";
+        return "local_login_successful";
       } else {
         throw Exception("Invalid username or password");
       }
     } catch (e) {
-      throw Exception("login failed: $e");
+      throw Exception("Local login failed: $e");
     }
   }
 
@@ -29,11 +29,9 @@ class UserLocalDatasource implements IUserDataSource {
       final userHiveModel = UserHiveModel.fromEntity(user);
       await _hiveService.register(userHiveModel);
     } catch (e) {
-      throw Exception("Registration failed: $e");
+      throw Exception("Local registration failed: $e");
     }
   }
-
-  
   
   @override
   Future<UserEntity> getCurrentUser() {

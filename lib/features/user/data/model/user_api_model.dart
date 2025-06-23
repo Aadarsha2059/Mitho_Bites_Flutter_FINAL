@@ -42,13 +42,13 @@ class UserApiModel extends Equatable {
 
   factory UserApiModel.fromJson(Map<String, dynamic> json) {
     return UserApiModel(
-      userId: json['_id'],
-      fullname: json['fullname'],
-      username: json['username'],
-      password: json['password'],
-      phone: json['phone'],
-      address: json['address'],
-      email: json['email'],
+      userId: json['_id']?.toString(),
+      fullname: json['fullname']?.toString(),
+      username: json['username']?.toString(),
+      password: json['password']?.toString(),
+      phone: json['phone']?.toString(),
+      address: json['address']?.toString(),
+      email: json['email']?.toString(),
     );
   }
 

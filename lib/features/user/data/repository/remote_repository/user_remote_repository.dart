@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:fooddelivery_b/core/error/failure.dart';
-import 'package:fooddelivery_b/features/user/data/datasource/user_data_source.dart';
+import 'package:fooddelivery_b/features/user/data/datasource/remote_datasource/user_remote_datasource.dart';
 import 'package:fooddelivery_b/features/user/domain/entity/user_entity.dart';
 import 'package:fooddelivery_b/features/user/domain/repository/user_repository.dart';
 
 class UserRemoteRepository implements IUserRepository {
-  final IUserDataSource _userRemoteDatasource;
+  final UserRemoteDatasource _userRemoteDatasource;
 
-  UserRemoteRepository({required IUserDataSource userRemoteDatasource})
+  UserRemoteRepository({required UserRemoteDatasource userRemoteDatasource})
     : _userRemoteDatasource = userRemoteDatasource;
 
   @override

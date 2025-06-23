@@ -4,7 +4,7 @@ import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/core/network/hive_service.dart';
 import 'package:fooddelivery_b/features/user/data/datasource/local_datasource/user_local_datasource.dart';
 import 'package:fooddelivery_b/features/user/data/datasource/remote_datasource/user_remote_datasource.dart';
-import 'package:fooddelivery_b/features/user/data/repository/local_repository/user_local_repository.dart';
+import 'package:fooddelivery_b/features/user/domain/repository/user_repository.dart';
 import 'package:fooddelivery_b/features/user/domain/use_case/user_get_current_usecase.dart';
 import 'package:fooddelivery_b/features/user/domain/use_case/user_login_usecase.dart';
 import 'package:fooddelivery_b/features/user/domain/use_case/user_register_usecase.dart';
@@ -45,6 +45,7 @@ Future<void> _initApiModule() async {
 }
 
 Future<void> _initAuthModule() async {
+  // Data Sources
   serviceLocator.registerFactory(
     () => UserLocalDatasource(hiveservice: serviceLocator<HiveService>()),
   );
@@ -53,26 +54,28 @@ Future<void> _initAuthModule() async {
     () => UserRemoteDatasource(apiService: serviceLocator<ApiService>()),
   );
 
+  // Hybrid Repository - implemented in domain layer
   serviceLocator.registerFactory(
-    () => UserLocalRepository(
-      userLocalDatasource: serviceLocator<UserLocalDatasource>(),
+    () => UserRepository(
+      remoteDataSource: serviceLocator<UserRemoteDatasource>(),
+      localDataSource: serviceLocator<UserLocalDatasource>(),
     ),
   );
 
+  // Use Cases - Use Hybrid Repository
   serviceLocator.registerFactory(
-    () =>
-        UserLoginUsecase(userRepository: serviceLocator<UserLocalRepository>()),
+    () => UserLoginUsecase(userRepository: serviceLocator<UserRepository>()),
   );
 
   serviceLocator.registerFactory(
     () => UserRegisterUsecase(
-      userRepository: serviceLocator<UserLocalRepository>(),
+      userRepository: serviceLocator<UserRepository>(),
     ),
   );
 
   serviceLocator.registerFactory(
     () => UserGetCurrentUsecase(
-      userRepository: serviceLocator<UserLocalRepository>(),
+      userRepository: serviceLocator<UserRepository>(),
     ),
   );
 
@@ -81,7 +84,6 @@ Future<void> _initAuthModule() async {
   );
 
   // register login view model withoug homeviewmodel to avoid circular dependency
-
   serviceLocator.registerFactory(
     () => LoginViewModel(serviceLocator<UserLoginUsecase>()),
   );

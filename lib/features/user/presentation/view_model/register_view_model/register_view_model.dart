@@ -41,10 +41,6 @@ class RegisterViewModel extends Bloc<RegisterEvent, RegisterState> {
       },
       (r) {
         emit(state.copyWith(isLoading: false, isSuccess: true));
-        showMySnackBar(
-          context: event.context,
-          message: "Registration successful",
-        );
       },
     );
   }

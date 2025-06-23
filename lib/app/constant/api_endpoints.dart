@@ -1,24 +1,24 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  // Timeouts
-  static const connectionTimeout = Duration(seconds: 1000);
-  static const receiveTimeout = Duration(seconds: 1000);
+  // Timeouts - Fixed to reasonable values
+  static const connectionTimeout = Duration(seconds: 30);
+  static const receiveTimeout = Duration(seconds: 30);
 
-  // For Android Emulator
-  static const String serverAddress = "http://10.0.2.2:3000";
+  // For Android Emulator - Updated to correct port
+  static const String serverAddress = "http://10.0.2.2:5050";
 
   // For iOS Simulator
-  //static const String serverAddress = "http://localhost:3000";
+  //static const String serverAddress = "http://localhost:5050";
 
   
   static const String baseUrl = "$serverAddress/api/";
   static const String imageUrl = "$serverAddress/uploads/";
 
-  // Auth
+  // Auth - MERN Backend endpoints (CONFIRMED)
   static const String login = "auth/login";
   static const String register = "auth/register";
-  static const String getAllUser = "auth/getAllUsers";
+  // Note: getAllUsers endpoint does not exist in MERN backend
 
   // admin 
   static const String getAllCategory = "admin/category/";

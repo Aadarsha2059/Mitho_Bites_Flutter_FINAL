@@ -1,6 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:fooddelivery_b/core/error/failure.dart';
 import 'package:fooddelivery_b/features/user/domain/entity/user_entity.dart';
+import 'package:fooddelivery_b/features/user/data/datasource/local_datasource/user_local_datasource.dart';
+import 'package:fooddelivery_b/features/user/data/datasource/remote_datasource/user_remote_datasource.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 abstract interface class IUserRepository {
   Future<Either<Failure, void>> registerUser(UserEntity user);
@@ -9,3 +12,211 @@ abstract interface class IUserRepository {
 
   Future<Either<Failure, UserEntity>> getCurrentUser();
 }
+
+// Hybrid Repository Implementation
+class UserRepository implements IUserRepository {
+  final UserRemoteDatasource remoteDataSource;
+  final UserLocalDatasource localDataSource;
+
+  UserRepository({
+    required this.remoteDataSource,
+    required this.localDataSource,
+  });
+
+  // Check network connectivity
+  Future<bool> _isNetworkConnected() async {
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      return connectivityResult != ConnectivityResult.none;
+    } catch (e) {
+      print('Connectivity check failed: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> loginUser(String username, String password) async {
+    try {
+      print('=== Login User Started ===');
+      print('Username: $username');
+      
+      // Check network connectivity
+      final isNetwork = await _isNetworkConnected();
+      print('Network connected: $isNetwork');
+
+      if (isNetwork) {
+        // Network available - try remote first
+        print('Attempting remote login...');
+        try {
+          final token = await remoteDataSource.loginUser(username, password);
+          print('Remote login successful, token: ${token.substring(0, 20)}...');
+          
+          // Cache successful login locally for offline access
+          await localDataSource.registerUser(UserEntity(
+            userId: null,
+            fullname: '',
+            username: username,
+            password: password,
+            phone: '',
+            address: '',
+            email: '',
+          ));
+          print('Login data cached locally');
+          
+          return Right(token);
+        } catch (remoteError) {
+          print('Remote login failed: $remoteError');
+          print('Falling back to local login...');
+          
+          // Remote failed - fallback to local
+          try {
+            final localResult = await localDataSource.loginUser(username, password);
+            print('Local login successful');
+            return Right(localResult);
+          } catch (localError) {
+            print('Local login also failed: $localError');
+            return Left(RemoteDatabaseFailure(message: remoteError.toString()));
+          }
+        }
+      } else {
+        // No network - use local only
+        print('No network connection, attempting local login...');
+        try {
+          final localResult = await localDataSource.loginUser(username, password);
+          print('Local login successful');
+          return Right(localResult);
+        } catch (localError) {
+          print('Local login failed: $localError');
+          return Left(LocalDatabaseFailure(message: localError.toString()));
+        }
+      }
+    } catch (e) {
+      print('Login unexpected error: $e');
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> registerUser(UserEntity user) async {
+    try {
+      print('=== Register User Started ===');
+      print('Username: ${user.username}');
+      print('Email: ${user.email}');
+      
+      // Check network connectivity
+      final isNetwork = await _isNetworkConnected();
+      print('Network connected: $isNetwork');
+
+      if (isNetwork) {
+        // Network available - try remote first
+        print('Attempting remote registration...');
+        try {
+          // Add timeout to prevent hanging
+          await remoteDataSource.registerUser(user).timeout(
+            const Duration(seconds: 30),
+            onTimeout: () {
+              throw Exception('Registration timeout - server not responding');
+            },
+          );
+          print('Remote registration successful');
+          
+          // Cache successful registration locally
+          await localDataSource.registerUser(user);
+          print('Registration data cached locally');
+          
+          return const Right(null);
+        } catch (remoteError) {
+          print('Remote registration failed: $remoteError');
+          print('Falling back to local registration...');
+          
+          // Remote failed - fallback to local
+          try {
+            await localDataSource.registerUser(user);
+            print('Local registration successful');
+            return const Right(null);
+          } catch (localError) {
+            print('Local registration also failed: $localError');
+            return Left(RemoteDatabaseFailure(message: remoteError.toString()));
+          }
+        }
+      } else {
+        // No network - use local only
+        print('No network connection, attempting local registration...');
+        try {
+          await localDataSource.registerUser(user);
+          print('Local registration successful');
+          return const Right(null);
+        } catch (localError) {
+          print('Local registration failed: $localError');
+          return Left(LocalDatabaseFailure(message: localError.toString()));
+        }
+      }
+    } catch (e) {
+      print('Registration unexpected error: $e');
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> getCurrentUser() async {
+    try {
+      print('=== Get Current User Started ===');
+      
+      // Check network connectivity
+      final isNetwork = await _isNetworkConnected();
+      print('Network connected: $isNetwork');
+
+      if (isNetwork) {
+        // Network available - try remote first
+        print('Attempting remote get current user...');
+        try {
+          final user = await remoteDataSource.getCurrentUser();
+          print('Remote get current user successful');
+          return Right(user);
+        } catch (remoteError) {
+          print('Remote get current user failed: $remoteError');
+          // For getCurrentUser, we might not have a local fallback
+          return Left(RemoteDatabaseFailure(message: remoteError.toString()));
+        }
+      } else {
+        // No network - try local
+        print('No network connection, attempting local get current user...');
+        try {
+          final user = await localDataSource.getCurrentUser();
+          print('Local get current user successful');
+          return Right(user);
+        } catch (localError) {
+          print('Local get current user failed: $localError');
+          return Left(LocalDatabaseFailure(message: localError.toString()));
+        }
+      }
+    } catch (e) {
+      print('Get current user unexpected error: $e');
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+}
+
+
+//RemoteDataSource remoteDataSource =RemoteDatasource
+//LocalDataSource localdatasource= LocalDataSource
+//bool isNetwork=true
+// bool addUser(User user){
+//   // check for internte connectivity
+//   if(isNetwork){
+//     return remoteDatasource.regiterUser
+//   }
+// }
+
+//same for all three cases
+
+
+//class UserRepository{
+// finalRemoteDataSource remoteDataSource;
+// final LocalDataSource localDataSource;
+
+ //UserRepository({
+ //  required this.remoteDataSource;
+ //  required this.localDataSource;
+//  })
+// }
