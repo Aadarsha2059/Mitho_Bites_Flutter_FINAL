@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/model/sign_up_model.dart';
+import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 
 
 class SignUpPage extends StatefulWidget {
@@ -207,6 +208,9 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
           ),
+          
+          // Chatbot
+          const ChatBotView(),
         ],
       ),
     );

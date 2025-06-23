@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 import 'package:fooddelivery_b/features/food_category/presentation/state/category_state.dart';
 import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_event.dart';
 import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_view_model.dart';
@@ -8,6 +9,7 @@ import 'package:fooddelivery_b/model/dashboard_model.dart';
 import 'package:fooddelivery_b/view/menu_view.dart';
 import 'package:fooddelivery_b/view/more_view.dart';
 import 'package:fooddelivery_b/view/partypalace_view.dart';
+
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -49,7 +51,12 @@ class _DashboardViewState extends State<DashboardView> {
           IconButton(icon: const Icon(Icons.shopping_cart), onPressed: () {}),
         ],
       ),
-      body: _buildBody(),
+      body: Stack(
+        children: [
+          _buildBody(),
+          const ChatBotView(),
+        ],
+      ),
       bottomNavigationBar: _buildBottomNavBar(),
     );
   }

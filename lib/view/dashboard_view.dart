@@ -4,7 +4,7 @@ import 'package:fooddelivery_b/view/more_view.dart';
 import 'package:fooddelivery_b/view/partypalace_view.dart';
 import 'package:fooddelivery_b/view/users_profile_view.dart';
 import 'package:fooddelivery_b/view/menu_view.dart';
-
+import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -45,54 +45,61 @@ class _DashboardViewState extends State<DashboardView> {
           IconButton(icon: const Icon(Icons.shopping_cart), onPressed: () {}),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Namaste, Aadarsha! 🙏",
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Montserrat',
-                    color: Colors.black87,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            Row(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                const SizedBox(width: 4),
                 Text(
-                  "Kathmandu, Nepal",
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontFamily: 'Montserrat',
-                  ),
+                  "Namaste, Aadarsha! 🙏",
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Montserrat',
+                        color: Colors.black87,
+                      ),
                 ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Kathmandu, Nepal",
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildSearchBar(),
+                const SizedBox(height: 24),
+                _buildSectionTitle("🍱 Food Categories"),
+                _buildHorizontalCategoryList(),
+                const SizedBox(height: 24),
+                _buildSectionTitle("🔥 Popular Restaurants"),
+                ...model.popArr
+                    .map((res) => _buildListTile(res['image']!, res['name']!))
+                    .toList(),
+                const SizedBox(height: 24),
+                _buildSectionTitle("⭐ Most Loved Dishes"),
+                _buildHorizontalCardList(model.mostPopArr),
+                const SizedBox(height: 24),
+                _buildSectionTitle("🕘 Recently Ordered"),
+                ...model.recentArr
+                    .map((item) => _buildListTile(item['image']!, item['name']!))
+                    .toList(),
+                const SizedBox(height: 100),
               ],
             ),
-            const SizedBox(height: 16),
-            _buildSearchBar(),
-            const SizedBox(height: 24),
-            _buildSectionTitle("🍱 Food Categories"),
-            _buildHorizontalCategoryList(),
-            const SizedBox(height: 24),
-            _buildSectionTitle("🔥 Popular Restaurants"),
-            ...model.popArr
-                .map((res) => _buildListTile(res['image']!, res['name']!))
-                .toList(),
-            const SizedBox(height: 24),
-            _buildSectionTitle("⭐ Most Loved Dishes"),
-            _buildHorizontalCardList(model.mostPopArr),
-            const SizedBox(height: 24),
-            _buildSectionTitle("🕘 Recently Ordered"),
-            ...model.recentArr
-                .map((item) => _buildListTile(item['image']!, item['name']!))
-                .toList(),
-            const SizedBox(height: 100),
-          ],
-        ),
+          ),
+          
+          // Chatbot
+          const ChatBotView(),
+        ],
       ),
       bottomNavigationBar: _buildBottomNavBar(),
     );
@@ -312,4 +319,4 @@ class _DashboardViewState extends State<DashboardView> {
       ),
     );
   }
-}
+} 
