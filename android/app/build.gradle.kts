@@ -9,6 +9,7 @@ android {
     namespace = "com.aadarsha.fooddelivery_b.fooddelivery_b"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+    buildToolsVersion = "34.0.0"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

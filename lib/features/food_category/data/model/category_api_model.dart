@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:fooddelivery_b/features/food_category/domain/entity/food_category_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 part 'category_api_model.g.dart';
 
 @JsonSerializable()
@@ -25,7 +26,12 @@ class CategoryApiModel extends Equatable {
   FoodCategoryEntity toEntity() {
     String? imageUrl;
     if (filepath != null && filepath!.isNotEmpty) {
-      imageUrl = 'http://10.0.2.2:3000/$filepath';
+      // Ensure no double slashes
+      if (filepath!.startsWith('/')) {
+        imageUrl = '${ApiEndpoints.serverAddress}${filepath!}';
+      } else {
+        imageUrl = '${ApiEndpoints.serverAddress}/$filepath';
+      }
     }
     return FoodCategoryEntity(categoryId: categoryId, name: name, image: imageUrl);
   }

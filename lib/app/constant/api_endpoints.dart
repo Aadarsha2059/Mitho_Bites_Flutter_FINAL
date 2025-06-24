@@ -11,7 +11,6 @@ class ApiEndpoints {
   // For iOS Simulator
   //static const String serverAddress = "http://localhost:5050";
 
-  
   static const String baseUrl = "$serverAddress/api/";
   static const String imageUrl = "$serverAddress/uploads/";
 
@@ -20,7 +19,8 @@ class ApiEndpoints {
   static const String register = "auth/register";
   // Note: getAllUsers endpoint does not exist in MERN backend
 
-  // admin 
+  // admin
   static const String getAllCategory = "admin/category/";
-  
+
+  static const String getAllRestaurant = "admin/restaurant/";
 }

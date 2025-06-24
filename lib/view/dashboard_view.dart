@@ -3,7 +3,7 @@ import 'package:fooddelivery_b/model/dashboard_model.dart';
 import 'package:fooddelivery_b/view/more_view.dart';
 import 'package:fooddelivery_b/view/partypalace_view.dart';
 import 'package:fooddelivery_b/view/users_profile_view.dart';
-import 'package:fooddelivery_b/view/menu_view.dart';
+import 'package:fooddelivery_b/features/menu/menu_view.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 
 class DashboardView extends StatefulWidget {

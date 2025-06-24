@@ -6,9 +6,12 @@ import 'package:fooddelivery_b/features/food_category/presentation/state/categor
 import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_event.dart';
 import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_view_model.dart';
 import 'package:fooddelivery_b/model/dashboard_model.dart';
-import 'package:fooddelivery_b/view/menu_view.dart';
+import 'package:fooddelivery_b/features/menu/menu_view.dart';
 import 'package:fooddelivery_b/view/more_view.dart';
 import 'package:fooddelivery_b/view/partypalace_view.dart';
+import 'package:fooddelivery_b/features/food_category/presentation/view/category_list_view.dart';
+import 'package:fooddelivery_b/features/restaurant/presentation/view_model/restaurant_view_model.dart';
+import 'package:fooddelivery_b/features/restaurant/presentation/state/restaurant_state.dart';
 
 
 class DashboardView extends StatefulWidget {
@@ -111,9 +114,56 @@ class _DashboardViewState extends State<DashboardView> {
           _buildHorizontalCategoryList(),
           const SizedBox(height: 24),
           _buildSectionTitle("🔥 Popular Restaurants"),
-          ...model.popArr
-              .map((res) => _buildListTile(res['image']!, res['name']!))
-              .toList(),
+          BlocBuilder<RestaurantViewModel, RestaurantState>(
+            builder: (context, state) {
+              if (state.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state.errorMessage != null) {
+                return Center(child: Text(state.errorMessage!));
+              } else if (state.restaurants.isEmpty) {
+                return const Center(child: Text("No restaurants found."));
+              }
+              return Column(
+                children: state.restaurants.map((restaurant) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(12),
+                      leading: restaurant.image != null && restaurant.image!.isNotEmpty
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                restaurant.image!,
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.restaurant, size: 40),
+                              ),
+                            )
+                          : const Icon(Icons.restaurant, size: 40),
+                      title: Text(
+                        restaurant.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(restaurant.location, style: const TextStyle(fontSize: 14)),
+                          const SizedBox(height: 4),
+                          Text('Contact: ${restaurant.contact}', style: const TextStyle(fontSize: 13)),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
           const SizedBox(height: 24),
           _buildSectionTitle("⭐ Most Loved Dishes"),
           _buildHorizontalCardList(model.mostPopArr),
@@ -159,13 +209,32 @@ class _DashboardViewState extends State<DashboardView> {
               fontFamily: 'Montserrat',
             ),
           ),
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              "View All",
-              style: TextStyle(fontFamily: 'Montserrat'),
+          if (title.contains('Category') || title.contains('category'))
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider.value(
+                      value: context.read<CategoryViewModel>(),
+                      child: const CategoryListView(),
+                    ),
+                  ),
+                );
+              },
+              child: const Text(
+                "View All",
+                style: TextStyle(fontFamily: 'Montserrat'),
+              ),
+            )
+          else
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+                "View All",
+                style: TextStyle(fontFamily: 'Montserrat'),
+              ),
             ),
-          ),
         ],
       ),
     );

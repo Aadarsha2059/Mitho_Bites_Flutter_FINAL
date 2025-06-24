@@ -2,6 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/core/network/hive_service.dart';
+import 'package:fooddelivery_b/features/menu/menu_view_model.dart';
+import 'package:fooddelivery_b/features/restaurant/data/data_source/local_datasource/restaurannt_local_datasource.dart';
+import 'package:fooddelivery_b/features/restaurant/data/data_source/remote_datasource/restaurant_remote_datasource.dart';
+import 'package:fooddelivery_b/features/restaurant/data/repository/local_repository/restaurant_local_repository.dart';
+import 'package:fooddelivery_b/features/restaurant/data/repository/remote_repository/restaurant_remote_repository.dart';
+import 'package:fooddelivery_b/features/restaurant/data/repository/restaurant_repository_impl.dart';
+import 'package:fooddelivery_b/features/restaurant/domain/repository/restaurant_repository.dart';
+import 'package:fooddelivery_b/features/restaurant/domain/use_case/get_restaurants_usecase.dart';
+import 'package:fooddelivery_b/features/restaurant/presentation/view_model/restaurant_view_model.dart';
 import 'package:fooddelivery_b/features/user/data/datasource/local_datasource/user_local_datasource.dart';
 import 'package:fooddelivery_b/features/user/data/datasource/remote_datasource/user_remote_datasource.dart';
 import 'package:fooddelivery_b/features/user/domain/repository/user_repository.dart';
@@ -32,6 +41,8 @@ Future<void> initDependencies() async {
   await _initApiModule();
   await _initAuthModule();
   await _initCategoryModule();
+  await _initRestaurantModule();
+  await _initMenuModule();
 }
 
 Future<void> _initHiveService() async {
@@ -135,5 +146,56 @@ Future<void> _initCategoryModule() async {
     () => CategoryViewModel(
       getCategoriesUsecase: serviceLocator<GetCategoriesUsecase>(),
     ),
+  );
+}
+
+Future<void> _initRestaurantModule() async {
+  // Data Sources
+  serviceLocator.registerLazySingleton<RestauranntLocalDatasource>(
+    () => RestauranntLocalDatasource(hiveService: serviceLocator<HiveService>()),
+  );
+
+  serviceLocator.registerLazySingleton<RestaurantRemoteDatasource>(
+    () => RestaurantRemoteDatasource(apiService: serviceLocator<ApiService>()),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<RestaurantLocalRepository>(
+    () => RestaurantLocalRepository(
+      restaurantLocalDatasource: serviceLocator<RestauranntLocalDatasource>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<RestaurantRemoteRepository>(
+    () => RestaurantRemoteRepository(
+      restaurantRemoteDatasource: serviceLocator<RestaurantRemoteDatasource>(),
+    ),
+  );
+
+  serviceLocator.registerLazySingleton<IRestaurantRepository>(
+    () => RestaurantRepositoryImpl(
+      localRepository: serviceLocator<RestaurantLocalRepository>(),
+      remoteRepository: serviceLocator<RestaurantRemoteRepository>(),
+    ),
+  );
+
+  // Use Cases
+  serviceLocator.registerLazySingleton<GetRestaurantsUsecase>(
+    () => GetRestaurantsUsecase(
+      restaurantRepository: serviceLocator<IRestaurantRepository>(),
+    ),
+  );
+
+  // View Models
+  serviceLocator.registerFactory<RestaurantViewModel>(
+    () => RestaurantViewModel(
+      getRestaurantsUsecase: serviceLocator<GetRestaurantsUsecase>(),
+    ),
+  );
+}
+
+Future<void> _initMenuModule() async {
+  serviceLocator.registerFactory<MenuViewModel>(
+    () => MenuViewModel(getCategoriesUsecase: serviceLocator<GetCategoriesUsecase>()),
   );
 }

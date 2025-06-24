@@ -7,6 +7,7 @@ import 'package:fooddelivery_b/features/home/presentation/view/bottom_view/dashb
 import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_view_model.dart';
 import 'package:fooddelivery_b/features/food_category/domain/use_case/get_categories_usecase.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
+import 'package:fooddelivery_b/features/restaurant/presentation/view_model/restaurant_view_model.dart';
 
 class HomeView extends StatelessWidget {
   final LoginViewModel loginViewModel;
@@ -32,6 +33,9 @@ class HomeView extends StatelessWidget {
               );
             }
           },
+        ),
+        BlocProvider(
+          create: (_) => serviceLocator<RestaurantViewModel>(),
         ),
       ],
       child: BlocBuilder<HomeViewModel, HomeState>(
