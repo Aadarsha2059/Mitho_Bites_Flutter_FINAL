@@ -51,7 +51,8 @@ class UserApiModel extends Equatable {
       username: json['username']?.toString(),
       password: json['password']?.toString(),
       confirmpassword: json['confirmpassword']?.toString(),
-      phone: json['phone'] is String ? int.tryParse(json['phone']) : json['phone'],
+      phone:
+          json['phone'] is String ? int.tryParse(json['phone']) : json['phone'],
       address: json['address']?.toString(),
       email: json['email']?.toString(),
     );
