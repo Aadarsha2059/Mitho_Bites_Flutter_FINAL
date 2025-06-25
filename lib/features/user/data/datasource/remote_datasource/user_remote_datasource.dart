@@ -66,14 +66,13 @@ class UserRemoteDatasource implements IUserDataSource {
       final userApiModel = UserApiModel.fromEntity(userData);
       final registrationData = userApiModel.toJson();
       
-      // Ensure both password and confirmpassword are included for MERN backend validation
-      // The confirmpassword should match the password for validation
-      registrationData['confirmpassword'] = userData.password;
-      
-      // Ensure phone is sent as string to match backend validation
+      // Ensure phone is sent as number to match backend validation
       if (registrationData['phone'] != null) {
-        registrationData['phone'] = registrationData['phone'].toString();
+        registrationData['phone'] = int.tryParse(registrationData['phone'].toString()) ?? 0;
       }
+      
+      // Ensure confirmpassword is set to match password for validation
+      registrationData['confirmpassword'] = userData.password;
       
       print('Registration data: $registrationData');
 

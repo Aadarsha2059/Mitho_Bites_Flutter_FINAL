@@ -12,187 +12,316 @@ class MenuView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var media = MediaQuery.of(context).size;
     return BlocProvider<MenuViewModel>(
       create: (_) => serviceLocator<MenuViewModel>(),
       child: Scaffold(
         backgroundColor: Colors.grey[100],
         body: Stack(
           children: [
-            Stack(
-              alignment: Alignment.centerLeft,
+            _buildMainContent(),
+            const ChatBotView(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainContent() {
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildHeader(),
+          _buildSearchBar(),
+          Expanded(
+            child: _buildCategoriesList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.arrow_back, color: Colors.deepOrange),
+          ),
+          const Expanded(
+            child: Text(
+              "Menu",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepOrange,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.shopping_cart, color: Colors.deepOrange),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return BlocBuilder<MenuViewModel, MenuState>(
+      builder: (context, state) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: TextField(
+            onChanged: (value) {
+              context.read<MenuViewModel>().add(SearchCategoriesEvent(value));
+            },
+            decoration: InputDecoration(
+              hintText: "Search categories...",
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: const BorderSide(color: Colors.deepOrange, width: 2),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoriesList() {
+    return BlocBuilder<MenuViewModel, MenuState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+            ),
+          );
+        }
+
+        if (state.errorMessage != null) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Decorative left panel
-                Container(
-                  margin: const EdgeInsets.only(top: 180),
-                  width: media.width * 0.25,
-                  height: media.height * 0.6,
-                  decoration: BoxDecoration(
-                    color: Colors.deepOrangeAccent,
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(35),
-                      bottomRight: Radius.circular(35),
-                    ),
-                  ),
+                const Icon(Icons.error, color: Colors.red, size: 50),
+                const SizedBox(height: 16),
+                Text(
+                  'Error: ${state.errorMessage}',
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
                 ),
-                // Main Content
-                SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 46),
-                        // App Logo and Title
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.asset(
-                                  "assets/images/logo.png",
-                                  width: 50,
-                                  height: 50,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              const Text(
-                                "Mitho_Bites",
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.deepOrangeAccent,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                onPressed: () {},
-                                icon: Image.asset(
-                                  "assets/images/shopping_cart.png",
-                                  width: 28,
-                                  height: 28,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 25),
-                        // Search Field
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: "Search food items...",
-                              prefixIcon: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Image.asset(
-                                  "assets/images/search.png",
-                                  width: 20,
-                                  height: 20,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        // Menu Categories
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Menu Categories",
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              BlocBuilder<MenuViewModel, MenuState>(
-                                builder: (context, state) {
-                                  if (state.isLoading) {
-                                    return const Center(child: CircularProgressIndicator());
-                                  }
-                                  if (state.errorMessage != null) {
-                                    return Center(child: Text('Error: ${state.errorMessage}'));
-                                  }
-                                  if (state.categories.isEmpty) {
-                                    return const Center(child: Text('No categories available'));
-                                  }
-                                  return ListView.separated(
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    itemCount: state.categories.length,
-                                    separatorBuilder: (context, index) => const SizedBox(height: 16),
-                                    itemBuilder: (context, index) {
-                                      final category = state.categories[index];
-                                      return Card(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        elevation: 2,
-                                        child: ListTile(
-                                          contentPadding: const EdgeInsets.all(14),
-                                          leading: ClipRRect(
-                                            borderRadius: BorderRadius.circular(10),
-                                            child: category.image != null && category.image!.isNotEmpty
-                                                ? CachedNetworkImage(
-                                                    imageUrl: category.image!,
-                                                    width: 60,
-                                                    height: 60,
-                                                    fit: BoxFit.cover,
-                                                    placeholder: (context, url) => const SizedBox(
-                                                      width: 30,
-                                                      height: 30,
-                                                      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                                                    ),
-                                                    errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                                                  )
-                                                : Container(
-                                                    width: 60,
-                                                    height: 60,
-                                                    color: Colors.grey[200],
-                                                    child: const Icon(Icons.image, size: 40, color: Colors.grey),
-                                                  ),
-                                          ),
-                                          title: Text(
-                                            category.name,
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                          ),
-                                          subtitle: const Text('Items: (coming soon)'),
-                                          onTap: () {
-                                            // TODO: Navigate to food products filtered by this category
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                      ],
-                    ),
-                  ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<MenuViewModel>().add(const LoadMenuCategoriesEvent());
+                  },
+                  child: const Text('Retry'),
                 ),
               ],
             ),
-            const ChatBotView(),
-          ],
+          );
+        }
+
+        if (state.filteredCategories.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.category_outlined, color: Colors.grey, size: 50),
+                const SizedBox(height: 16),
+                Text(
+                  state.searchQuery.isEmpty
+                      ? 'No categories available'
+                      : 'No categories found for "${state.searchQuery}"',
+                  style: const TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: state.filteredCategories.length,
+          itemBuilder: (context, index) {
+            final category = state.filteredCategories[index];
+            return _buildCategoryCard(context, category);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryCard(BuildContext context, category) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: () {
+          context.read<MenuViewModel>().add(SelectCategoryEvent(category.categoryId ?? ''));
+          // TODO: Navigate to category products page when implemented
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${category.name} - Coming Soon!'),
+              backgroundColor: Colors.deepOrange,
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Category Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: category.image != null && category.image!.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: category.image!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) {
+                            print('Error loading image: $url - $error');
+                            return Container(
+                              color: Colors.grey[200],
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.broken_image,
+                                    size: 30,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Image Error',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          color: Colors.grey[200],
+                          child: const Icon(
+                            Icons.image,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Category Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      category.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.deepOrange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Text(
+                            'Coming Soon',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.deepOrange,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          '0 items',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Debug info - remove in production
+                    if (category.image != null)
+                      Text(
+                        'Image: ${category.image}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.blue,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              // Arrow Icon
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey,
+                size: 16,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -136,16 +136,39 @@ class _DashboardViewState extends State<DashboardView> {
                       leading: restaurant.image != null && restaurant.image!.isNotEmpty
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                restaurant.image!,
+                              child: CachedNetworkImage(
+                                imageUrl: restaurant.image!,
                                 width: 60,
                                 height: 60,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.restaurant, size: 40),
+                                placeholder: (context, url) => Container(
+                                  width: 60,
+                                  height: 60,
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                                    ),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) {
+                                  print('Error loading restaurant image: $url - $error');
+                                  return Container(
+                                    width: 60,
+                                    height: 60,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.restaurant, size: 30, color: Colors.grey),
+                                  );
+                                },
                               ),
                             )
-                          : const Icon(Icons.restaurant, size: 40),
+                          : Container(
+                              width: 60,
+                              height: 60,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.restaurant, size: 30, color: Colors.grey),
+                            ),
                       title: Text(
                         restaurant.name,
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -309,12 +332,45 @@ class _DashboardViewState extends State<DashboardView> {
       margin: const EdgeInsets.only(right: 12),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundImage: _getImageProvider(image),
-            onBackgroundImageError: (exception, stackTrace) {
-              print('Error loading category image: $exception');
-            },
+          ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: Container(
+              width: 60,
+              height: 60,
+              child: image.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: image,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) {
+                        print('Error loading category image: $url - $error');
+                        return Container(
+                          color: Colors.grey[200],
+                          child: const Icon(
+                            Icons.image,
+                            size: 30,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    )
+                  : Container(
+                      color: Colors.grey[200],
+                      child: const Icon(
+                        Icons.image,
+                        size: 30,
+                        color: Colors.grey,
+                      ),
+                    ),
+            ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -331,24 +387,6 @@ class _DashboardViewState extends State<DashboardView> {
         ],
       ),
     );
-  }
-
-  ImageProvider _getImageProvider(String image) {
-    if (image.isEmpty) {
-      // Return a default asset image if no image URL is provided
-      return const AssetImage('assets/images/cat_offer.png');
-    }
-    
-    if (image.startsWith('http://') || image.startsWith('https://')) {
-      // Network image from MERN backend
-      return CachedNetworkImageProvider(
-        image,
-        errorListener: (error) => print('Error loading image: $error'),
-      );
-    } else {
-      // Asset image (fallback)
-      return AssetImage(image);
-    }
   }
 
   Widget _buildListTile(String image, String title) {

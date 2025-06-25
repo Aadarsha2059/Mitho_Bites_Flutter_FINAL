@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:fooddelivery_b/features/restaurant/domain/entity/restaurant_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 part 'restaurant_api_model.g.dart';
 
 @JsonSerializable()
@@ -29,9 +30,12 @@ class RestaurantApiModel extends Equatable {
   RestaurantEntity toEntity() {
     String? imageUrl;
     if (filepath != null && filepath!.isNotEmpty) {
-      // Normalize slashes for URL
-      String normalizedPath = filepath!.replaceAll('\\', '/');
-      imageUrl = 'http://10.0.2.2:5050/$normalizedPath';
+      // Avoid double 'uploads/uploads' in the image URL
+      if (filepath!.startsWith('uploads/')) {
+        imageUrl = '${ApiEndpoints.serverAddress}/$filepath';
+      } else {
+        imageUrl = '${ApiEndpoints.imageUrl}$filepath';
+      }
     }
     return RestaurantEntity(
       restaurantId: restaurantId,

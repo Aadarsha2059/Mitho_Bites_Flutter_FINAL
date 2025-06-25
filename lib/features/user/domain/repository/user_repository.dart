@@ -66,9 +66,18 @@ class UserRepository implements IUserRepository {
           return Right(token);
         } catch (remoteError) {
           print('Remote login failed: $remoteError');
-          print('Falling back to local login...');
           
-          // Remote failed - fallback to local
+          // Only fall back to local login if it's a specific server error
+          // For authentication errors, don't fall back
+          if (remoteError.toString().contains('User not found') || 
+              remoteError.toString().contains('Invalid credentials')) {
+            print('Authentication failed - not falling back to local');
+            return Left(RemoteDatabaseFailure(message: remoteError.toString()));
+          }
+          
+          print('Server error - falling back to local login...');
+          
+          // Remote failed - fallback to local only for server errors
           try {
             final localResult = await localDataSource.loginUser(username, password);
             print('Local login successful');
@@ -113,7 +122,7 @@ class UserRepository implements IUserRepository {
         try {
           // Add timeout to prevent hanging
           await remoteDataSource.registerUser(user).timeout(
-            const Duration(seconds: 30),
+            const Duration(seconds: 8), // Reduced timeout for faster response
             onTimeout: () {
               throw Exception('Registration timeout - server not responding');
             },
@@ -127,29 +136,16 @@ class UserRepository implements IUserRepository {
           return const Right(null);
         } catch (remoteError) {
           print('Remote registration failed: $remoteError');
-          print('Falling back to local registration...');
           
-          // Remote failed - fallback to local
-          try {
-            await localDataSource.registerUser(user);
-            print('Local registration successful');
-            return const Right(null);
-          } catch (localError) {
-            print('Local registration also failed: $localError');
-            return Left(RemoteDatabaseFailure(message: remoteError.toString()));
-          }
+          // Don't fall back to local registration for new user registration
+          // Local storage should only be used for offline access of existing users
+          print('Registration failed - server not available. Please try again when server is running.');
+          return Left(RemoteDatabaseFailure(message: 'Registration failed: ${remoteError.toString()}. Please ensure the server is running.'));
         }
       } else {
-        // No network - use local only
-        print('No network connection, attempting local registration...');
-        try {
-          await localDataSource.registerUser(user);
-          print('Local registration successful');
-          return const Right(null);
-        } catch (localError) {
-          print('Local registration failed: $localError');
-          return Left(LocalDatabaseFailure(message: localError.toString()));
-        }
+        // No network - don't allow registration
+        print('No network connection - registration requires server connection');
+        return Left(RemoteDatabaseFailure(message: 'Registration requires internet connection. Please check your network and try again.'));
       }
     } catch (e) {
       print('Registration unexpected error: $e');

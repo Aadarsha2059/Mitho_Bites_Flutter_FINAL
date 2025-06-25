@@ -26,11 +26,11 @@ class CategoryApiModel extends Equatable {
   FoodCategoryEntity toEntity() {
     String? imageUrl;
     if (filepath != null && filepath!.isNotEmpty) {
-      // Ensure no double slashes
-      if (filepath!.startsWith('/')) {
-        imageUrl = '${ApiEndpoints.serverAddress}${filepath!}';
-      } else {
+      // Avoid double 'uploads/uploads' in the image URL
+      if (filepath!.startsWith('uploads/')) {
         imageUrl = '${ApiEndpoints.serverAddress}/$filepath';
+      } else {
+        imageUrl = '${ApiEndpoints.imageUrl}$filepath';
       }
     }
     return FoodCategoryEntity(categoryId: categoryId, name: name, image: imageUrl);

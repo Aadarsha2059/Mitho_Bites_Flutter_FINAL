@@ -15,7 +15,9 @@ class UserApiModel extends Equatable {
   @JsonKey(defaultValue: '')
   final String? password;
   @JsonKey(defaultValue: '')
-  final String? phone;
+  final String? confirmpassword;
+  @JsonKey(defaultValue: 0)
+  final int? phone;
   @JsonKey(defaultValue: '')
   final String? address;
   @JsonKey(defaultValue: '')
@@ -26,6 +28,7 @@ class UserApiModel extends Equatable {
     this.fullname,
     this.username,
     this.password,
+    this.confirmpassword,
     this.phone,
     this.address,
     this.email,
@@ -36,7 +39,8 @@ class UserApiModel extends Equatable {
       fullname = '',
       username = '',
       password = '',
-      phone = '',
+      confirmpassword = '',
+      phone = 0,
       address = '',
       email = '';
 
@@ -46,7 +50,8 @@ class UserApiModel extends Equatable {
       fullname: json['fullname']?.toString(),
       username: json['username']?.toString(),
       password: json['password']?.toString(),
-      phone: json['phone']?.toString(),
+      confirmpassword: json['confirmpassword']?.toString(),
+      phone: json['phone'] is String ? int.tryParse(json['phone']) : json['phone'],
       address: json['address']?.toString(),
       email: json['email']?.toString(),
     );
@@ -58,6 +63,7 @@ class UserApiModel extends Equatable {
       'fullname': fullname,
       'username': username,
       'password': password,
+      'confirmpassword': confirmpassword,
       'phone': phone,
       'address': address,
       'email': email,
@@ -70,7 +76,7 @@ class UserApiModel extends Equatable {
       fullname: fullname ?? '',
       username: username ?? '',
       password: password ?? '',
-      phone: phone ?? '',
+      phone: phone?.toString() ?? '',
       address: address ?? '',
       email: email ?? '',
     );
@@ -82,7 +88,8 @@ class UserApiModel extends Equatable {
       fullname: entity.fullname,
       username: entity.username,
       password: entity.password,
-      phone: entity.phone,
+      confirmpassword: entity.password,
+      phone: int.tryParse(entity.phone) ?? 0,
       address: entity.address,
       email: entity.email,
     );
@@ -94,6 +101,7 @@ class UserApiModel extends Equatable {
     fullname,
     username,
     password,
+    confirmpassword,
     phone,
     address,
     email,

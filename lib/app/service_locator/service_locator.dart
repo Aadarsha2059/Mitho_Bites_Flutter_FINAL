@@ -66,7 +66,7 @@ Future<void> _initAuthModule() async {
   );
 
   // Hybrid Repository - implemented in domain layer
-  serviceLocator.registerFactory(
+  serviceLocator.registerFactory<IUserRepository>(
     () => UserRepository(
       remoteDataSource: serviceLocator<UserRemoteDatasource>(),
       localDataSource: serviceLocator<UserLocalDatasource>(),
@@ -75,18 +75,18 @@ Future<void> _initAuthModule() async {
 
   // Use Cases - Use Hybrid Repository
   serviceLocator.registerFactory(
-    () => UserLoginUsecase(userRepository: serviceLocator<UserRepository>()),
+    () => UserLoginUsecase(userRepository: serviceLocator<IUserRepository>()),
   );
 
   serviceLocator.registerFactory(
     () => UserRegisterUsecase(
-      userRepository: serviceLocator<UserRepository>(),
+      userRepository: serviceLocator<IUserRepository>(),
     ),
   );
 
   serviceLocator.registerFactory(
     () => UserGetCurrentUsecase(
-      userRepository: serviceLocator<UserRepository>(),
+      userRepository: serviceLocator<IUserRepository>(),
     ),
   );
 
