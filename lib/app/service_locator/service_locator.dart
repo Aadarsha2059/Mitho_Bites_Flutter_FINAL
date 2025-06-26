@@ -31,6 +31,15 @@ import 'package:fooddelivery_b/features/food_category/domain/repository/category
 import 'package:fooddelivery_b/features/food_category/domain/use_case/get_categories_usecase.dart';
 import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_view_model.dart';
 
+import 'package:fooddelivery_b/features/food_products/data/data_source/local_datasource/product_local_datasource.dart';
+import 'package:fooddelivery_b/features/food_products/data/data_source/remote_datasource/product_remote_datasource.dart';
+import 'package:fooddelivery_b/features/food_products/data/repository/local_repository/product_local_repository.dart';
+import 'package:fooddelivery_b/features/food_products/data/repository/remote_repository/product_remote_repository.dart';
+import 'package:fooddelivery_b/features/food_products/data/repository/product_repository_impl.dart';
+import 'package:fooddelivery_b/features/food_products/domain/repository/products_repository.dart';
+import 'package:fooddelivery_b/features/food_products/domain/use_case/get_productsby_category_usecase.dart';
+import 'package:fooddelivery_b/features/food_products/presentation/view_model/product_viewmodel.dart';
+
 import 'package:get_it/get_it.dart';
 
 final serviceLocator = GetIt.instance;
@@ -43,6 +52,7 @@ Future<void> initDependencies() async {
   await _initCategoryModule();
   await _initRestaurantModule();
   await _initMenuModule();
+  await _initProductModule();
 }
 
 Future<void> _initHiveService() async {
@@ -197,5 +207,39 @@ Future<void> _initRestaurantModule() async {
 Future<void> _initMenuModule() async {
   serviceLocator.registerFactory<MenuViewModel>(
     () => MenuViewModel(getCategoriesUsecase: serviceLocator<GetCategoriesUsecase>()),
+  );
+}
+
+Future<void> _initProductModule() async {
+  // Data Sources
+  serviceLocator.registerLazySingleton<ProductLocalDatasource>(
+    () => ProductLocalDatasource(hiveService: serviceLocator<HiveService>()),
+  );
+  serviceLocator.registerLazySingleton<ProductRemoteDatasource>(
+    () => ProductRemoteDatasource(apiService: serviceLocator<ApiService>()),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<ProductLocalRepository>(
+    () => ProductLocalRepository(productLocalDatasource: serviceLocator<ProductLocalDatasource>()),
+  );
+  serviceLocator.registerLazySingleton<ProductRemoteRepository>(
+    () => ProductRemoteRepository(productRemoteDatasource: serviceLocator<ProductRemoteDatasource>()),
+  );
+  serviceLocator.registerLazySingleton<IProductRepository>(
+    () => ProductRepositoryImpl(
+      localRepository: serviceLocator<ProductLocalRepository>(),
+      remoteRepository: serviceLocator<ProductRemoteRepository>(),
+    ),
+  );
+
+  // Use Cases
+  serviceLocator.registerLazySingleton<GetProductsByCategoryUsecase>(
+    () => GetProductsByCategoryUsecase(productRepository: serviceLocator<IProductRepository>()),
+  );
+
+  // View Models
+  serviceLocator.registerFactory<ProductViewModel>(
+    () => ProductViewModel(repository: serviceLocator<IProductRepository>()),
   );
 }

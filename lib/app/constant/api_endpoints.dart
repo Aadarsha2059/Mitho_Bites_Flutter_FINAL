@@ -22,4 +22,6 @@ class ApiEndpoints {
   // Public endpoints for categories and restaurants
   static const String getAllCategory = "categories";
   static const String getAllRestaurant = "restaurants";
+
+  static const String getAllProducts = "products";
 }

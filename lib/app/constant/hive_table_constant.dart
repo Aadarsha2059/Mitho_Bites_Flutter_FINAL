@@ -10,4 +10,7 @@ class HiveTableConstant {
   static const int restaurantTableId = 2;
   static const String restaurantBox = 'restaurantBox';
 
+  static const int productTableId = 3;
+  static const String productBox= 'productBox';
+
 }

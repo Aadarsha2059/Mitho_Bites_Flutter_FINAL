@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fooddelivery_b/features/food_products/domain/repository/products_repository.dart';
+import 'package:fooddelivery_b/features/food_products/presentation/view_model/product_list_view.dart';
+import 'package:fooddelivery_b/features/food_products/presentation/view_model/product_viewmodel.dart';
 import 'package:fooddelivery_b/features/menu/menu_view_model.dart';
 import 'package:fooddelivery_b/features/menu/menu_state.dart';
 import 'package:fooddelivery_b/features/menu/menu_event.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
+
+
 
 class MenuView extends StatelessWidget {
   const MenuView({super.key});
@@ -188,12 +193,19 @@ class MenuView extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          context.read<MenuViewModel>().add(SelectCategoryEvent(category.categoryId ?? ''));
-          // TODO: Navigate to category products page when implemented
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${category.name} - Coming Soon!'),
-              backgroundColor: Colors.deepOrange,
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => Scaffold(
+                appBar: AppBar(
+                  title: Text(category.name),
+                  backgroundColor: Colors.deepOrange,
+                ),
+                body: ProductListView(
+                  viewModel: serviceLocator<ProductViewModel>(),
+                  categoryId: category.categoryId ?? '',
+                ),
+              ),
             ),
           );
         },
@@ -284,7 +296,7 @@ class MenuView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
-                            'Coming Soon',
+                            'View Items',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.deepOrange,
@@ -293,37 +305,52 @@ class MenuView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          '0 items',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
+                        // Show dynamic product count for this category
+                        FutureBuilder<int>(
+                          future: _fetchProductCount(category.categoryId ?? ''),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const SizedBox(
+                                width: 24,
+                                height: 14,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 12,
+                                    height: 12,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                ),
+                              );
+                            }
+                            final count = snapshot.data ?? 0;
+                            return Text(
+                              '$count items',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
-                    // Debug info - remove in production
-                    if (category.image != null)
-                      Text(
-                        'Image: ${category.image}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.blue,
-                        ),
-                      ),
                   ],
                 ),
-              ),
-              // Arrow Icon
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey,
-                size: 16,
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // Helper to fetch product count for a category directly from the repository
+  Future<int> _fetchProductCount(String categoryId) async {
+    final repo = serviceLocator<IProductRepository>();
+    final result = await repo.getProductsByCategory(categoryId);
+    return result.fold(
+      (failure) => 0,
+      (products) => products.length,
     );
   }
 }

@@ -9,10 +9,28 @@ import 'package:fooddelivery_b/features/food_category/domain/use_case/get_catego
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
 import 'package:fooddelivery_b/features/restaurant/presentation/view_model/restaurant_view_model.dart';
 
+// Simple static storage for current username
+class UserSession {
+  static String? _currentUsername;
+  
+  static void setUsername(String username) {
+    _currentUsername = username;
+  }
+  
+  static String getUsername() {
+    return _currentUsername ?? 'User';
+  }
+}
+
 class HomeView extends StatelessWidget {
   final LoginViewModel loginViewModel;
 
   const HomeView({super.key, required this.loginViewModel});
+
+  // Simple method to get current username from login data
+  String _getCurrentUsername() {
+    return UserSession.getUsername();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +58,7 @@ class HomeView extends StatelessWidget {
       ],
       child: BlocBuilder<HomeViewModel, HomeState>(
         builder: (context, state) {
-          return const DashboardView();
+          return DashboardView(currentUsername: _getCurrentUsername());
         },
       ),
     );

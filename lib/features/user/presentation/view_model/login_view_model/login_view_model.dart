@@ -5,6 +5,7 @@ import 'package:fooddelivery_b/features/user/domain/use_case/user_login_usecase.
 import 'package:fooddelivery_b/core/common/snackbar/my_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/features/user/presentation/view/register_view.dart';
+import 'package:fooddelivery_b/features/home/presentation/view/home_view.dart';
 
 class LoginViewModel extends Bloc<LoginEvent, LoginState> {
   final UserLoginUsecase _userLoginUsecase;
@@ -33,6 +34,7 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
         );
       },
       (r) {
+        UserSession.setUsername(event.username);
         emit(state.copyWith(isLoading: false, isSuccess: true));
         showMySnackBar(
           context: event.context,

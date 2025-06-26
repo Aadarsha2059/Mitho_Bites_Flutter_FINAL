@@ -15,7 +15,9 @@ import 'package:fooddelivery_b/features/restaurant/presentation/state/restaurant
 
 
 class DashboardView extends StatefulWidget {
-  const DashboardView({super.key});
+  final String currentUsername;
+  
+  const DashboardView({super.key, this.currentUsername = 'User'});
 
   @override
   State<DashboardView> createState() => _DashboardViewState();
@@ -86,7 +88,7 @@ class _DashboardViewState extends State<DashboardView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Namaste, Aadarsha! 🙏",
+            "Namaste, ${widget.currentUsername}! 🙏",
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Montserrat',

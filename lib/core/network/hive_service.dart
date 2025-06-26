@@ -2,6 +2,7 @@ import 'package:fooddelivery_b/app/constant/hive_table_constant.dart';
 import 'package:fooddelivery_b/features/user/data/model/user_hive_model.dart';
 import 'package:fooddelivery_b/features/food_category/data/model/category_hive_model.dart';
 import 'package:fooddelivery_b/features/restaurant/data/model/restaurant_hive_model.dart';
+import 'package:fooddelivery_b/features/food_products/data/model/product_hive_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -22,6 +23,7 @@ class HiveService {
     Hive.registerAdapter(UserHiveModelAdapter());
     Hive.registerAdapter(CategoryHiveModelAdapter());
     Hive.registerAdapter(RestaurantHiveModelAdapter());
+    Hive.registerAdapter(ProductHiveModelAdapter());
   }
 
   // User methods
@@ -92,6 +94,30 @@ class HiveService {
   Future<void> clearRestaurants() async {
     var box = await Hive.openBox<RestaurantHiveModel>(HiveTableConstant.restaurantBox);
     await box.clear();
+  }
+
+  // Product methods
+  Future<void> saveProducts(List<ProductHiveModel> products) async {
+    var box = await Hive.openBox<ProductHiveModel>(HiveTableConstant.productBox);
+    await box.clear();
+    for (var product in products) {
+      await box.put(product.productId, product);
+    }
+  }
+
+  Future<List<ProductHiveModel>> getAllProducts() async {
+    var box = await Hive.openBox<ProductHiveModel>(HiveTableConstant.productBox);
+    return box.values.toList();
+  }
+
+  Future<void> clearProducts() async {
+    var box = await Hive.openBox<ProductHiveModel>(HiveTableConstant.productBox);
+    await box.clear();
+  }
+
+  Future<void> deleteProduct(String productId) async {
+    var box = await Hive.openBox<ProductHiveModel>(HiveTableConstant.productBox);
+    await box.delete(productId);
   }
 
   Future<void> clearAll() async {
