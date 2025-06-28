@@ -24,4 +24,15 @@ class ApiEndpoints {
   static const String getAllRestaurant = "restaurants";
 
   static const String getAllProducts = "products";
+
+  
+  static const String getCart = "cart";
+  static const String addToCart = "cart/add";
+  static const String updateCartItem = "cart/update";
+  static const String removeFromCart = "cart/remove";
+  static const String clearCart = "cart/clear";
+  static const String getCartItem = "cart/item";
+
+
+
 }

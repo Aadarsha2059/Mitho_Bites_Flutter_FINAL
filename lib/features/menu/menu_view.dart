@@ -9,6 +9,8 @@ import 'package:fooddelivery_b/features/menu/menu_state.dart';
 import 'package:fooddelivery_b/features/menu/menu_event.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
+import 'package:fooddelivery_b/features/cart/presentation/widgets/cart_provider.dart';
+import 'package:fooddelivery_b/features/cart/domain/repository/cart_repository.dart';
 
 
 
@@ -196,14 +198,17 @@ class MenuView extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => Scaffold(
-                appBar: AppBar(
-                  title: Text(category.name),
-                  backgroundColor: Colors.deepOrange,
-                ),
-                body: ProductListView(
-                  viewModel: serviceLocator<ProductViewModel>(),
-                  categoryId: category.categoryId ?? '',
+              builder: (_) => CartProvider(
+                cartRepository: serviceLocator<ICartRepository>(),
+                child: Scaffold(
+                  appBar: AppBar(
+                    title: Text(category.name),
+                    backgroundColor: Colors.deepOrange,
+                  ),
+                  body: ProductListView(
+                    viewModel: serviceLocator<ProductViewModel>(),
+                    categoryId: category.categoryId ?? '',
+                  ),
                 ),
               ),
             ),

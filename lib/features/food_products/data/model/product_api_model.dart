@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:fooddelivery_b/features/food_products/domain/entity/products_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 
 part 'product_api_model.g.dart';
 
@@ -13,8 +12,8 @@ class ProductApiModel extends Equatable {
   final String type;
   final double price;
   final String description;
-  @JsonKey(name: 'filepath')
-  final String? filepath;
+  @JsonKey(name: 'image')
+  final String? image;
   final String? categoryId;
   final String? restaurantId;
   final bool isAvailable;
@@ -31,7 +30,7 @@ class ProductApiModel extends Equatable {
     required this.type,
     required this.price,
     required this.description,
-    this.filepath,
+    this.image,
     this.categoryId,
     this.restaurantId,
     required this.isAvailable,
@@ -49,7 +48,7 @@ class ProductApiModel extends Equatable {
     type: json['type'] as String,
     price: (json['price'] as num).toDouble(),
     description: json['description'] as String,
-    filepath: json['filepath'] as String? ?? json['image'] as String?,
+    image: json['image'] as String?,
     categoryId: json['categoryId'] as String?,
     restaurantId: json['restaurantId'] as String?,
     isAvailable: json['isAvailable'] as bool,
@@ -67,7 +66,7 @@ class ProductApiModel extends Equatable {
     'type': type,
     'price': price,
     'description': description,
-    'filepath': filepath,
+    'image': image,
     'categoryId': categoryId,
     'restaurantId': restaurantId,
     'isAvailable': isAvailable,
@@ -79,30 +78,22 @@ class ProductApiModel extends Equatable {
     'restaurantContact': restaurantContact,
   };
 
-  // to entity
+  // to entity - Use image URL directly from backend
   ProductsEntity toEntity() {
-    String? imageUrl;
-    if (filepath != null && filepath!.isNotEmpty) {
-      if (filepath!.startsWith('uploads/')) {
-        imageUrl = '${ApiEndpoints.serverAddress}/$filepath';
-      } else {
-        imageUrl = '${ApiEndpoints.imageUrl}$filepath';
-      }
-    }
     return ProductsEntity(
       productId: productId,
       name: name,
       type: type,
       price: price,
       description: description,
-      image: imageUrl,
+      image: image, // Backend already provides full URL
       categoryId: categoryId,
       restaurantId: restaurantId,
       isAvailable: isAvailable,
       categoryName: categoryName,
-      categoryImage: categoryImage,
+      categoryImage: categoryImage, // Backend already provides full URL
       restaurantName: restaurantName,
-      restaurantImage: restaurantImage,
+      restaurantImage: restaurantImage, // Backend already provides full URL
       restaurantLocation: restaurantLocation,
       restaurantContact: restaurantContact,
     );
@@ -116,7 +107,7 @@ class ProductApiModel extends Equatable {
       type: entity.type,
       price: entity.price,
       description: entity.description,
-      filepath: entity.image,
+      image: entity.image,
       categoryId: entity.categoryId,
       restaurantId: entity.restaurantId,
       isAvailable: entity.isAvailable,
@@ -136,7 +127,7 @@ class ProductApiModel extends Equatable {
         type,
         price,
         description,
-        filepath,
+        image,
         categoryId,
         restaurantId,
         isAvailable,

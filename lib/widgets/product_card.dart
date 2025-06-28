@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/features/cart/presentation/widgets/add_to_cart_icon_button.dart';
+import 'package:fooddelivery_b/features/food_products/domain/entity/products_entity.dart';
 
 class ProductCard extends StatelessWidget {
   final Map<String, dynamic> product;
@@ -36,69 +38,47 @@ class ProductCard extends StatelessWidget {
               children: [
                 // Product Image
                 Center(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.grey[100],
-                        ),
-                        child: product['image'] != null && product['image'].toString().isNotEmpty
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.network(
-                                  product['image'],
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Container(
-                                      color: Colors.grey[200],
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress.expectedTotalBytes != null
-                                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                              : null,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    print('Error loading product image: ${product['image']} - $error');
-                                    return Container(
-                                      color: Colors.grey[200],
-                                      child: const Icon(Icons.fastfood, size: 40, color: Colors.grey),
-                                    );
-                                  },
-                                ),
-                              )
-                            : Container(
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.fastfood, size: 40, color: Colors.grey),
-                              ),
-                      ),
-                      // Debug overlay: show image URL and restaurant name
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              'Image URL: \\n${product['image'] ?? 'null'}',
-                              style: const TextStyle(fontSize: 10, color: Colors.red),
-                              textAlign: TextAlign.center,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey[100],
+                    ),
+                    child: product['image'] != null && product['image'].toString().isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              product['image'],
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: Colors.grey[200],
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                print('Error loading product image: ${product['image']} - $error');
+                                return Container(
+                                  color: Colors.grey[200],
+                                  child: const Icon(Icons.fastfood, size: 40, color: Colors.grey),
+                                );
+                              },
                             ),
-                            Text(
-                              'Restaurant: ${product['restaurantName'] ?? 'null'}',
-                              style: const TextStyle(fontSize: 10, color: Colors.blue),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                          )
+                        : Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.fastfood, size: 40, color: Colors.grey),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -168,20 +148,24 @@ class ProductCard extends StatelessWidget {
               ],
             ),
           ),
-          // Cart Icon at top right
+          // Cart Icon at top right using AddToCartIconButton
           Positioned(
             top: 8,
             right: 8,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.shopping_cart, color: Colors.white, size: 20),
-                onPressed: onAddToCart,
-                padding: const EdgeInsets.all(4),
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            child: AddToCartIconButton(
+              product: ProductsEntity(
+                productId: product['productId'] ?? '',
+                name: product['name'] ?? '',
+                type: product['type'] ?? '',
+                price: product['price']?.toDouble() ?? 0.0,
+                description: product['description'] ?? '',
+                image: product['image'] ?? '',
+                isAvailable: product['isAvailable'] ?? true,
+                restaurantId: product['restaurantId'] ?? '',
+                restaurantName: product['restaurantName'] ?? '',
+                restaurantImage: product['restaurantImage'] ?? '',
+                categoryId: product['categoryId'] ?? '',
+                categoryName: product['categoryName'] ?? '',
               ),
             ),
           ),

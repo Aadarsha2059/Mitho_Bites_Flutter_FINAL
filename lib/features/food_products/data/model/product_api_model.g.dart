@@ -13,10 +13,16 @@ ProductApiModel _$ProductApiModelFromJson(Map<String, dynamic> json) =>
       type: json['type'] as String,
       price: (json['price'] as num).toDouble(),
       description: json['description'] as String,
-      filepath: json['filepath'] as String?,
+      image: json['image'] as String?,
       categoryId: json['categoryId'] as String?,
       restaurantId: json['restaurantId'] as String?,
       isAvailable: json['isAvailable'] as bool,
+      categoryName: json['categoryName'] as String?,
+      categoryImage: json['categoryImage'] as String?,
+      restaurantName: json['restaurantName'] as String?,
+      restaurantImage: json['restaurantImage'] as String?,
+      restaurantLocation: json['restaurantLocation'] as String?,
+      restaurantContact: json['restaurantContact'] as String?,
     );
 
 Map<String, dynamic> _$ProductApiModelToJson(ProductApiModel instance) =>
@@ -26,8 +32,14 @@ Map<String, dynamic> _$ProductApiModelToJson(ProductApiModel instance) =>
       'type': instance.type,
       'price': instance.price,
       'description': instance.description,
-      'filepath': instance.filepath,
+      'image': instance.image,
       'categoryId': instance.categoryId,
       'restaurantId': instance.restaurantId,
       'isAvailable': instance.isAvailable,
+      'categoryName': instance.categoryName,
+      'categoryImage': instance.categoryImage,
+      'restaurantName': instance.restaurantName,
+      'restaurantImage': instance.restaurantImage,
+      'restaurantLocation': instance.restaurantLocation,
+      'restaurantContact': instance.restaurantContact,
     };

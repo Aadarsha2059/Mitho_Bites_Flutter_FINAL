@@ -12,7 +12,7 @@ RestaurantApiModel _$RestaurantApiModelFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       contact: json['contact'] as String,
       location: json['location'] as String,
-      filepath: json['filepath'] as String?,
+      image: json['image'] as String?,
     );
 
 Map<String, dynamic> _$RestaurantApiModelToJson(RestaurantApiModel instance) =>
@@ -21,5 +21,5 @@ Map<String, dynamic> _$RestaurantApiModelToJson(RestaurantApiModel instance) =>
       'name': instance.name,
       'contact': instance.contact,
       'location': instance.location,
-      'filepath': instance.filepath,
+      'image': instance.image,
     };

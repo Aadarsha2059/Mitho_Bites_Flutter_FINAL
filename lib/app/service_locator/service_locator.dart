@@ -40,6 +40,23 @@ import 'package:fooddelivery_b/features/food_products/domain/repository/products
 import 'package:fooddelivery_b/features/food_products/domain/use_case/get_productsby_category_usecase.dart';
 import 'package:fooddelivery_b/features/food_products/presentation/view_model/product_viewmodel.dart';
 
+// Cart dependencies
+import 'package:fooddelivery_b/features/cart/data/data_source/local_datasource/cart_local_datasource.dart';
+import 'package:fooddelivery_b/features/cart/data/data_source/remote_datasouce/cart_remote_datasource.dart';
+import 'package:fooddelivery_b/features/cart/data/repository/local_repository/cart_local_repository.dart';
+import 'package:fooddelivery_b/features/cart/data/repository/remote_repository/cart_remote_repository.dart';
+import 'package:fooddelivery_b/features/cart/data/repository/cart_repository_impl.dart';
+import 'package:fooddelivery_b/features/cart/domain/repository/cart_repository.dart';
+import 'package:fooddelivery_b/features/cart/domain/use_case/addto_cart_usecase.dart';
+import 'package:fooddelivery_b/features/cart/domain/use_case/clear_cart_usecase.dart';
+import 'package:fooddelivery_b/features/cart/domain/use_case/get_cart_usecase.dart';
+import 'package:fooddelivery_b/features/cart/domain/use_case/get_all_cart_items_usecase.dart';
+import 'package:fooddelivery_b/features/cart/domain/use_case/get_cartitem_usecase.dart';
+import 'package:fooddelivery_b/features/cart/domain/use_case/removefrom_cart_usecase.dart';
+import 'package:fooddelivery_b/features/cart/domain/use_case/save_cart_usecase.dart';
+import 'package:fooddelivery_b/features/cart/domain/use_case/update_cart_usecase.dart';
+import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_model.dart';
+
 import 'package:get_it/get_it.dart';
 
 final serviceLocator = GetIt.instance;
@@ -53,6 +70,7 @@ Future<void> initDependencies() async {
   await _initRestaurantModule();
   await _initMenuModule();
   await _initProductModule();
+  await _initCartModule();
 }
 
 Future<void> _initHiveService() async {
@@ -241,5 +259,64 @@ Future<void> _initProductModule() async {
   // View Models
   serviceLocator.registerFactory<ProductViewModel>(
     () => ProductViewModel(repository: serviceLocator<IProductRepository>()),
+  );
+}
+
+Future<void> _initCartModule() async {
+  // Data Sources
+  serviceLocator.registerLazySingleton<CartLocalDatasource>(
+    () => CartLocalDatasource(hiveService: serviceLocator<HiveService>()),
+  );
+  serviceLocator.registerLazySingleton<CartRemoteDatasource>(
+    () => CartRemoteDatasource(apiService: serviceLocator<ApiService>()),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<CartLocalRepository>(
+    () => CartLocalRepository(
+      cartLocalDatasource: serviceLocator<CartLocalDatasource>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<CartRemoteRepository>(
+    () => CartRemoteRepository(
+      cartRemoteDatasource: serviceLocator<CartRemoteDatasource>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<ICartRepository>(
+    () => CartRepositoryImpl(
+      localRepository: serviceLocator<CartLocalRepository>(),
+      remoteRepository: serviceLocator<CartRemoteRepository>(),
+    ),
+  );
+
+  // Use Cases
+  serviceLocator.registerLazySingleton<GetCartUsecase>(
+    () => GetCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
+  );
+  serviceLocator.registerLazySingleton<GetAllCartItemsUsecase>(
+    () => GetAllCartItemsUsecase(cartRepository: serviceLocator<ICartRepository>()),
+  );
+  serviceLocator.registerLazySingleton<GetCartItemUsecase>(
+    () => GetCartItemUsecase(cartRepository: serviceLocator<ICartRepository>()),
+  );
+  serviceLocator.registerLazySingleton<AddToCartUsecase>(
+    () => AddToCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
+  );
+  serviceLocator.registerLazySingleton<UpdateCartItemUsecase>(
+    () => UpdateCartItemUsecase(cartRepository: serviceLocator<ICartRepository>()),
+  );
+  serviceLocator.registerLazySingleton<RemoveFromCartUsecase>(
+    () => RemoveFromCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
+  );
+  serviceLocator.registerLazySingleton<ClearCartUsecase>(
+    () => ClearCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
+  );
+  serviceLocator.registerLazySingleton<SaveCartUsecase>(
+    () => SaveCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
+  );
+
+  // View Models
+  serviceLocator.registerFactory<CartViewModel>(
+    () => CartViewModel(repository: serviceLocator<ICartRepository>()),
   );
 }

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:fooddelivery_b/features/food_category/domain/entity/food_category_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
+
 part 'category_api_model.g.dart';
 
 @JsonSerializable()
@@ -9,43 +9,42 @@ class CategoryApiModel extends Equatable {
   @JsonKey(name: '_id')
   final String? categoryId;
   final String name;
-  @JsonKey(name: 'filepath')
-  final String? filepath;
+  @JsonKey(name: 'image')
+  final String? image;
 
   const CategoryApiModel({
     this.categoryId,
     required this.name,
-    this.filepath,
+    this.image,
   });
+  
   factory CategoryApiModel.fromJson(Map<String, dynamic> json) =>
       _$CategoryApiModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$CategoryApiModelToJson(this);
 
-  // to entity - Convert filepath to full image URL
+  // to entity - Use image URL directly from backend
   FoodCategoryEntity toEntity() {
-    String? imageUrl;
-    if (filepath != null && filepath!.isNotEmpty) {
-      // Avoid double 'uploads/uploads' in the image URL
-      if (filepath!.startsWith('uploads/')) {
-        imageUrl = '${ApiEndpoints.serverAddress}/$filepath';
-      } else {
-        imageUrl = '${ApiEndpoints.imageUrl}$filepath';
-      }
-    }
-    return FoodCategoryEntity(categoryId: categoryId, name: name, image: imageUrl);
+    return FoodCategoryEntity(
+      categoryId: categoryId, 
+      name: name, 
+      image: image // Backend already provides full URL
+    );
   }
 
   //from entity
   factory CategoryApiModel.fromEntity(FoodCategoryEntity entity) {
-    final category = CategoryApiModel(name: entity.name, filepath: entity.image);
-    return category;
+    return CategoryApiModel(
+      categoryId: entity.categoryId,
+      name: entity.name, 
+      image: entity.image
+    );
   }
   
   @override
   List<Object?> get props => [
     categoryId,
     name,
-    filepath,
+    image,
   ];
 }

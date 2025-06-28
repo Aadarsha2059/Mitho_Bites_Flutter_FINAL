@@ -6,11 +6,13 @@ class HiveTableConstant {
 
   static const int categoryTableId = 1;
   static const String categoryBox = 'categoryBox';
-  
+
   static const int restaurantTableId = 2;
   static const String restaurantBox = 'restaurantBox';
 
   static const int productTableId = 3;
-  static const String productBox= 'productBox';
+  static const String productBox = 'productBox';
 
+  static const int cartTableId = 4;
+  static const String cartBox = 'cartBox';
 }
