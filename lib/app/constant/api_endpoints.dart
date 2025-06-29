@@ -17,6 +17,7 @@ class ApiEndpoints {
   // Auth - MERN Backend endpoints (CONFIRMED)
   static const String login = "auth/login";
   static const String register = "auth/register";
+  static const String getCurrentUser = "auth/me";
   // Note: getAllUsers endpoint does not exist in MERN backend
 
   // Public endpoints for categories and restaurants
@@ -32,6 +33,18 @@ class ApiEndpoints {
   static const String removeFromCart = "cart/remove";
   static const String clearCart = "cart/clear";
   static const String getCartItem = "cart/item";
+
+
+
+   // Payment endpoints
+  static const String createOrder = "orders";
+  static const String getUserOrders = "orders";
+  static const String getOrderById = "orders/"; 
+  static const String updatePaymentStatus = "orders/"; 
+
+  // Payment method endpoints 
+  static const String createPaymentRecord = "admin/paymentmethod";
+  static const String getAllPaymentRecords = "admin/paymentmethod";
 
 
 

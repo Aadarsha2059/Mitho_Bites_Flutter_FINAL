@@ -11,9 +11,11 @@ part 'cart_api_model.g.dart';
 class CartItemApiModel extends Equatable {
   @JsonKey(name: '_id')
   final String? cartItemId;
-  final ProductApiModel productId;
-  final int quantity;
+  final String productId;
+  final String productName;
   final double price;
+  final int quantity;
+  final String? image;
   @JsonKey(name: 'createdAt')
   final DateTime? createdAt;
   @JsonKey(name: 'updatedAt')
@@ -22,35 +24,75 @@ class CartItemApiModel extends Equatable {
   const CartItemApiModel({
     this.cartItemId,
     required this.productId,
-    required this.quantity,
+    required this.productName,
     required this.price,
+    required this.quantity,
+    this.image,
     this.createdAt,
     this.updatedAt,
   });
 
-  factory CartItemApiModel.fromJson(Map<String, dynamic> json) => CartItemApiModel(
-    cartItemId: json['_id'] as String?,
-    productId: ProductApiModel.fromJson(json['productId'] as Map<String, dynamic>),
-    quantity: json['quantity'] as int,
-    price: (json['price'] as num).toDouble(),
-    createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : null,
-    updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
-  );
+  factory CartItemApiModel.fromJson(Map<String, dynamic> json) {
+    // Handle complex productId object from backend
+    String productId;
+    String productName;
+    String? image;
+    
+    if (json['productId'] is Map<String, dynamic>) {
+      // Backend returns productId as an object
+      final productObj = json['productId'] as Map<String, dynamic>;
+      productId = productObj['_id'] as String;
+      productName = productObj['name'] as String;
+      image = productObj['image'] as String?;
+    } else {
+      // Fallback for simple string productId
+      productId = json['productId'] as String;
+      productName = json['productName'] as String? ?? '';
+      image = json['image'] as String?;
+    }
+    
+    return CartItemApiModel(
+      cartItemId: json['_id'] as String?,
+      productId: productId,
+      productName: productName,
+      price: (json['price'] as num).toDouble(),
+      quantity: json['quantity'] as int,
+      image: image,
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     '_id': cartItemId,
-    'productId': productId.toJson(),
-    'quantity': quantity,
+    'productId': productId,
+    'productName': productName,
     'price': price,
+    'quantity': quantity,
+    'image': image,
     'createdAt': createdAt?.toIso8601String(),
     'updatedAt': updatedAt?.toIso8601String(),
   };
 
-  // to entity - with proper image URL handling
+  // to entity
   CartItemEntity toEntity() {
     return CartItemEntity(
       cartItemId: cartItemId,
-      product: productId.toEntity(), // This handles image URL conversion
+      productId: productId,
+      productName: productName,
+      productType: 'food',
+      productPrice: price,
+      productDescription: '',
+      productImage: image,
+      categoryId: null,
+      restaurantId: null,
+      isAvailable: true,
+      categoryName: null,
+      categoryImage: null,
+      restaurantName: null,
+      restaurantImage: null,
+      restaurantLocation: null,
+      restaurantContact: null,
       quantity: quantity,
       price: price,
       createdAt: createdAt,
@@ -62,9 +104,11 @@ class CartItemApiModel extends Equatable {
   factory CartItemApiModel.fromEntity(CartItemEntity entity) {
     return CartItemApiModel(
       cartItemId: entity.cartItemId,
-      productId: ProductApiModel.fromEntity(entity.product),
-      quantity: entity.quantity,
+      productId: entity.productId,
+      productName: entity.productName,
       price: entity.price,
+      quantity: entity.quantity,
+      image: entity.productImage,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -74,8 +118,10 @@ class CartItemApiModel extends Equatable {
   List<Object?> get props => [
     cartItemId,
     productId,
-    quantity,
+    productName,
     price,
+    quantity,
+    image,
     createdAt,
     updatedAt,
   ];

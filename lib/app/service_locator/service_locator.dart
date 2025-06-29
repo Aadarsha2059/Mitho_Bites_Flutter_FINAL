@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/core/network/hive_service.dart';
+import 'package:fooddelivery_b/app/shared_pref/token_shared_prefs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fooddelivery_b/features/menu/menu_view_model.dart';
 import 'package:fooddelivery_b/features/restaurant/data/data_source/local_datasource/restaurannt_local_datasource.dart';
 import 'package:fooddelivery_b/features/restaurant/data/data_source/remote_datasource/restaurant_remote_datasource.dart';
@@ -57,6 +59,24 @@ import 'package:fooddelivery_b/features/cart/domain/use_case/save_cart_usecase.d
 import 'package:fooddelivery_b/features/cart/domain/use_case/update_cart_usecase.dart';
 import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_model.dart';
 
+// Payment dependencies
+import 'package:fooddelivery_b/features/payment/data/data_source/payment_datasource.dart';
+import 'package:fooddelivery_b/features/payment/data/data_source/local_data_source/payment_local_datasource.dart';
+import 'package:fooddelivery_b/features/payment/data/data_source/remote_data_source/payment_remote_datasource.dart';
+import 'package:fooddelivery_b/features/payment/data/repository/payment_repository_impl.dart';
+import 'package:fooddelivery_b/features/payment/data/repository/payment_local_repository.dart';
+import 'package:fooddelivery_b/features/payment/data/repository/payment_remote_repository.dart';
+import 'package:fooddelivery_b/features/payment/domain/repository/payment_repository.dart';
+import 'package:fooddelivery_b/features/payment/domain/use_case/create_order_use_case.dart';
+import 'package:fooddelivery_b/features/payment/domain/use_case/get_user_orders_use_case.dart';
+import 'package:fooddelivery_b/features/payment/domain/use_case/get_order_by_id_use_case.dart';
+import 'package:fooddelivery_b/features/payment/domain/use_case/update_payment_status_use_case.dart';
+import 'package:fooddelivery_b/features/payment/domain/use_case/create_payment_record_use_case.dart';
+import 'package:fooddelivery_b/features/payment/domain/use_case/get_all_payment_records_use_case.dart';
+import 'package:fooddelivery_b/features/payment/domain/use_case/save_payment_records_use_case.dart';
+import 'package:fooddelivery_b/features/payment/domain/use_case/clear_payment_records_use_case.dart';
+import 'package:fooddelivery_b/features/payment/presentation/view_model/payment_view_model.dart';
+
 import 'package:get_it/get_it.dart';
 
 final serviceLocator = GetIt.instance;
@@ -71,6 +91,7 @@ Future<void> initDependencies() async {
   await _initMenuModule();
   await _initProductModule();
   await _initCartModule();
+  await _initPaymentModule();
 }
 
 Future<void> _initHiveService() async {
@@ -78,9 +99,22 @@ Future<void> _initHiveService() async {
 }
 
 Future<void> _initApiModule() async {
+  // SharedPreferences instance
+  final sharedPreferences = await SharedPreferences.getInstance();
+  
+  // TokenSharedPrefs instance
+  serviceLocator.registerLazySingleton<TokenSharedPrefs>(
+    () => TokenSharedPrefs(sharedPreferences: sharedPreferences),
+  );
+  
   //Dio instance
   serviceLocator.registerLazySingleton<Dio>(() => Dio());
-  serviceLocator.registerLazySingleton(() => ApiService(serviceLocator<Dio>()));
+  
+  //ApiService with TokenSharedPrefs
+  serviceLocator.registerLazySingleton(() => ApiService(
+    serviceLocator<Dio>(),
+    serviceLocator<TokenSharedPrefs>(),
+  ));
 }
 
 Future<void> _initAuthModule() async {
@@ -90,7 +124,10 @@ Future<void> _initAuthModule() async {
   );
 
   serviceLocator.registerFactory(
-    () => UserRemoteDatasource(apiService: serviceLocator<ApiService>()),
+    () => UserRemoteDatasource(
+      apiService: serviceLocator<ApiService>(),
+      tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
+    ),
   );
 
   // Hybrid Repository - implemented in domain layer
@@ -316,7 +353,75 @@ Future<void> _initCartModule() async {
   );
 
   // View Models
-  serviceLocator.registerFactory<CartViewModel>(
+  serviceLocator.registerLazySingleton<CartViewModel>(
     () => CartViewModel(repository: serviceLocator<ICartRepository>()),
+  );
+}
+
+Future<void> _initPaymentModule() async {
+  // Data Sources
+  serviceLocator.registerLazySingleton<PaymentLocalDatasource>(
+    () => PaymentLocalDatasource(hiveService: serviceLocator<HiveService>()),
+  );
+  serviceLocator.registerLazySingleton<PaymentRemoteDataSource>(
+    () => PaymentRemoteDataSource(apiService: serviceLocator<ApiService>()),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<PaymentLocalRepository>(
+    () => PaymentLocalRepository(
+      paymentLocalDatasource: serviceLocator<PaymentLocalDatasource>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<PaymentRemoteRepository>(
+    () => PaymentRemoteRepository(
+      paymentRemoteDataSource: serviceLocator<PaymentRemoteDataSource>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<IPaymentRepository>(
+    () => PaymentRepositoryImpl(
+      localRepository: serviceLocator<PaymentLocalRepository>(),
+      remoteRepository: serviceLocator<PaymentRemoteRepository>(),
+    ),
+  );
+
+  // Use Cases
+  serviceLocator.registerLazySingleton<CreateOrderUsecase>(
+    () => CreateOrderUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+  );
+  serviceLocator.registerLazySingleton<GetUserOrdersUsecase>(
+    () => GetUserOrdersUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+  );
+  serviceLocator.registerLazySingleton<GetOrderByIdUsecase>(
+    () => GetOrderByIdUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+  );
+  serviceLocator.registerLazySingleton<UpdatePaymentStatusUsecase>(
+    () => UpdatePaymentStatusUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+  );
+  serviceLocator.registerLazySingleton<CreatePaymentRecordUsecase>(
+    () => CreatePaymentRecordUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+  );
+  serviceLocator.registerLazySingleton<GetAllPaymentRecordsUsecase>(
+    () => GetAllPaymentRecordsUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+  );
+  serviceLocator.registerLazySingleton<SavePaymentRecordsUsecase>(
+    () => SavePaymentRecordsUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+  );
+  serviceLocator.registerLazySingleton<ClearPaymentRecordsUsecase>(
+    () => ClearPaymentRecordsUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+  );
+
+  // View Models
+  serviceLocator.registerFactory<PaymentViewModel>(
+    () => PaymentViewModel(
+      createOrderUsecase: serviceLocator<CreateOrderUsecase>(),
+      getUserOrdersUsecase: serviceLocator<GetUserOrdersUsecase>(),
+      getOrderByIdUsecase: serviceLocator<GetOrderByIdUsecase>(),
+      updatePaymentStatusUsecase: serviceLocator<UpdatePaymentStatusUsecase>(),
+      createPaymentRecordUsecase: serviceLocator<CreatePaymentRecordUsecase>(),
+      getAllPaymentRecordsUsecase: serviceLocator<GetAllPaymentRecordsUsecase>(),
+      savePaymentRecordsUsecase: serviceLocator<SavePaymentRecordsUsecase>(),
+      clearPaymentRecordsUsecase: serviceLocator<ClearPaymentRecordsUsecase>(),
+    ),
   );
 }

@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
-import 'package:flutter/material.dart';
-
 @immutable
 sealed class LoginEvent {}
 

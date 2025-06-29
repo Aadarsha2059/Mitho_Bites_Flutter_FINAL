@@ -1,9 +1,22 @@
 import 'package:equatable/equatable.dart';
-import 'package:fooddelivery_b/features/food_products/domain/entity/products_entity.dart';
 
 class CartItemEntity extends Equatable {
   final String? cartItemId;
-  final ProductsEntity product;
+  final String productId;
+  final String productName;
+  final String productType;
+  final double productPrice;
+  final String productDescription;
+  final String? productImage;
+  final String? categoryId;
+  final String? restaurantId;
+  final bool isAvailable;
+  final String? categoryName;
+  final String? categoryImage;
+  final String? restaurantName;
+  final String? restaurantImage;
+  final String? restaurantLocation;
+  final String? restaurantContact;
   final int quantity;
   final double price;
   final DateTime? createdAt;
@@ -11,7 +24,21 @@ class CartItemEntity extends Equatable {
 
   const CartItemEntity({
     this.cartItemId,
-    required this.product,
+    required this.productId,
+    required this.productName,
+    this.productType = 'food',
+    required this.productPrice,
+    this.productDescription = '',
+    this.productImage,
+    this.categoryId,
+    this.restaurantId,
+    this.isAvailable = true,
+    this.categoryName,
+    this.categoryImage,
+    this.restaurantName,
+    this.restaurantImage,
+    this.restaurantLocation,
+    this.restaurantContact,
     required this.quantity,
     required this.price,
     this.createdAt,
@@ -20,34 +47,39 @@ class CartItemEntity extends Equatable {
 
   double get totalPrice => price * quantity;
 
-  // Required fields for order creation (matching backend requirements)
-  String get productName => product.name;
-  String get categoryName => product.categoryName ?? 'Unknown Category';
-  String get restaurantName => product.restaurantName ?? 'Unknown Restaurant';
-  String get restaurantLocation => 'Location not available'; // Will be populated from backend
-  String get foodType => product.type;
-
   // Convert to backend order item format
   Map<String, dynamic> toOrderItemMap() {
     return {
-      'productId': product.productId,
+      'productId': productId,
       'quantity': quantity,
       'price': price,
       'productName': productName,
-      'categoryName': categoryName,
-      'restaurantName': restaurantName,
-      'restaurantLocation': restaurantLocation,
-      'foodType': foodType,
     };
   }
 
   @override
   List<Object?> get props => [
     cartItemId,
-    product,
+    productId,
+    productName,
+    productType,
+    productPrice,
+    productDescription,
+    productImage,
+    categoryId,
+    restaurantId,
+    isAvailable,
+    categoryName,
+    categoryImage,
+    restaurantName,
+    restaurantImage,
+    restaurantLocation,
+    restaurantContact,
     quantity,
     price,
     createdAt,
     updatedAt,
   ];
+
+  copyWith({required int quantity}) {}
 }

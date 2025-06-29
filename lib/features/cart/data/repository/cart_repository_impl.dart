@@ -18,19 +18,26 @@ class CartRepositoryImpl implements ICartRepository {
 
   @override
   Future<Either<Failure, CartEntity>> getCart() async {
+    print('🔄 CartRepositoryImpl: Getting cart...');
     final localResult = await _localRepository.getCart();
     return localResult.fold(
       (localFailure) async {
+        print('❌ CartRepositoryImpl: Local cart failed, trying remote...');
         final remoteResult = await _remoteRepository.getCart();
         return remoteResult.fold(
-          (remoteFailure) => Left(remoteFailure),
+          (remoteFailure) {
+            print('❌ CartRepositoryImpl: Remote cart also failed');
+            return Left(remoteFailure);
+          },
           (cart) async {
+            print('✅ CartRepositoryImpl: Got cart from remote, saving to local');
             await _localRepository.saveCart(cart);
             return Right(cart);
           },
         );
       },
       (localCart) {
+        print('✅ CartRepositoryImpl: Got cart from local storage with ${localCart.items.length} items');
         _refreshCartInBackground();
         return Right(localCart);
       },
@@ -60,13 +67,33 @@ class CartRepositoryImpl implements ICartRepository {
 
   @override
   Future<Either<Failure, void>> addToCart(CartItemEntity cartItem) async {
+    print('➕ CartRepositoryImpl: Adding item to cart - ${cartItem.productName}');
     final localResult = await _localRepository.addToCart(cartItem);
     return localResult.fold(
-      (localFailure) => Left(localFailure),
+      (localFailure) {
+        print('❌ CartRepositoryImpl: Failed to add to local cart');
+        return Left(localFailure);
+      },
       (_) async {
+        print('✅ CartRepositoryImpl: Added to local cart, syncing to remote...');
         try {
           await _remoteRepository.addToCart(cartItem);
+          print('✅ CartRepositoryImpl: Successfully synced to remote');
+          
+          // Force refresh from backend to get the complete cart
+          print('🔄 CartRepositoryImpl: Force refreshing cart from backend...');
+          final remoteResult = await _remoteRepository.getCart();
+          remoteResult.fold(
+            (failure) {
+              print('❌ CartRepositoryImpl: Force refresh failed - ${failure.message}');
+            },
+            (cart) async {
+              print('✅ CartRepositoryImpl: Force refresh successful, saving ${cart.items.length} items to local');
+              await _localRepository.saveCart(cart);
+            },
+          );
         } catch (e) {
+          print('⚠️ CartRepositoryImpl: Failed to sync to remote: $e');
           // Silent fail - local add was successful
         }
         return const Right(null);
@@ -169,25 +196,34 @@ class CartRepositoryImpl implements ICartRepository {
   }
 
   void _refreshCartInBackground() async {
+    print('🔄 CartRepositoryImpl: Refreshing cart in background...');
     try {
       final remoteResult = await _remoteRepository.getCart();
       remoteResult.fold(
-        (failure) {},
+        (failure) {
+          print('❌ CartRepositoryImpl: Background refresh failed - ${failure.message}');
+        },
         (cart) async {
+          print('✅ CartRepositoryImpl: Background refresh successful, saving ${cart.items.length} items to local');
           await _localRepository.saveCart(cart);
         },
       );
     } catch (e) {
+      print('❌ CartRepositoryImpl: Background refresh error - $e');
       // Silent fail - user still sees local data
     }
   }
 
   void _refreshCartItemsInBackground() async {
+    print('🔄 CartRepositoryImpl: Refreshing cart items in background...');
     try {
       final remoteResult = await _remoteRepository.getAllCartItems();
       remoteResult.fold(
-        (failure) {},
+        (failure) {
+          print('❌ CartRepositoryImpl: Background items refresh failed - ${failure.message}');
+        },
         (cartItems) async {
+          print('✅ CartRepositoryImpl: Background items refresh successful, saving ${cartItems.length} items to local');
           final cart = CartEntity(
             cartId: null,
             userId: null,
@@ -199,6 +235,7 @@ class CartRepositoryImpl implements ICartRepository {
         },
       );
     } catch (e) {
+      print('❌ CartRepositoryImpl: Background items refresh error - $e');
       // Silent fail - user still sees local data
     }
   }

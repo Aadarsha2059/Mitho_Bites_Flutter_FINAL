@@ -15,7 +15,7 @@ class CartIcon extends StatelessWidget {
         int itemCount = 0;
 
         if (state is CartLoaded) {
-          itemCount = state.cart.itemCount;
+          itemCount = state.cartItems.fold<int>(0, (sum, item) => sum + item.quantity);
         }
 
         return Stack(

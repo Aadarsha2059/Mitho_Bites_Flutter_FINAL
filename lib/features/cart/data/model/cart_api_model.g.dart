@@ -9,10 +9,11 @@ part of 'cart_api_model.dart';
 CartItemApiModel _$CartItemApiModelFromJson(Map<String, dynamic> json) =>
     CartItemApiModel(
       cartItemId: json['_id'] as String?,
-      productId:
-          ProductApiModel.fromJson(json['productId'] as Map<String, dynamic>),
-      quantity: (json['quantity'] as num).toInt(),
+      productId: json['productId'] as String,
+      productName: json['productName'] as String,
       price: (json['price'] as num).toDouble(),
+      quantity: (json['quantity'] as num).toInt(),
+      image: json['image'] as String?,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -25,8 +26,10 @@ Map<String, dynamic> _$CartItemApiModelToJson(CartItemApiModel instance) =>
     <String, dynamic>{
       '_id': instance.cartItemId,
       'productId': instance.productId,
-      'quantity': instance.quantity,
+      'productName': instance.productName,
       'price': instance.price,
+      'quantity': instance.quantity,
+      'image': instance.image,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };

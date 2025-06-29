@@ -4,6 +4,7 @@ import 'package:fooddelivery_b/features/food_category/data/model/category_hive_m
 import 'package:fooddelivery_b/features/restaurant/data/model/restaurant_hive_model.dart';
 import 'package:fooddelivery_b/features/food_products/data/model/product_hive_model.dart';
 import 'package:fooddelivery_b/features/cart/data/model/cart_hive_model.dart';
+import 'package:fooddelivery_b/features/payment/data/model/payment_hive_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -26,6 +27,7 @@ class HiveService {
     Hive.registerAdapter(ProductHiveModelAdapter());
     Hive.registerAdapter(CartItemHiveModelAdapter());
     Hive.registerAdapter(CartHiveModelAdapter());
+    Hive.registerAdapter(PaymentHiveModelAdapter());
   }
 
   // User methods
@@ -176,12 +178,47 @@ class HiveService {
     await box.delete(cartId);
   }
 
+  // Payment methods
+  Future<void> savePaymentRecords(List<PaymentHiveModel> paymentRecords) async {
+    var box = await Hive.openBox<PaymentHiveModel>(HiveTableConstant.paymentBox);
+    await box.clear();
+    for (var paymentRecord in paymentRecords) {
+      await box.put(paymentRecord.id, paymentRecord);
+    }
+  }
+
+  Future<List<PaymentHiveModel>> getAllPaymentRecords() async {
+    var box = await Hive.openBox<PaymentHiveModel>(HiveTableConstant.paymentBox);
+    return box.values.toList();
+  }
+
+  Future<void> clearPaymentRecords() async {
+    var box = await Hive.openBox<PaymentHiveModel>(HiveTableConstant.paymentBox);
+    await box.clear();
+  }
+
+  Future<void> addPaymentRecord(PaymentHiveModel paymentRecord) async {
+    var box = await Hive.openBox<PaymentHiveModel>(HiveTableConstant.paymentBox);
+    await box.put(paymentRecord.id, paymentRecord);
+  }
+
+  Future<PaymentHiveModel?> getPaymentRecord(String paymentId) async {
+    var box = await Hive.openBox<PaymentHiveModel>(HiveTableConstant.paymentBox);
+    return box.get(paymentId);
+  }
+
+  Future<void> deletePaymentRecord(String paymentId) async {
+    var box = await Hive.openBox<PaymentHiveModel>(HiveTableConstant.paymentBox);
+    await box.delete(paymentId);
+  }
+
   Future<void> clearAll() async {
     await Hive.deleteBoxFromDisk(HiveTableConstant.userBox);
     await Hive.deleteBoxFromDisk(HiveTableConstant.categoryBox);
     await Hive.deleteBoxFromDisk(HiveTableConstant.restaurantBox);
     await Hive.deleteBoxFromDisk(HiveTableConstant.productBox);
     await Hive.deleteBoxFromDisk(HiveTableConstant.cartBox);
+    await Hive.deleteBoxFromDisk(HiveTableConstant.paymentBox);
   }
 
   Future<void> close() async {

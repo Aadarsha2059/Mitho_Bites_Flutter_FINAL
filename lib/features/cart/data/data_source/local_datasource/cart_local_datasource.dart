@@ -27,10 +27,13 @@ class CartLocalDatasource implements ICartDataSource {
   @override
   Future<CartEntity> getCart() async {
     try {
+      print('🏪 CartLocalDatasource: Getting cart from Hive...');
       var box = await Hive.openBox<CartItemHiveModel>(
         HiveTableConstant.cartBox,
       );
       final cartItems = box.values.map((model) => model.toEntity()).toList();
+      print('📦 CartLocalDatasource: Found ${cartItems.length} items in Hive');
+      print('🔑 CartLocalDatasource: Hive box keys: ${box.keys.toList()}');
       return CartEntity(
         cartId: null,
         userId: null,
@@ -39,6 +42,7 @@ class CartLocalDatasource implements ICartDataSource {
         updatedAt: null,
       );
     } catch (e) {
+      print('❌ CartLocalDatasource: Error getting cart - $e');
       throw Exception("Failed to get cart: $e");
     }
   }
@@ -62,12 +66,16 @@ class CartLocalDatasource implements ICartDataSource {
   @override
   Future<void> addToCart(CartItemEntity cartItem) async {
     try {
+      print('➕ CartLocalDatasource: Adding item to Hive - ${cartItem.productName}');
       var box = await Hive.openBox<CartItemHiveModel>(
         HiveTableConstant.cartBox,
       );
       final hiveModel = CartItemHiveModel.fromEntity(cartItem);
       await box.put(hiveModel.cartItemId, hiveModel);
+      print('✅ CartLocalDatasource: Item saved to Hive with key: ${hiveModel.cartItemId}');
+      print('📊 CartLocalDatasource: Total items in Hive after save: ${box.length}');
     } catch (e) {
+      print('❌ CartLocalDatasource: Error adding to cart - $e');
       throw Exception("Failed to add to cart: $e");
     }
   }

@@ -4,6 +4,7 @@ import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_m
 import 'package:fooddelivery_b/features/cart/presentation/state/cart_state.dart';
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CartDialog extends StatelessWidget {
   final CartViewModel cartViewModel;
@@ -77,11 +78,8 @@ class CartDialog extends StatelessWidget {
             ),
             // Cart Content
             Flexible(
-              child: ListenableBuilder(
-                listenable: cartViewModel,
-                builder: (context, child) {
-                  final state = cartViewModel.state;
-
+              child: BlocBuilder<CartViewModel, CartState>(
+                builder: (context, state) {
                   if (state is CartLoading) {
                     return const Padding(
                       padding: EdgeInsets.all(32),
@@ -113,7 +111,7 @@ class CartDialog extends StatelessWidget {
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: () {
-                                cartViewModel.onEvent(LoadCart());
+                                cartViewModel.add(LoadCart());
                               },
                               child: const Text('Retry'),
                             ),
@@ -124,9 +122,9 @@ class CartDialog extends StatelessWidget {
                   }
 
                   if (state is CartLoaded) {
-                    final cart = state.cart;
+                    final cartItems = state.cartItems;
 
-                    if (cart.isEmpty) {
+                    if (cartItems.isEmpty) {
                       return const Padding(
                         padding: EdgeInsets.all(32),
                         child: Center(
@@ -161,6 +159,10 @@ class CartDialog extends StatelessWidget {
                       );
                     }
 
+                    // Calculate totals
+                    final totalAmount = cartItems.fold<double>(0, (sum, item) => sum + (item.price * item.quantity));
+                    final itemCount = cartItems.fold<int>(0, (sum, item) => sum + item.quantity);
+
                     return Column(
                       children: [
                         // Cart Items
@@ -168,20 +170,20 @@ class CartDialog extends StatelessWidget {
                           child: ListView.builder(
                             shrinkWrap: true,
                             padding: const EdgeInsets.all(12),
-                            itemCount: cart.items.length,
+                            itemCount: cartItems.length,
                             itemBuilder: (context, index) {
-                              final cartItem = cart.items[index];
+                              final cartItem = cartItems[index];
                               return CartDialogItem(
                                 cartItem: cartItem,
                                 onQuantityChanged: (quantity) {
                                   if (quantity > 0) {
-                                    cartViewModel.onEvent(UpdateCartItem(cartItem.cartItemId!, quantity));
+                                    cartViewModel.add(UpdateCartItem(cartItem.cartItemId!, quantity));
                                   } else {
-                                    cartViewModel.onEvent(RemoveFromCart(cartItem.cartItemId!));
+                                    cartViewModel.add(RemoveFromCart(productId: cartItem.productId));
                                   }
                                 },
                                 onRemove: () {
-                                  cartViewModel.onEvent(RemoveFromCart(cartItem.cartItemId!));
+                                  cartViewModel.add(RemoveFromCart(productId: cartItem.productId));
                                 },
                               );
                             },
@@ -217,7 +219,7 @@ class CartDialog extends StatelessWidget {
                                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                         ),
                                         Text(
-                                          'NPR ${cart.totalAmount.toStringAsFixed(2)}',
+                                          'NPR ${totalAmount.toStringAsFixed(2)}',
                                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange),
                                         ),
                                       ],
@@ -231,7 +233,7 @@ class CartDialog extends StatelessWidget {
                                           style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                         ),
                                         Text(
-                                          '${cart.itemCount}',
+                                          '$itemCount',
                                           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                         ),
                                       ],
@@ -259,7 +261,7 @@ class CartDialog extends StatelessWidget {
                                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          'NPR ${(cart.totalAmount + 50.0).toStringAsFixed(2)}',
+                                          'NPR ${(totalAmount + 50.0).toStringAsFixed(2)}',
                                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
                                         ),
                                       ],
@@ -371,7 +373,7 @@ class CartDialogItem extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: Image.network(
-                  getFullImageUrl(cartItem.product.image),
+                  getFullImageUrl(cartItem.productImage ?? ''),
                   width: 70,
                   height: 70,
                   fit: BoxFit.cover,
@@ -393,7 +395,7 @@ class CartDialogItem extends StatelessWidget {
                   children: [
                     // Item Name
                     Text(
-                      cartItem.product.name,
+                      cartItem.productName,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -414,7 +416,7 @@ class CartDialogItem extends StatelessWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            cartItem.product.restaurantName ?? 'Restaurant',
+                            'Restaurant', // Default restaurant name
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[600],
@@ -492,16 +494,12 @@ class CartDialogItem extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        // Check if item is available before adding
-                        if (cartItem.product.isAvailable) {
-                          onQuantityChanged(cartItem.quantity + 1);
-                        } else {
-                          _showInsufficientItemAlert(context);
-                        }
+                        // Always allow adding more since we're in cart
+                        onQuantityChanged(cartItem.quantity + 1);
                       },
                       icon: const Icon(Icons.add, size: 16),
                       style: IconButton.styleFrom(
-                        backgroundColor: cartItem.product.isAvailable ? Colors.orange : Colors.grey,
+                        backgroundColor: Colors.orange, // Always available since we're in cart
                         foregroundColor: Colors.white,
                         minimumSize: const Size(32, 32),
                         padding: EdgeInsets.zero,
@@ -521,7 +519,7 @@ class CartDialogItem extends StatelessWidget {
                     border: Border.all(color: Colors.green.withOpacity(0.3)),
                   ),
                   child: Text(
-                    'Total: NPR ${cartItem.totalPrice.toStringAsFixed(2)}',
+                    'Total: NPR ${(cartItem.price * cartItem.quantity).toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -555,7 +553,7 @@ class CartDialogItem extends StatelessWidget {
             ],
           ),
           content: Text(
-            'Are you sure you want to delete "${cartItem.product.name}" from your fooding cart?',
+            'Are you sure you want to delete "${cartItem.productName}" from your fooding cart?',
             style: const TextStyle(fontSize: 16),
           ),
           actions: [
@@ -576,41 +574,6 @@ class CartDialogItem extends StatelessWidget {
                 foregroundColor: Colors.white,
               ),
               child: const Text('Yes'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showInsufficientItemAlert(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent closing by tapping outside
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: const Row(
-            children: [
-              Icon(Icons.warning, color: Colors.orange, size: 24),
-              SizedBox(width: 8),
-              Text('Item Insufficient'),
-            ],
-          ),
-          content: Text(
-            'Sorry, "${cartItem.product.name}" is currently insufficient/out of stock.',
-            style: const TextStyle(fontSize: 16),
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('OK'),
             ),
           ],
         );

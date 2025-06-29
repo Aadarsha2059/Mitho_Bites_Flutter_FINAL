@@ -15,9 +15,15 @@ class UpdateCartItem extends CartEvent {
   UpdateCartItem(this.cartItemId, this.quantity);
 }
 
+class UpdateCartItemQuantity extends CartEvent {
+  final String productId;
+  final int quantity;
+  UpdateCartItemQuantity({required this.productId, required this.quantity});
+}
+
 class RemoveFromCart extends CartEvent {
-  final String cartItemId;
-  RemoveFromCart(this.cartItemId);
+  final String productId;
+  RemoveFromCart({required this.productId});
 }
 
 class ClearCart extends CartEvent {} 

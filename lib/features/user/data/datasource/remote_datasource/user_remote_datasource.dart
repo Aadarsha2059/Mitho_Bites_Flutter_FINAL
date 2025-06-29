@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
+import 'package:fooddelivery_b/app/shared_pref/token_shared_prefs.dart';
 import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/features/user/data/datasource/user_data_source.dart';
 import 'package:fooddelivery_b/features/user/data/model/user_api_model.dart';
@@ -7,18 +8,69 @@ import 'package:fooddelivery_b/features/user/domain/entity/user_entity.dart';
 
 class UserRemoteDatasource implements IUserDataSource {
   final ApiService _apiService;
+  final TokenSharedPrefs _tokenSharedPrefs;
 
-  UserRemoteDatasource({required ApiService apiService})
-    : _apiService = apiService;
+  UserRemoteDatasource({
+    required ApiService apiService,
+    required TokenSharedPrefs tokenSharedPrefs,
+  }) : _apiService = apiService,
+       _tokenSharedPrefs = tokenSharedPrefs;
 
   @override
   Future<UserEntity> getCurrentUser() async {
-    // TODO: This endpoint doesn't exist in MERN backend
-    // We need to either:
-    // 1. Add a getCurrentUser endpoint to the backend
-    // 2. Use JWT token to get user info
-    // 3. Store user info locally after login
-    throw UnimplementedError('getCurrentUser endpoint not available in MERN backend');
+    try {
+      print('=== Remote Get Current User Started ===');
+      print('Endpoint: ${ApiEndpoints.getCurrentUser}');
+      
+      final response = await _apiService.dio.get(
+        ApiEndpoints.getCurrentUser,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer ${await _getStoredToken()}',
+          },
+        ),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        
+        if (responseData['success'] == true && responseData['data'] != null) {
+          final userData = responseData['data'];
+          final userApiModel = UserApiModel.fromJson(userData);
+          final userEntity = userApiModel.toEntity();
+          
+          print('Get current user successful');
+          print('User address: ${userEntity.address}');
+          return userEntity;
+        } else {
+          throw Exception('Get current user failed: Invalid response format');
+        }
+      } else {
+        throw Exception('Get current user failed: ${response.statusMessage}');
+      }
+    } on DioException catch (e) {
+      print('DioException during get current user: ${e.message}');
+      print('DioException type: ${e.type}');
+      print('DioException response: ${e.response?.data}');
+      
+      if (e.response?.statusCode == 401) {
+        throw Exception('Authentication failed. Please login again.');
+      } else if (e.response?.statusCode == 403) {
+        throw Exception('Access denied. Token required.');
+      } else if (e.response != null && e.response!.data is Map<String, dynamic>) {
+        final errorData = e.response!.data;
+        if (errorData['message'] != null) {
+          throw Exception('Get current user failed: ${errorData['message']}');
+        }
+      }
+      throw Exception('Get current user failed: ${e.message}');
+    } catch (e) {
+      print('Unexpected error during get current user: $e');
+      throw Exception('Unexpected error during get current user: $e');
+    }
   }
 
   @override
@@ -34,9 +86,11 @@ class UserRemoteDatasource implements IUserDataSource {
         
         // Handle MERN backend response format
         if (responseData['success'] == true && responseData['token'] != null) {
+          await _tokenSharedPrefs.saveToken(responseData['token'] as String);
           return responseData['token'] as String;
         } else if (responseData['token'] != null) {
           // Direct token response
+          await _tokenSharedPrefs.saveToken(responseData['token'] as String);
           return responseData['token'] as String;
         } else {
           throw Exception('Login failed: No token received');
@@ -118,6 +172,23 @@ class UserRemoteDatasource implements IUserDataSource {
     } catch (e) {
       print('Unexpected error during registration: $e');
       throw Exception('Unexpected error during registration: $e');
+    }
+  }
+
+  // Helper method to get stored token
+  Future<String?> _getStoredToken() async {
+    try {
+      final result = await _tokenSharedPrefs.getToken();
+      return result.fold(
+        (failure) {
+          print('Failed to get token: ${failure.message}');
+          return null;
+        },
+        (token) => token,
+      );
+    } catch (e) {
+      print('Error getting stored token: $e');
+      return null;
     }
   }
 }

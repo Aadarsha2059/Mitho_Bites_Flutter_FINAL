@@ -43,13 +43,21 @@ class CartRemoteDatasource implements ICartDataSource {
   @override
   Future<CartEntity> getCart() async {
     try {
+      print('🌐 CartRemoteDatasource: Making GET request to ${ApiEndpoints.getCart}');
       final response = await _apiService.dio.get(ApiEndpoints.getCart);
 
       if (response.statusCode == 200) {
         final responseData = response.data;
+        print('✅ CartRemoteDatasource: Got 200 response from backend');
+        print('📦 CartRemoteDatasource: Response data keys: ${responseData.keys.toList()}');
+        
         if (responseData['success'] == true && responseData['data'] != null) {
-          return CartApiModel.fromJson(responseData['data']).toEntity();
+          print('📋 CartRemoteDatasource: Parsing cart data...');
+          final cartEntity = CartApiModel.fromJson(responseData['data']).toEntity();
+          print('✅ CartRemoteDatasource: Successfully parsed cart with ${cartEntity.items.length} items');
+          return cartEntity;
         } else {
+          print('📭 CartRemoteDatasource: No cart data, returning empty cart');
           // Return empty cart if no data
           return CartEntity(
             cartId: null,
@@ -60,10 +68,11 @@ class CartRemoteDatasource implements ICartDataSource {
           );
         }
       } else {
+        print('❌ CartRemoteDatasource: Non-200 response: ${response.statusCode}');
         throw Exception('Failed to get cart: ${response.statusMessage}');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
+      print('❌ CartRemoteDatasource: DioException - ${e.message}');
       if (e.response != null) {
         print('Response status: ${e.response!.statusCode}');
         print('Response data: ${e.response!.data}');
@@ -77,7 +86,7 @@ class CartRemoteDatasource implements ICartDataSource {
         updatedAt: null,
       );
     } catch (e) {
-      print('General Exception: $e');
+      print('❌ CartRemoteDatasource: General Exception - $e');
       return CartEntity(
         cartId: null,
         userId: null,
@@ -121,24 +130,30 @@ class CartRemoteDatasource implements ICartDataSource {
   @override
   Future<void> addToCart(CartItemEntity cartItem) async {
     try {
+      print('🌐 CartRemoteDatasource: Adding item to cart - ${cartItem.productName}');
+      print('📋 CartRemoteDatasource: Request data - productId: ${cartItem.productId}, quantity: ${cartItem.quantity}');
+      
       final response = await _apiService.dio.post(
         ApiEndpoints.addToCart,
         data: {
-          'productId': cartItem.product.productId,
+          'productId': cartItem.productId,
           'quantity': cartItem.quantity,
         },
       );
 
       if (response.statusCode == 200) {
         final responseData = response.data;
+        print('✅ CartRemoteDatasource: Successfully added item to backend cart');
         if (responseData['success'] != true) {
+          print('⚠️ CartRemoteDatasource: Backend returned success=false: ${responseData['message']}');
           throw Exception('Failed to add to cart: ${responseData['message']}');
         }
       } else {
+        print('❌ CartRemoteDatasource: Non-200 response: ${response.statusCode}');
         throw Exception('Failed to add to cart: ${response.statusMessage}');
       }
     } on DioException catch (e) {
-      print('DioException: ${e.message}');
+      print('❌ CartRemoteDatasource: DioException - ${e.message}');
       if (e.response != null) {
         print('Response status: ${e.response!.statusCode}');
         print('Response data: ${e.response!.data}');
@@ -146,7 +161,7 @@ class CartRemoteDatasource implements ICartDataSource {
       // For Flutter, we can still add to local cart even if server fails
       print('Server validation failed, using local cart: ${e.message}');
     } catch (e) {
-      print('General error, using local cart: $e');
+      print('❌ CartRemoteDatasource: General error, using local cart: $e');
     }
   }
 

@@ -15,9 +15,12 @@ class CartRemoteRepository implements ICartRepository {
   @override
   Future<Either<Failure, CartEntity>> getCart() async {
     try {
+      print('🌐 CartRemoteRepository: Getting cart from backend...');
       final cart = await _cartRemoteDatasource.getCart();
+      print('✅ CartRemoteRepository: Got cart from backend with ${cart.items.length} items');
       return Right(cart);
     } catch (e) {
+      print('❌ CartRemoteRepository: Failed to get cart from backend - $e');
       return Left(RemoteDatabaseFailure(message: e.toString()));
     }
   }
@@ -45,9 +48,12 @@ class CartRemoteRepository implements ICartRepository {
   @override
   Future<Either<Failure, void>> addToCart(CartItemEntity cartItem) async {
     try {
+      print('🌐 CartRemoteRepository: Adding item to backend cart - ${cartItem.productName}');
       await _cartRemoteDatasource.addToCart(cartItem);
+      print('✅ CartRemoteRepository: Successfully added item to backend cart');
       return const Right(null);
     } catch (e) {
+      print('❌ CartRemoteRepository: Failed to add item to backend cart - $e');
       return Left(RemoteDatabaseFailure(message: e.toString()));
     }
   }

@@ -5,6 +5,7 @@ import 'package:fooddelivery_b/view/partypalace_view.dart';
 import 'package:fooddelivery_b/view/users_profile_view.dart';
 import 'package:fooddelivery_b/features/menu/menu_view.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
+import 'package:fooddelivery_b/features/cart/presentation/view/cart_view.dart';
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -42,7 +43,15 @@ class _DashboardViewState extends State<DashboardView> {
           ),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.shopping_cart), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart), 
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CartView()),
+              );
+            },
+          ),
         ],
       ),
       body: Stack(
