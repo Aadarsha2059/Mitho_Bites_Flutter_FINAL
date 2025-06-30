@@ -113,6 +113,10 @@ class PaymentViewModel extends Bloc<PaymentEvent, PaymentState> {
 
       final result = await _createOrderUsecase.execute(orderData);
 
+      print('🔄 PaymentViewModel: Result received: $result');
+      print('🔄 PaymentViewModel: Result is Left: ${result.isLeft()}');
+      print('🔄 PaymentViewModel: Result is Right: ${result.isRight()}');
+
       result.fold(
         (failure) {
           print('❌ PaymentViewModel: Payment failed - ${failure.message}');
@@ -123,9 +127,9 @@ class PaymentViewModel extends Bloc<PaymentEvent, PaymentState> {
           ));
         },
         (order) {
+          print('✅ PaymentViewModel: Payment successful - Order data: $order');
           final orderId = order['_id'] ?? order['id'] ?? 'ORDER-${DateTime.now().millisecondsSinceEpoch}';
-          print('✅ PaymentViewModel: Payment successful - Order ID: $orderId');
-          print('✅ PaymentViewModel: Order data: $order');
+          print('✅ PaymentViewModel: Order ID extracted: $orderId');
           
           emit(state.copyWith(
             isProcessing: false,
@@ -133,9 +137,14 @@ class PaymentViewModel extends Bloc<PaymentEvent, PaymentState> {
             orderId: orderId,
           ));
           
+          print('✅ PaymentViewModel: State updated to success, orderId: $orderId');
+          
           // Show success dialog after a short delay
-          Future.delayed(const Duration(milliseconds: 500), () {
-            add(ShowSuccessDialog(orderId));
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            if (!isClosed) {
+              print('🎉 PaymentViewModel: Adding ShowSuccessDialog event');
+              add(ShowSuccessDialog(orderId));
+            }
           });
         },
       );
@@ -153,12 +162,14 @@ class PaymentViewModel extends Bloc<PaymentEvent, PaymentState> {
     print('🎉 PaymentViewModel: Showing success dialog');
     emit(state.copyWith(showSuccessDialog: true));
 
-    // Auto-hide success dialog after 3 seconds and show call dialog
+    // Auto-hide success dialog after 10 seconds and show call dialog
     _successTimer?.cancel();
-    _successTimer = Timer(const Duration(seconds: 3), () {
+    _successTimer = Timer(const Duration(seconds: 10), () {
       print('🔄 PaymentViewModel: Hiding success dialog, showing call dialog');
-      add(HideSuccessDialog());
-      add(ShowCallDialog());
+      if (!isClosed) {
+        add(HideSuccessDialog());
+        add(ShowCallDialog());
+      }
     });
   }
 
@@ -171,11 +182,13 @@ class PaymentViewModel extends Bloc<PaymentEvent, PaymentState> {
     print('📞 PaymentViewModel: Showing call dialog');
     emit(state.copyWith(showCallDialog: true));
 
-    // Auto-hide call dialog after 5 seconds
+    // Auto-hide call dialog after 10 seconds
     _callTimer?.cancel();
-    _callTimer = Timer(const Duration(seconds: 5), () {
+    _callTimer = Timer(const Duration(seconds: 10), () {
       print('🔇 PaymentViewModel: Auto-hiding call dialog');
-      add(HideCallDialog());
+      if (!isClosed) {
+        add(HideCallDialog());
+      }
     });
   }
 

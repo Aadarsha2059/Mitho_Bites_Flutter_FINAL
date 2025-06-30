@@ -5,7 +5,7 @@ import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_m
 import 'package:fooddelivery_b/features/cart/presentation/state/cart_state.dart';
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:fooddelivery_b/features/payment/presentation/view/payment_view.dart';
+import 'package:fooddelivery_b/features/payment/presentation/view/payment_view.dart' show PaymentView;
 import 'package:fooddelivery_b/features/payment/presentation/view_model/payment_view_model.dart';
 import 'package:fooddelivery_b/features/payment/presentation/state/payment_state.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -628,11 +628,14 @@ class _CartViewState extends State<CartView> {
                   print('DEBUG: PaymentView onClose called');
                   Navigator.pop(context);
                 },
-                onOrderSuccess: () {
-                  print('DEBUG: PaymentView onOrderSuccess called');
-                  Navigator.pop(context);
+                onContinueShopping: () {
+                  print('DEBUG: PaymentView onContinueShopping called');
                   // Clear cart after successful order
                   serviceLocator<CartViewModel>().add(ClearCart());
+                  
+                  // Navigate back to home screen
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                  
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Order placed successfully!'),

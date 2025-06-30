@@ -13,14 +13,14 @@ class PaymentView extends StatefulWidget {
   final List<CartItem> cartItems;
   final double totalAmount;
   final VoidCallback? onClose;
-  final VoidCallback? onOrderSuccess;
+  final VoidCallback? onContinueShopping;
 
   const PaymentView({
     Key? key,
     required this.cartItems,
     required this.totalAmount,
     this.onClose,
-    this.onOrderSuccess,
+    this.onContinueShopping,
   }) : super(key: key);
 
   @override
@@ -28,7 +28,8 @@ class PaymentView extends StatefulWidget {
 }
 
 class _PaymentViewState extends State<PaymentView> {
-  final TextEditingController _deliveryInstructionsController = TextEditingController();
+  final TextEditingController _deliveryInstructionsController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -56,14 +57,21 @@ class _PaymentViewState extends State<PaymentView> {
               ),
             );
           });
-          
+
           return Scaffold(
             body: BlocConsumer<PaymentViewModel, PaymentState>(
               listener: (context, state) {
+                print(
+                  '🎯 PaymentView: State changed - Status: ${state.status}, isProcessing: ${state.isProcessing}',
+                );
                 if (state.status == PaymentStatus.success) {
-                  widget.onOrderSuccess?.call();
+                  print(
+                    '🎉 PaymentView: Success status detected, NOT calling onOrderSuccess yet',
+                  );
+                  // Don't call onOrderSuccess immediately - let dialogs show first
                 }
                 if (state.errorMessage != null) {
+                  print('❌ PaymentView: Error detected: ${state.errorMessage}');
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(state.errorMessage!),
@@ -73,10 +81,13 @@ class _PaymentViewState extends State<PaymentView> {
                 }
               },
               builder: (context, state) {
+                print('🎯 PaymentView: Building with status: ${state.status}');
                 if (state.status == PaymentStatus.success) {
+                  print('🎉 PaymentView: Building success view');
                   return _buildSuccessView(context, state);
                 }
 
+                print('🎯 PaymentView: Building payment view');
                 return _buildPaymentView(context, state);
               },
             ),
@@ -94,10 +105,7 @@ class _PaymentViewState extends State<PaymentView> {
         foregroundColor: Colors.white,
         title: const Text(
           'Payment Methods',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           onPressed: () {
@@ -162,7 +170,10 @@ class _PaymentViewState extends State<PaymentView> {
     );
   }
 
-  Widget _buildPaymentMethodSelection(BuildContext context, PaymentState state) {
+  Widget _buildPaymentMethodSelection(
+    BuildContext context,
+    PaymentState state,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -182,10 +193,12 @@ class _PaymentViewState extends State<PaymentView> {
                 context: context,
                 icon: Icons.phone_android,
                 label: 'Online',
-                isSelected: state.selectedPaymentMethod == PaymentMethodType.online,
-                onTap: () => context.read<PaymentViewModel>().add(
-                  const SelectPaymentMethod(PaymentMethodType.online),
-                ),
+                isSelected:
+                    state.selectedPaymentMethod == PaymentMethodType.online,
+                onTap:
+                    () => context.read<PaymentViewModel>().add(
+                      const SelectPaymentMethod(PaymentMethodType.online),
+                    ),
               ),
             ),
             const SizedBox(width: 12),
@@ -194,10 +207,12 @@ class _PaymentViewState extends State<PaymentView> {
                 context: context,
                 icon: Icons.money,
                 label: 'Cash on Delivery',
-                isSelected: state.selectedPaymentMethod == PaymentMethodType.cod,
-                onTap: () => context.read<PaymentViewModel>().add(
-                  const SelectPaymentMethod(PaymentMethodType.cod),
-                ),
+                isSelected:
+                    state.selectedPaymentMethod == PaymentMethodType.cod,
+                onTap:
+                    () => context.read<PaymentViewModel>().add(
+                      const SelectPaymentMethod(PaymentMethodType.cod),
+                    ),
               ),
             ),
           ],
@@ -219,17 +234,24 @@ class _PaymentViewState extends State<PaymentView> {
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? const Color(0xFFF8B500) : const Color(0xFFE9ECEF),
+            color:
+                isSelected ? const Color(0xFFF8B500) : const Color(0xFFE9ECEF),
             width: 2,
           ),
           borderRadius: BorderRadius.circular(8),
-          color: isSelected ? const Color(0xFFF8B500).withOpacity(0.1) : Colors.white,
+          color:
+              isSelected
+                  ? const Color(0xFFF8B500).withOpacity(0.1)
+                  : Colors.white,
         ),
         child: Column(
           children: [
             Icon(
               icon,
-              color: isSelected ? const Color(0xFFF8B500) : const Color(0xFF6C757D),
+              color:
+                  isSelected
+                      ? const Color(0xFFF8B500)
+                      : const Color(0xFF6C757D),
               size: 24,
             ),
             const SizedBox(height: 8),
@@ -238,7 +260,10 @@ class _PaymentViewState extends State<PaymentView> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: isSelected ? const Color(0xFFF8B500) : const Color(0xFF6C757D),
+                color:
+                    isSelected
+                        ? const Color(0xFFF8B500)
+                        : const Color(0xFF6C757D),
               ),
               textAlign: TextAlign.center,
             ),
@@ -248,7 +273,10 @@ class _PaymentViewState extends State<PaymentView> {
     );
   }
 
-  Widget _buildOnlineServiceSelection(BuildContext context, PaymentState state) {
+  Widget _buildOnlineServiceSelection(
+    BuildContext context,
+    PaymentState state,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -272,30 +300,35 @@ class _PaymentViewState extends State<PaymentView> {
               value: state.selectedOnlineService,
               isExpanded: true,
               icon: const Icon(Icons.keyboard_arrow_down),
-              items: OnlineService.values.map((service) {
-                return DropdownMenuItem<OnlineService>(
-                  value: service,
-                  child: Row(
-                    children: [
-                      Icon(
-                        service == OnlineService.esewa ? Icons.account_balance : Icons.payment,
-                        color: const Color(0xFFF8B500),
+              items:
+                  OnlineService.values.map((service) {
+                    return DropdownMenuItem<OnlineService>(
+                      value: service,
+                      child: Row(
+                        children: [
+                          Icon(
+                            service == OnlineService.esewa
+                                ? Icons.account_balance
+                                : Icons.payment,
+                            color: const Color(0xFFF8B500),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            service.name.toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        service.name.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                    );
+                  }).toList(),
               onChanged: (value) {
                 if (value != null) {
-                  context.read<PaymentViewModel>().add(SelectOnlineService(value));
+                  context.read<PaymentViewModel>().add(
+                    SelectOnlineService(value),
+                  );
                 }
               },
             ),
@@ -350,36 +383,33 @@ class _PaymentViewState extends State<PaymentView> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: state.isProcessing
-            ? null
-            : () {
-                _showConfirmationDialog(context);
-              },
+        onPressed:
+            state.isProcessing
+                ? null
+                : () {
+                  _showConfirmationDialog(context);
+                },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFF8B500),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           disabledBackgroundColor: Colors.grey,
         ),
-        child: state.isProcessing
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        child:
+            state.isProcessing
+                ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+                : const Text(
+                  'Place My Order',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-              )
-            : const Text(
-                'Process Payment',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
       ),
     );
   }
@@ -413,10 +443,7 @@ class _PaymentViewState extends State<PaymentView> {
             children: [
               const Text(
                 'Are you sure you want to place this order?',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF2D2346),
-                ),
+                style: TextStyle(fontSize: 16, color: Color(0xFF2D2346)),
               ),
               const SizedBox(height: 16),
               Container(
@@ -477,10 +504,7 @@ class _PaymentViewState extends State<PaymentView> {
               ),
               child: const Text(
                 'Yes, Place Order',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -516,10 +540,12 @@ class _PaymentViewState extends State<PaymentView> {
             ),
           ),
           const SizedBox(height: 16),
-          ...state.cartItems.map((item) => _buildSummaryRow(
-                item.productName,
-                '${item.quantity}x NPR ${item.price.toStringAsFixed(2)}',
-              )),
+          ...state.cartItems.map(
+            (item) => _buildSummaryRow(
+              item.productName,
+              '${item.quantity}x NPR ${item.price.toStringAsFixed(2)}',
+            ),
+          ),
           const Divider(height: 24),
           _buildSummaryRow(
             'Total',
@@ -549,7 +575,8 @@ class _PaymentViewState extends State<PaymentView> {
             style: TextStyle(
               fontSize: isTotal ? 16 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? const Color(0xFFE53935) : const Color(0xFF2D2346),
+              color:
+                  isTotal ? const Color(0xFFE53935) : const Color(0xFF2D2346),
             ),
           ),
           Text(
@@ -557,7 +584,8 @@ class _PaymentViewState extends State<PaymentView> {
             style: TextStyle(
               fontSize: isTotal ? 16 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? const Color(0xFFE53935) : const Color(0xFF2D2346),
+              color:
+                  isTotal ? const Color(0xFFE53935) : const Color(0xFF2D2346),
             ),
           ),
         ],
@@ -566,6 +594,17 @@ class _PaymentViewState extends State<PaymentView> {
   }
 
   Widget _buildSuccessView(BuildContext context, PaymentState state) {
+    // Add a small delay to ensure the success view is properly rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted && state.showSuccessDialog) {
+          print(
+            '🎉 PaymentView: Success view rendered, dialogs should be visible',
+          );
+        }
+      });
+    });
+
     return Scaffold(
       backgroundColor: const Color(0xFFFCEABB),
       body: Stack(
@@ -575,18 +614,18 @@ class _PaymentViewState extends State<PaymentView> {
               orderId: state.orderId,
               totalAmount: state.totalAmount,
               cartItems: state.cartItems,
-              onContinueShopping: () {
-                context.read<PaymentViewModel>().add(ClosePayment());
-                widget.onClose?.call();
-              },
+              onContinueShopping:
+                  widget.onContinueShopping ??
+                  () {
+                    // Default action if callback is not provided
+                    Navigator.pop(context);
+                  },
             ),
           ),
           // Show success dialog if flag is true
-          if (state.showSuccessDialog)
-            _buildSuccessDialog(),
+          if (state.showSuccessDialog) _buildSuccessDialog(),
           // Show call dialog if flag is true
-          if (state.showCallDialog)
-            _buildCallDialog(),
+          if (state.showCallDialog) _buildCallDialog(),
         ],
       ),
     );
@@ -594,31 +633,67 @@ class _PaymentViewState extends State<PaymentView> {
 
   Widget _buildSuccessDialog() {
     return Container(
-      color: Colors.black54,
+      color: Colors.black.withOpacity(0.7),
       child: Center(
-        child: Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        child: Container(
+          margin: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Cross icon at top
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with cross icon
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
+                ),
+                child: Row(
                   children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.check_circle,
+                        color: Colors.green[700],
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Order Placed Successfully! 🎉',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ),
                     GestureDetector(
                       onTap: () {
-                        context.read<PaymentViewModel>().add(HideSuccessDialog());
+                        context.read<PaymentViewModel>().add(
+                          HideSuccessDialog(),
+                        );
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           shape: BoxShape.circle,
@@ -632,35 +707,70 @@ class _PaymentViewState extends State<PaymentView> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                // Message content
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.blue[200]!),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.favorite, color: Colors.blue[700], size: 32),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          'Bhok lageko cha?? Don\'t worry we will deliver foods for you.',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blue[800],
+              ),
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.blue[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[100],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.favorite,
+                              color: Colors.blue[700],
+                              size: 24,
+                            ),
                           ),
-                          textAlign: TextAlign.left,
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Text(
+                              'Bhok lageko cha?? Don\'t worry we will deliver foods for you. 🍕',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.blue,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.green[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'Your order is being prepared with love! ❤️',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.green,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -669,31 +779,65 @@ class _PaymentViewState extends State<PaymentView> {
 
   Widget _buildCallDialog() {
     return Container(
-      color: Colors.black54,
+      color: Colors.black.withOpacity(0.7),
       child: Center(
-        child: Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        child: Container(
+          margin: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Cross icon at top
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header with cross icon
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.orange[50],
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
+                ),
+                child: Row(
                   children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.phone,
+                        color: Colors.orange[700],
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Delivery Update 📞',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
                     GestureDetector(
                       onTap: () {
                         context.read<PaymentViewModel>().add(HideCallDialog());
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           shape: BoxShape.circle,
@@ -707,35 +851,70 @@ class _PaymentViewState extends State<PaymentView> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                // Message content
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.green[200]!),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.phone, color: Colors.green[700], size: 32),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          'We will contact you when we will reach near to you, visit order history section.',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.green[800],
+              ),
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.green[50],
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.green[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.green[100],
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.notifications_active,
+                              color: Colors.green[700],
+                              size: 24,
+                            ),
                           ),
-                          textAlign: TextAlign.left,
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Text(
+                              'We will contact you when we reach near to you. Visit order history section for updates! 📱',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.green,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'Your food is on the way! 🚚',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.orange,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -757,7 +936,8 @@ class _OrderConfirmationScreen extends StatefulWidget {
   });
 
   @override
-  State<_OrderConfirmationScreen> createState() => _OrderConfirmationScreenState();
+  State<_OrderConfirmationScreen> createState() =>
+      _OrderConfirmationScreenState();
 }
 
 class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
@@ -772,53 +952,48 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+    );
 
     // Start animations
     _scaleController.forward();
     Future.delayed(const Duration(milliseconds: 300), () {
-      _fadeController.forward();
+      if (mounted) {
+        _fadeController.forward();
+      }
     });
     Future.delayed(const Duration(milliseconds: 600), () {
-      _slideController.forward();
+      if (mounted) {
+        _slideController.forward();
+      }
     });
   }
 
@@ -840,25 +1015,21 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFFCEABB),
-                Color(0xFFFFF8E1),
-                Color(0xFFFFF3E0),
-              ],
+              colors: [Color(0xFFFCEABB), Color(0xFFFFF8E1), Color(0xFFFFF3E0)],
             ),
           ),
         ),
-        
+
         // Confetti effect
         _buildConfetti(),
-        
+
         // Main content
         SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               const SizedBox(height: 40),
-              
+
               // Success Icon with Animation
               ScaleTransition(
                 scale: _scaleAnimation,
@@ -876,16 +1047,12 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.check,
-                    size: 60,
-                    color: Colors.green,
-                  ),
+                  child: const Icon(Icons.check, size: 60, color: Colors.green),
                 ),
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               // Success Message
               FadeTransition(
                 opacity: _fadeAnimation,
@@ -923,9 +1090,9 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
+
               // Order Details Card
               SlideTransition(
                 position: _slideAnimation,
@@ -958,7 +1125,11 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.receipt_long, color: Colors.orange[700], size: 20),
+                                Icon(
+                                  Icons.receipt_long,
+                                  color: Colors.orange[700],
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Order ID',
@@ -984,14 +1155,14 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Order Summary
-                      _buildOrderSummary(),
-                      
+                      _buildSuccessOrderSummary(),
+
                       const SizedBox(height: 20),
-                      
+
                       // Delivery Info
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -1002,7 +1173,11 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.delivery_dining, color: Colors.green[700], size: 24),
+                            Icon(
+                              Icons.delivery_dining,
+                              color: Colors.green[700],
+                              size: 24,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -1035,9 +1210,9 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               // Continue Shopping Button
               FadeTransition(
                 opacity: _fadeAnimation,
@@ -1045,7 +1220,12 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: widget.onContinueShopping,
+                    onPressed:
+                        widget.onContinueShopping ??
+                        () {
+                          // Default action if callback is not provided
+                          Navigator.pop(context);
+                        },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       foregroundColor: Colors.white,
@@ -1072,7 +1252,7 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -1081,7 +1261,7 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
     );
   }
 
-  Widget _buildOrderSummary() {
+  Widget _buildSuccessOrderSummary() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1100,32 +1280,31 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
           ],
         ),
         const SizedBox(height: 12),
-        ...widget.cartItems.map((item) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  '${item.quantity}x ${item.productName}',
+        ...widget.cartItems.map(
+          (item) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    '${item.quantity}x ${item.productName}',
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  '₹${(item.price * item.quantity).toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 14,
+                    fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                '₹${(item.price * item.quantity).toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        )),
+        ),
         const Divider(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1153,20 +1332,17 @@ class _OrderConfirmationScreenState extends State<_OrderConfirmationScreen>
   }
 
   Widget _buildConfetti() {
-    return Positioned.fill(
-      child: CustomPaint(
-        painter: ConfettiPainter(),
-      ),
-    );
+    return Positioned.fill(child: CustomPaint(painter: ConfettiPainter()));
   }
 }
 
 class ConfettiPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.orange.withOpacity(0.6)
-      ..style = PaintingStyle.fill;
+    final paint =
+        Paint()
+          ..color = Colors.orange.withOpacity(0.6)
+          ..style = PaintingStyle.fill;
 
     final random = Random(42); // Fixed seed for consistent confetti
 
@@ -1182,9 +1358,10 @@ class ConfettiPainter extends CustomPainter {
     final colors = [Colors.green, Colors.blue, Colors.purple, Colors.pink];
     for (int i = 0; i < 30; i++) {
       final color = colors[random.nextInt(colors.length)];
-      final paint2 = Paint()
-        ..color = color.withOpacity(0.4)
-        ..style = PaintingStyle.fill;
+      final paint2 =
+          Paint()
+            ..color = color.withOpacity(0.4)
+            ..style = PaintingStyle.fill;
 
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
@@ -1196,4 +1373,4 @@ class ConfettiPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-} 
+}
