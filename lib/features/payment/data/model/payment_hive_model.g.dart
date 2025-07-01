@@ -8,7 +8,7 @@ part of 'payment_hive_model.dart';
 
 class PaymentHiveModelAdapter extends TypeAdapter<PaymentHiveModel> {
   @override
-  final int typeId = 6;
+  final int typeId = 5;
 
   @override
   PaymentHiveModel read(BinaryReader reader) {

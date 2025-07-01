@@ -58,6 +58,7 @@ flutter:
     - assets/icons/
     - assets/fonts/
     - assets/lottie/
+    - assets/homepage_images/
 
   fonts:
     - family: Metropolis

@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_entity.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart';
 import 'package:fooddelivery_b/features/food_products/domain/entity/products_entity.dart';
-import 'package:hive_flutter/adapters.dart';
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 part 'cart_hive_model.g.dart';
@@ -173,7 +173,7 @@ class CartItemHiveModel extends Equatable {
   ];
 }
 
-@HiveType(typeId: 5)
+@HiveType(typeId: 7)
 class CartHiveModel extends Equatable {
   @HiveField(0)
   final String? cartId;

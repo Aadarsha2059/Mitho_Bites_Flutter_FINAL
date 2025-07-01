@@ -11,8 +11,8 @@ class ApiEndpoints {
   // For iOS Simulator
   //static const String serverAddress = "http://localhost:3000";
 
-  static const String baseUrl = "$serverAddress/api/";
-  static const String imageUrl = "$serverAddress/uploads/";
+  static const String baseUrl = "${serverAddress}/api/";
+  static const String imageUrl = "${serverAddress}/uploads/";
 
   // Auth - MERN Backend endpoints (CONFIRMED)
   static const String login = "auth/login";
@@ -26,7 +26,6 @@ class ApiEndpoints {
 
   static const String getAllProducts = "products";
 
-  
   static const String getCart = "cart";
   static const String addToCart = "cart/add";
   static const String updateCartItem = "cart/update";
@@ -34,29 +33,13 @@ class ApiEndpoints {
   static const String clearCart = "cart/clear";
   static const String getCartItem = "cart/item";
 
-
-
-   // Payment endpoints
-  static const String createOrder = "orders";
-  static const String getUserOrders = "orders";
-  static const String getOrderById = "orders/"; 
-  static const String updatePaymentStatus = "orders/"; 
+  // Order endpoints (use these for all order-related API calls)
+  static const String createOrder = "order";           // POST
+  static const String getUserOrders = "order/user";    // GET (all orders for a user)
+  static const String getOrderById = "order/";         // GET (single order by id, e.g., order/{id})
+  static const String updateOrderStatus = "order/";    // PATCH/PUT (e.g., order/{id})
 
   // Payment method endpoints 
   static const String createPaymentRecord = "admin/paymentmethod";
   static const String getAllPaymentRecords = "admin/paymentmethod";
-
-  //order method endpoints
-  
-  // static const String createOrder = "order";           // POST /api/order
-  // static const String getUserOrders = "order";         // GET /api/order
-  // static const String getOrderById = "order/";         // GET /api/order/{id}
-  static const String cancelOrder = "order/";          // PUT /api/order/{id}/cancel
-  // static const String updatePaymentStatus = "order/";  // PUT /api/order/{id}/payment
-  static const String markOrderReceived = "order/";
-
-  static const String updateOrderStatus = "orders/"; // PUT /api/orders/{id}
-
-
-
-}
+} 

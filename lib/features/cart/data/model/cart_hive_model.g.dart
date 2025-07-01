@@ -99,7 +99,7 @@ class CartItemHiveModelAdapter extends TypeAdapter<CartItemHiveModel> {
 
 class CartHiveModelAdapter extends TypeAdapter<CartHiveModel> {
   @override
-  final int typeId = 5;
+  final int typeId = 7;
 
   @override
   CartHiveModel read(BinaryReader reader) {

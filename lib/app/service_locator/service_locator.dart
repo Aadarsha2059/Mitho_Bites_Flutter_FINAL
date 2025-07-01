@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/core/network/hive_service.dart';
 import 'package:fooddelivery_b/app/shared_pref/token_shared_prefs.dart';
+import 'package:fooddelivery_b/features/order/domain/repository/order_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fooddelivery_b/features/menu/menu_view_model.dart';
 import 'package:fooddelivery_b/features/restaurant/data/data_source/local_datasource/restaurannt_local_datasource.dart';
@@ -77,6 +78,13 @@ import 'package:fooddelivery_b/features/payment/domain/use_case/save_payment_rec
 import 'package:fooddelivery_b/features/payment/domain/use_case/clear_payment_records_use_case.dart';
 import 'package:fooddelivery_b/features/payment/presentation/view_model/payment_view_model.dart';
 
+import 'package:fooddelivery_b/features/order/data/data_source/order_api_i_datasource.dart';
+import 'package:fooddelivery_b/features/order/data/data_source/order_remote_datasource.dart';
+import 'package:fooddelivery_b/features/order/data/repository/order_repository_impl.dart';
+import 'package:fooddelivery_b/features/order/domain/use_case/get_orders_usecase.dart';
+import 'package:fooddelivery_b/features/order/domain/use_case/update_order_status_usecase.dart';
+import 'package:fooddelivery_b/features/order/presentation/view_model/order_view_model.dart';
+
 import 'package:get_it/get_it.dart';
 
 final serviceLocator = GetIt.instance;
@@ -92,6 +100,7 @@ Future<void> initDependencies() async {
   await _initProductModule();
   await _initCartModule();
   await _initPaymentModule();
+  await _initOrderModule();
 }
 
 Future<void> _initHiveService() async {
@@ -101,20 +110,19 @@ Future<void> _initHiveService() async {
 Future<void> _initApiModule() async {
   // SharedPreferences instance
   final sharedPreferences = await SharedPreferences.getInstance();
-  
+
   // TokenSharedPrefs instance
   serviceLocator.registerLazySingleton<TokenSharedPrefs>(
     () => TokenSharedPrefs(sharedPreferences: sharedPreferences),
   );
-  
+
   //Dio instance
   serviceLocator.registerLazySingleton<Dio>(() => Dio());
-  
+
   //ApiService with TokenSharedPrefs
-  serviceLocator.registerLazySingleton(() => ApiService(
-    serviceLocator<Dio>(),
-    serviceLocator<TokenSharedPrefs>(),
-  ));
+  serviceLocator.registerLazySingleton(
+    () => ApiService(serviceLocator<Dio>(), serviceLocator<TokenSharedPrefs>()),
+  );
 }
 
 Future<void> _initAuthModule() async {
@@ -144,9 +152,8 @@ Future<void> _initAuthModule() async {
   );
 
   serviceLocator.registerFactory(
-    () => UserRegisterUsecase(
-      userRepository: serviceLocator<IUserRepository>(),
-    ),
+    () =>
+        UserRegisterUsecase(userRepository: serviceLocator<IUserRepository>()),
   );
 
   serviceLocator.registerFactory(
@@ -217,7 +224,8 @@ Future<void> _initCategoryModule() async {
 Future<void> _initRestaurantModule() async {
   // Data Sources
   serviceLocator.registerLazySingleton<RestauranntLocalDatasource>(
-    () => RestauranntLocalDatasource(hiveService: serviceLocator<HiveService>()),
+    () =>
+        RestauranntLocalDatasource(hiveService: serviceLocator<HiveService>()),
   );
 
   serviceLocator.registerLazySingleton<RestaurantRemoteDatasource>(
@@ -261,7 +269,9 @@ Future<void> _initRestaurantModule() async {
 
 Future<void> _initMenuModule() async {
   serviceLocator.registerFactory<MenuViewModel>(
-    () => MenuViewModel(getCategoriesUsecase: serviceLocator<GetCategoriesUsecase>()),
+    () => MenuViewModel(
+      getCategoriesUsecase: serviceLocator<GetCategoriesUsecase>(),
+    ),
   );
 }
 
@@ -276,10 +286,14 @@ Future<void> _initProductModule() async {
 
   // Repositories
   serviceLocator.registerLazySingleton<ProductLocalRepository>(
-    () => ProductLocalRepository(productLocalDatasource: serviceLocator<ProductLocalDatasource>()),
+    () => ProductLocalRepository(
+      productLocalDatasource: serviceLocator<ProductLocalDatasource>(),
+    ),
   );
   serviceLocator.registerLazySingleton<ProductRemoteRepository>(
-    () => ProductRemoteRepository(productRemoteDatasource: serviceLocator<ProductRemoteDatasource>()),
+    () => ProductRemoteRepository(
+      productRemoteDatasource: serviceLocator<ProductRemoteDatasource>(),
+    ),
   );
   serviceLocator.registerLazySingleton<IProductRepository>(
     () => ProductRepositoryImpl(
@@ -290,7 +304,9 @@ Future<void> _initProductModule() async {
 
   // Use Cases
   serviceLocator.registerLazySingleton<GetProductsByCategoryUsecase>(
-    () => GetProductsByCategoryUsecase(productRepository: serviceLocator<IProductRepository>()),
+    () => GetProductsByCategoryUsecase(
+      productRepository: serviceLocator<IProductRepository>(),
+    ),
   );
 
   // View Models
@@ -331,7 +347,9 @@ Future<void> _initCartModule() async {
     () => GetCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
   );
   serviceLocator.registerLazySingleton<GetAllCartItemsUsecase>(
-    () => GetAllCartItemsUsecase(cartRepository: serviceLocator<ICartRepository>()),
+    () => GetAllCartItemsUsecase(
+      cartRepository: serviceLocator<ICartRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<GetCartItemUsecase>(
     () => GetCartItemUsecase(cartRepository: serviceLocator<ICartRepository>()),
@@ -340,10 +358,14 @@ Future<void> _initCartModule() async {
     () => AddToCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
   );
   serviceLocator.registerLazySingleton<UpdateCartItemUsecase>(
-    () => UpdateCartItemUsecase(cartRepository: serviceLocator<ICartRepository>()),
+    () => UpdateCartItemUsecase(
+      cartRepository: serviceLocator<ICartRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<RemoveFromCartUsecase>(
-    () => RemoveFromCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
+    () => RemoveFromCartUsecase(
+      cartRepository: serviceLocator<ICartRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<ClearCartUsecase>(
     () => ClearCartUsecase(cartRepository: serviceLocator<ICartRepository>()),
@@ -387,28 +409,44 @@ Future<void> _initPaymentModule() async {
 
   // Use Cases
   serviceLocator.registerLazySingleton<CreateOrderUsecase>(
-    () => CreateOrderUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+    () => CreateOrderUsecase(
+      paymentRepository: serviceLocator<IPaymentRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<GetUserOrdersUsecase>(
-    () => GetUserOrdersUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+    () => GetUserOrdersUsecase(
+      paymentRepository: serviceLocator<IPaymentRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<GetOrderByIdUsecase>(
-    () => GetOrderByIdUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+    () => GetOrderByIdUsecase(
+      paymentRepository: serviceLocator<IPaymentRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<UpdatePaymentStatusUsecase>(
-    () => UpdatePaymentStatusUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+    () => UpdatePaymentStatusUsecase(
+      paymentRepository: serviceLocator<IPaymentRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<CreatePaymentRecordUsecase>(
-    () => CreatePaymentRecordUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+    () => CreatePaymentRecordUsecase(
+      paymentRepository: serviceLocator<IPaymentRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<GetAllPaymentRecordsUsecase>(
-    () => GetAllPaymentRecordsUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+    () => GetAllPaymentRecordsUsecase(
+      paymentRepository: serviceLocator<IPaymentRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<SavePaymentRecordsUsecase>(
-    () => SavePaymentRecordsUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+    () => SavePaymentRecordsUsecase(
+      paymentRepository: serviceLocator<IPaymentRepository>(),
+    ),
   );
   serviceLocator.registerLazySingleton<ClearPaymentRecordsUsecase>(
-    () => ClearPaymentRecordsUsecase(paymentRepository: serviceLocator<IPaymentRepository>()),
+    () => ClearPaymentRecordsUsecase(
+      paymentRepository: serviceLocator<IPaymentRepository>(),
+    ),
   );
 
   // View Models
@@ -419,9 +457,46 @@ Future<void> _initPaymentModule() async {
       getOrderByIdUsecase: serviceLocator<GetOrderByIdUsecase>(),
       updatePaymentStatusUsecase: serviceLocator<UpdatePaymentStatusUsecase>(),
       createPaymentRecordUsecase: serviceLocator<CreatePaymentRecordUsecase>(),
-      getAllPaymentRecordsUsecase: serviceLocator<GetAllPaymentRecordsUsecase>(),
+      getAllPaymentRecordsUsecase:
+          serviceLocator<GetAllPaymentRecordsUsecase>(),
       savePaymentRecordsUsecase: serviceLocator<SavePaymentRecordsUsecase>(),
       clearPaymentRecordsUsecase: serviceLocator<ClearPaymentRecordsUsecase>(),
+    ),
+  );
+}
+
+Future<void> _initOrderModule() async {
+  serviceLocator.registerLazySingleton<IOrderRemoteDataSource>(
+    () => OrderRemoteDataSource(apiService: serviceLocator()),
+  );
+
+  serviceLocator.registerLazySingleton<IOrderRepository>(
+    () => OrderRepositoryImpl(remoteDataSource: serviceLocator()),
+  );
+
+  serviceLocator.registerFactory<GetOrdersUsecase>(
+    () => GetOrdersUsecase(orderRepository: serviceLocator()),
+  );
+
+  serviceLocator.registerFactory<UpdateOrderStatusUsecase>(
+    () => UpdateOrderStatusUsecase(
+      orderRepository: serviceLocator<IOrderRepository>(),
+    ),
+  );
+
+  serviceLocator.registerFactory<CancelOrderUsecase>(
+    () => CancelOrderUsecase(orderRepository: serviceLocator<IOrderRepository>()),
+  );
+  serviceLocator.registerFactory<MarkOrderReceivedUsecase>(
+    () => MarkOrderReceivedUsecase(orderRepository: serviceLocator<IOrderRepository>()),
+  );
+
+  serviceLocator.registerFactory<OrderViewModel>(
+    () => OrderViewModel(
+      getOrdersUsecase: serviceLocator<GetOrdersUsecase>(),
+      updateOrderStatusUsecase: serviceLocator<UpdateOrderStatusUsecase>(),
+      cancelOrderUsecase: serviceLocator<CancelOrderUsecase>(),
+      markOrderReceivedUsecase: serviceLocator<MarkOrderReceivedUsecase>(),
     ),
   );
 }

@@ -7,11 +7,12 @@ import 'package:fooddelivery_b/features/food_category/presentation/view_model/ca
 import 'package:fooddelivery_b/features/food_category/presentation/view_model/category_view_model.dart';
 import 'package:fooddelivery_b/model/dashboard_model.dart';
 import 'package:fooddelivery_b/features/menu/menu_view.dart';
-import 'package:fooddelivery_b/view/more_view.dart';
+import 'package:fooddelivery_b/features/more_options_bottom_navigation/more_view.dart';
 import 'package:fooddelivery_b/view/partypalace_view.dart';
 import 'package:fooddelivery_b/features/food_category/presentation/view/category_list_view.dart';
 import 'package:fooddelivery_b/features/restaurant/presentation/view_model/restaurant_view_model.dart';
 import 'package:fooddelivery_b/features/restaurant/presentation/state/restaurant_state.dart';
+import 'dart:async';
 
 
 class DashboardView extends StatefulWidget {
@@ -27,9 +28,43 @@ class _DashboardViewState extends State<DashboardView> {
   final DashboardModel model = DashboardModel();
   int _selectedIndex = 0;
 
+  // Image slider state
+  final List<String> _sliderImages = [
+    'assets/homepage_images/thakaliiiii.png',
+    'assets/homepage_images/momomo.png',
+    'assets/homepage_images/yomariii.png',
+    'assets/homepage_images/selroti.png',
+  ];
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  Timer? _sliderTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startSlider();
+  }
+
+  void _startSlider() {
+    _sliderTimer?.cancel();
+    _sliderTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (!mounted) return;
+      if (_pageController.hasClients) {
+        int nextPage = (_currentPage + 1) % _sliderImages.length;
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
   @override
   void dispose() {
     model.disposeControllers();
+    _sliderTimer?.cancel();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -111,6 +146,8 @@ class _DashboardViewState extends State<DashboardView> {
           ),
           const SizedBox(height: 16),
           _buildSearchBar(),
+          const SizedBox(height: 16),
+          _buildImageSlider(),
           const SizedBox(height: 24),
           _buildSectionTitle("🍱 Food Categories"),
           _buildHorizontalCategoryList(),
@@ -217,6 +254,70 @@ class _DashboardViewState extends State<DashboardView> {
           borderSide: BorderSide.none,
         ),
       ),
+    );
+  }
+
+  Widget _buildImageSlider() {
+    final double sliderHeight = MediaQuery.of(context).size.width * 0.45;
+    return Column(
+      children: [
+        SizedBox(
+          height: sliderHeight,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Stack(
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  itemCount: _sliderImages.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return Image.asset(
+                      _sliderImages[index],
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    );
+                  },
+                ),
+                Positioned(
+                  bottom: 12,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(_sliderImages.length, (index) {
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: _currentPage == index ? 18 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: _currentPage == index
+                              ? Colors.deepOrange
+                              : Colors.white.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(6),
+                          boxShadow: [
+                            if (_currentPage == index)
+                              const BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

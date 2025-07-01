@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/features/order/presentation/view/more_orders_screen.dart';
 
 class MoreView extends StatelessWidget {
   const MoreView({Key? key}) : super(key: key);
@@ -41,45 +42,83 @@ class MoreView extends StatelessWidget {
           _buildMoreItem(
             icon: Icons.history,
             title: 'Order History',
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const OrderHistoryPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MoreOrdersScreen()),
+                ),
+          ),
+          _buildMoreItem(
+            icon: Icons.person,
+            title: 'Update My Profile',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const UpdateProfilePage()),
+                ),
+            iconColor: Colors.green.shade100,
           ),
           _buildMoreItem(
             icon: Icons.food_bank,
             title: 'Khana Khajana',
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const KhanaKhajanaPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const KhanaKhajanaPage()),
+                ),
             iconColor: Colors.red.shade100,
           ),
           _buildMoreItem(
             icon: Icons.stars,
             title: 'Mitho Points',
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const MithoPointsPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MithoPointsPage()),
+                ),
             iconColor: Colors.purple.shade100,
           ),
           _buildMoreItem(
             icon: Icons.support_agent,
             title: 'Help & Support',
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const HelpSupportPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HelpSupportPage()),
+                ),
             iconColor: Colors.blue.shade100,
           ),
           _buildMoreItem(
             icon: Icons.share,
             title: 'Refer & Earn',
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const ReferEarnPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ReferEarnPage()),
+                ),
             iconColor: Colors.amber.shade100,
           ),
           _buildMoreItem(
             icon: Icons.settings,
             title: 'App Settings',
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const AppSettingsPage())),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AppSettingsPage()),
+                ),
             iconColor: Colors.teal.shade100,
           ),
           const SizedBox(height: 20),
+          _buildMoreItem(
+            icon: Icons.logout,
+            title: 'Logout',
+            onTap: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              // Optionally, you can navigate to a LoginPage if you have one:
+              // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
+            },
+            iconColor: Colors.grey.shade300,
+          ),
         ],
       ),
     );
@@ -94,19 +133,23 @@ class OrderHistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Order History'), backgroundColor: Colors.deepOrange),
+      appBar: AppBar(
+        title: const Text('Order History'),
+        backgroundColor: Colors.deepOrange,
+      ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 5,
-        itemBuilder: (context, index) => Card(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListTile(
-            leading: const Icon(Icons.fastfood),
-            title: Text('Order #${index + 101}'),
-            subtitle: const Text('Delivered on: 2024-08-2X'),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          ),
-        ),
+        itemBuilder:
+            (context, index) => Card(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: ListTile(
+                leading: const Icon(Icons.fastfood),
+                title: Text('Order #${index + 101}'),
+                subtitle: const Text('Delivered on: 2024-08-2X'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              ),
+            ),
       ),
     );
   }
@@ -125,7 +168,7 @@ class KhanaKhajanaPage extends StatelessWidget {
     "7. Broccoli contains more protein than steak (per calorie)!",
     "8. Yogurt boosts digestion and contains probiotics.",
     "9. Garlic can help reduce blood pressure naturally.",
-    "10. Spinach was made popular by Popeye – and it’s actually very rich in iron.",
+    "10. Spinach was made popular by Popeye – and it's actually very rich in iron.",
     "11. Avocados contain healthy fats good for brain function.",
     "12. Chia seeds can absorb up to 10x their weight in water.",
     "13. Oats help reduce cholesterol and are great for your heart.",
@@ -138,7 +181,10 @@ class KhanaKhajanaPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Khana Khajana'), backgroundColor: Colors.deepOrange),
+      appBar: AppBar(
+        title: const Text('Khana Khajana'),
+        backgroundColor: Colors.deepOrange,
+      ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: foodFacts.length,
@@ -146,7 +192,10 @@ class KhanaKhajanaPage extends StatelessWidget {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8),
             child: ListTile(
-              leading: const Icon(Icons.food_bank_outlined, color: Colors.deepOrange),
+              leading: const Icon(
+                Icons.food_bank_outlined,
+                color: Colors.deepOrange,
+              ),
               title: Text(
                 foodFacts[index],
                 style: const TextStyle(fontSize: 16),
@@ -165,7 +214,10 @@ class MithoPointsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mitho Points'), backgroundColor: Colors.deepOrange),
+      appBar: AppBar(
+        title: const Text('Mitho Points'),
+        backgroundColor: Colors.deepOrange,
+      ),
       body: const Center(
         child: Text(
           'You have 120 Mitho Points!\n\nUse them for exciting rewards.',
@@ -183,19 +235,28 @@ class HelpSupportPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Help & Support'), backgroundColor: Colors.deepOrange),
+      appBar: AppBar(
+        title: const Text('Help & Support'),
+        backgroundColor: Colors.deepOrange,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text('FAQs:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'FAQs:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 10),
             Text('- How do I place an order?'),
             Text('- How can I track my delivery?'),
             Text('- What if I face payment issues?'),
             SizedBox(height: 20),
-            Text('Contact us: support@mithobites.com', style: TextStyle(color: Colors.grey)),
+            Text(
+              'Contact us: support@mithobites.com',
+              style: TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       ),
@@ -209,7 +270,10 @@ class ReferEarnPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Refer & Earn'), backgroundColor: Colors.deepOrange),
+      appBar: AppBar(
+        title: const Text('Refer & Earn'),
+        backgroundColor: Colors.deepOrange,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -226,14 +290,19 @@ class ReferEarnPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.orange.shade100,
               ),
-              child: const Text('MITHO123', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'MITHO123',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.share),
               label: const Text('Share'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepOrange,
+              ),
             ),
           ],
         ),
@@ -248,7 +317,10 @@ class AppSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('App Settings'), backgroundColor: Colors.deepOrange),
+      appBar: AppBar(
+        title: const Text('App Settings'),
+        backgroundColor: Colors.deepOrange,
+      ),
       body: ListView(
         children: [
           SwitchListTile(
@@ -264,6 +336,26 @@ class AppSettingsPage extends StatelessWidget {
             secondary: const Icon(Icons.notifications_active),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class UpdateProfilePage extends StatelessWidget {
+  const UpdateProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Update My Profile'),
+        backgroundColor: Colors.deepOrange,
+      ),
+      body: const Center(
+        child: Text(
+          'Profile update coming soon!',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        ),
       ),
     );
   }
