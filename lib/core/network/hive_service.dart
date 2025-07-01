@@ -20,7 +20,7 @@ class HiveService {
     final hiveDbDir = Directory('${directory.path}/mydbb.db');
     if (!await hiveDbDir.exists()) {
       await hiveDbDir.create(recursive: true);
-    }
+    }  
 
     Hive.init(hiveDbDir.path);
 

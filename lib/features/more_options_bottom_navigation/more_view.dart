@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/features/order/presentation/view/more_orders_screen.dart';
+import 'package:fooddelivery_b/view/about_assignment.dart';
 
 class MoreView extends StatelessWidget {
   const MoreView({Key? key}) : super(key: key);
@@ -84,7 +85,7 @@ class MoreView extends StatelessWidget {
             onTap:
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const HelpSupportPage()),
+                  MaterialPageRoute(builder: (_) => const AboutAssignmentPage()),
                 ),
             iconColor: Colors.blue.shade100,
           ),

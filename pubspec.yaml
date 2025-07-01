@@ -42,6 +42,8 @@ dependencies:
   provider: ^6.1.5
   lottie: ^2.7.0
   cached_network_image: ^3.3.0
+  # Make sure to add font_awesome_flutter to your pubspec.yaml for About Assignment page icons
+  font_awesome_flutter: ^10.7.0
 
 dev_dependencies:
   flutter_test:
