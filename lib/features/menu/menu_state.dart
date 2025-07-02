@@ -18,7 +18,7 @@ class MenuState extends Equatable {
     this.selectedCategoryId,
   });
 
-  MenuState.initial()
+  const MenuState.initial()
       : categories = const [],
         filteredCategories = const [],
         isLoading = false,

@@ -5,7 +5,7 @@ import 'package:fooddelivery_b/features/order/presentation/view/order_history_vi
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
 
 class MoreOrdersScreen extends StatelessWidget {
-  const MoreOrdersScreen({Key? key}) : super(key: key);
+  const MoreOrdersScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

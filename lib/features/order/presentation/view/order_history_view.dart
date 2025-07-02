@@ -4,7 +4,7 @@ import 'package:fooddelivery_b/features/order/presentation/view_model/order_view
 import 'package:fooddelivery_b/features/order/domain/entity/order_entity.dart';
 
 class OrderHistoryView extends StatelessWidget {
-  const OrderHistoryView({Key? key}) : super(key: key);
+  const OrderHistoryView({super.key});
 
   @override
   Widget build(BuildContext context) {

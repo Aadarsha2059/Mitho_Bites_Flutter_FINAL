@@ -233,7 +233,7 @@ class _DashboardViewState extends State<DashboardView> {
           _buildSectionTitle("🕘 Recently Ordered"),
           ...model.recentArr
               .map((item) => _buildListTile(item['image']!, item['name']!))
-              .toList(),
+              ,
           const SizedBox(height: 100),
         ],
       ),
@@ -437,7 +437,7 @@ class _DashboardViewState extends State<DashboardView> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(30),
-            child: Container(
+            child: SizedBox(
               width: 60,
               height: 60,
               child: image.isNotEmpty

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:fooddelivery_b/features/cart/presentation/state/cart_state.dart';
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
@@ -10,9 +9,9 @@ class CartDialog extends StatelessWidget {
   final CartViewModel cartViewModel;
   
   const CartDialog({
-    Key? key,
+    super.key,
     required this.cartViewModel,
-  }) : super(key: key);
+  });
 
   static void show(BuildContext context) {
     // Get the CartViewModel from the parent context
@@ -347,11 +346,11 @@ class CartDialogItem extends StatelessWidget {
   final VoidCallback onRemove;
 
   const CartDialogItem({
-    Key? key,
+    super.key,
     required this.cartItem,
     required this.onQuantityChanged,
     required this.onRemove,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

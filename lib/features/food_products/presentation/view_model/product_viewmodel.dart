@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fooddelivery_b/features/food_products/domain/entity/products_entity.dart';
 import 'package:fooddelivery_b/features/food_products/domain/repository/products_repository.dart';
 import 'package:fooddelivery_b/features/food_products/presentation/state/product_state.dart';
 import 'product_event.dart';

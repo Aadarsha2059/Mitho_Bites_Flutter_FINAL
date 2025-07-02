@@ -8,14 +8,12 @@ import 'package:fooddelivery_b/features/menu/menu_view_model.dart';
 import 'package:fooddelivery_b/features/menu/menu_state.dart';
 import 'package:fooddelivery_b/features/menu/menu_event.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
-import 'package:fooddelivery_b/features/cart/presentation/widgets/add_to_cart_icon_button.dart';
 import 'package:fooddelivery_b/features/food_products/presentation/state/product_state.dart';
 import 'package:fooddelivery_b/features/food_products/presentation/view_model/product_event.dart';
 import 'package:provider/provider.dart';
 import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:fooddelivery_b/features/cart/presentation/view/cart_view.dart';
 import 'package:fooddelivery_b/features/user/domain/use_case/user_get_current_usecase.dart';
-import 'package:fooddelivery_b/features/user/domain/entity/user_entity.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart';
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
 
@@ -218,7 +216,7 @@ class _MenuViewState extends State<MenuView> {
         int itemCount = 0;
         if (state is CartLoaded) {
           itemCount = state.cartItems.fold(0, (sum, item) => sum + item.quantity);
-          print('🛒 MenuView: Floating cart icon - ${itemCount} items in cart');
+          print('🛒 MenuView: Floating cart icon - $itemCount items in cart');
         }
 
         return FloatingActionButton(

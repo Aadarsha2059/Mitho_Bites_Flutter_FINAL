@@ -14,9 +14,9 @@ class CartIntegrationExample extends StatelessWidget {
   final ProductsEntity product;
 
   const CartIntegrationExample({
-    Key? key,
+    super.key,
     required this.product,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +78,7 @@ class CartIntegrationExample extends StatelessWidget {
 
 // Example of how to use CartIcon in AppBar
 class ExampleAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ExampleAppBar({Key? key}) : super(key: key);
+  const ExampleAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -103,10 +103,10 @@ class ExampleAppWithCart extends StatelessWidget {
   final ICartRepository cartRepository;
 
   const ExampleAppWithCart({
-    Key? key,
+    super.key,
     required this.child,
     required this.cartRepository,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

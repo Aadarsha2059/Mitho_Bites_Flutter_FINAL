@@ -37,6 +37,8 @@ class PartyPalaceView extends StatelessWidget {
     },
   ];
 
+   PartyPalaceView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,7 +176,7 @@ class InfoBadge extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const InfoBadge({required this.icon, required this.label});
+  const InfoBadge({super.key, required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {

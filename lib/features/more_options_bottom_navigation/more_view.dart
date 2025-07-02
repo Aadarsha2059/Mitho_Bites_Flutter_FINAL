@@ -3,7 +3,7 @@ import 'package:fooddelivery_b/features/order/presentation/view/more_orders_scre
 import 'package:fooddelivery_b/view/about_assignment.dart';
 
 class MoreView extends StatelessWidget {
-  const MoreView({Key? key}) : super(key: key);
+  const MoreView({super.key});
 
   Widget _buildMoreItem({
     required IconData icon,

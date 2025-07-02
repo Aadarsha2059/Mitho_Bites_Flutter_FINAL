@@ -1,9 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_entity.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart';
-import 'package:fooddelivery_b/features/food_products/data/model/product_api_model.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 
 part 'cart_api_model.g.dart';
 

@@ -72,32 +72,30 @@ class CartViewModel extends Bloc<CartEvent, CartState> {
     if (state is CartLoaded) {
       final currentItems = List<CartItemEntity>.from((state as CartLoaded).cartItems);
       final index = currentItems.indexWhere((item) => item.productId == event.productId);
-      if (index != -1 && currentItems[index] != null) {
-        final oldItem = currentItems[index]!;
+      if (index != -1) {
+        final oldItem = currentItems[index];
         final updatedItem = oldItem.copyWith(quantity: event.quantity);
-        if (updatedItem != null) {
-          // Create a new list for Bloc state
-          final newItems = List<CartItemEntity>.from(currentItems);
-          newItems[index] = updatedItem;
-          emit(CartLoaded(newItems));
+        // Create a new list for Bloc state
+        final newItems = List<CartItemEntity>.from(currentItems);
+        newItems[index] = updatedItem;
+        emit(CartLoaded(newItems));
 
-          final result = await repository.updateCartItem(event.productId, event.quantity);
-          result.fold(
-            (failure) {
-              // Revert change and reload cart for consistency
-              final revertedItems = List<CartItemEntity>.from(currentItems);
-              revertedItems[index] = oldItem;
-              emit(CartLoaded(revertedItems));
-              // Optionally: show error in UI via BlocListener
-            },
-            (_) {
-              // Optionally reload from backend for consistency
-              add(LoadCart());
-            },
-          );
-          return;
-        }
-      }
+        final result = await repository.updateCartItem(event.productId, event.quantity);
+        result.fold(
+          (failure) {
+            // Revert change and reload cart for consistency
+            final revertedItems = List<CartItemEntity>.from(currentItems);
+            revertedItems[index] = oldItem;
+            emit(CartLoaded(revertedItems));
+            // Optionally: show error in UI via BlocListener
+          },
+          (_) {
+            // Optionally reload from backend for consistency
+            add(LoadCart());
+          },
+        );
+        return;
+            }
     }
     // Fallback to old behavior
     emit(const CartLoading());

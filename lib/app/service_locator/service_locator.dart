@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/core/network/hive_service.dart';
 import 'package:fooddelivery_b/app/shared_pref/token_shared_prefs.dart';
@@ -61,7 +60,6 @@ import 'package:fooddelivery_b/features/cart/domain/use_case/update_cart_usecase
 import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_model.dart';
 
 // Payment dependencies
-import 'package:fooddelivery_b/features/payment/data/data_source/payment_datasource.dart';
 import 'package:fooddelivery_b/features/payment/data/data_source/local_data_source/payment_local_datasource.dart';
 import 'package:fooddelivery_b/features/payment/data/data_source/remote_data_source/payment_remote_datasource.dart';
 import 'package:fooddelivery_b/features/payment/data/repository/payment_repository_impl.dart';
@@ -467,7 +465,7 @@ Future<void> _initPaymentModule() async {
 
 Future<void> _initOrderModule() async {
   serviceLocator.registerLazySingleton<IOrderRemoteDataSource>(
-    () => OrderRemoteDataSource(apiService: serviceLocator()),
+    () => OrderRemoteDataSource(apiService: serviceLocator<ApiService>()),
   );
 
   serviceLocator.registerLazySingleton<IOrderRepository>(

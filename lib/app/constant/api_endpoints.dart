@@ -51,9 +51,9 @@ class ApiEndpoints {
   // static const String createOrder = "order";           // POST /api/order
   // static const String getUserOrders = "order";         // GET /api/order
   // static const String getOrderById = "order/";         // GET /api/order/{id}
-  static const String cancelOrder = "order/";          // PUT /api/order/{id}/cancel
+  static const String cancelOrder = "orders/";          // PUT /api/orders/{id}/cancel
   // static const String updatePaymentStatus = "order/";  // PUT /api/order/{id}/payment
-  static const String markOrderReceived = "order/";
+  static const String markOrderReceived = "orders/";    // PUT /api/orders/{id}/received
 
   static const String updateOrderStatus = "orders/"; // PUT /api/orders/{id}
 

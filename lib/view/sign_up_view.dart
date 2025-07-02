@@ -4,6 +4,8 @@ import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.
 
 
 class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
+
   @override
   _SignUpPageState createState() => _SignUpPageState();
 }

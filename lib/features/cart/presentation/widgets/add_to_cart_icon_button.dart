@@ -10,9 +10,9 @@ class AddToCartIconButton extends StatelessWidget {
   final ProductsEntity product;
 
   const AddToCartIconButton({
-    Key? key,
+    super.key,
     required this.product,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

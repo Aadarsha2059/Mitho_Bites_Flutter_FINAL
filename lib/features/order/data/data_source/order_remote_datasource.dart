@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/features/order/domain/entity/order_entity.dart';
@@ -81,14 +80,28 @@ class OrderRemoteDataSource implements IOrderRemoteDataSource {
   }
   
   @override
-  Future<void> cancelOrder(String orderId) {
-    // TODO: implement cancelOrder
-    throw UnimplementedError();
+  Future<void> cancelOrder(String orderId) async {
+    final response = await _apiService.dio.put(
+      '${ApiEndpoints.cancelOrder}$orderId/cancel',
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to cancel order: \\${response.statusMessage}');
+    }
+    if (response.data is Map && response.data['success'] == false) {
+      throw Exception('Failed to cancel order: \\${response.data['message'] ?? 'Unknown error'}');
+    }
   }
   
   @override
-  Future<void> markOrderReceived(String orderId) {
-    // TODO: implement markOrderReceived
-    throw UnimplementedError();
+  Future<void> markOrderReceived(String orderId) async {
+    final response = await _apiService.dio.put(
+      '${ApiEndpoints.markOrderReceived}$orderId/received',
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark order as received: \\${response.statusMessage}');
+    }
+    if (response.data is Map && response.data['success'] == false) {
+      throw Exception('Failed to mark order as received: \\${response.data['message'] ?? 'Unknown error'}');
+    }
   }
 } 

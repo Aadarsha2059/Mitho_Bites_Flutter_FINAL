@@ -88,5 +88,5 @@ class OrderHiveModel extends Equatable {
         updatedAt,
       ];
 
-  copyWith({required String orderStatus, required String paymentStatus}) {}
+  void copyWith({required String orderStatus, required String paymentStatus}) {}
 } 

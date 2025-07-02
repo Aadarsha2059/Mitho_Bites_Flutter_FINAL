@@ -11,8 +11,8 @@ class ApiEndpoints {
   // For iOS Simulator
   //static const String serverAddress = "http://localhost:3000";
 
-  static const String baseUrl = "${serverAddress}/api/";
-  static const String imageUrl = "${serverAddress}/uploads/";
+  static const String baseUrl = "$serverAddress/api/";
+  static const String imageUrl = "$serverAddress/uploads/";
 
   // Auth - MERN Backend endpoints (CONFIRMED)
   static const String login = "auth/login";

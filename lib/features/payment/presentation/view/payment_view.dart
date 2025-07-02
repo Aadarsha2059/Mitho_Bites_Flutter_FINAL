@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
 import '../state/payment_event.dart';
 import '../state/payment_state.dart';
@@ -16,12 +14,12 @@ class PaymentView extends StatefulWidget {
   final VoidCallback? onContinueShopping;
 
   const PaymentView({
-    Key? key,
+    super.key,
     required this.cartItems,
     required this.totalAmount,
     this.onClose,
     this.onContinueShopping,
-  }) : super(key: key);
+  });
 
   @override
   State<PaymentView> createState() => _PaymentViewState();

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/model/dashboard_model.dart';
 import 'package:fooddelivery_b/features/more_options_bottom_navigation/more_view.dart';
 import 'package:fooddelivery_b/view/partypalace_view.dart';
-import 'package:fooddelivery_b/view/users_profile_view.dart';
 import 'package:fooddelivery_b/features/menu/menu_view.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 import 'package:fooddelivery_b/features/cart/presentation/view/cart_view.dart';
@@ -92,7 +91,7 @@ class _DashboardViewState extends State<DashboardView> {
                 _buildSectionTitle("🔥 Popular Restaurants"),
                 ...model.popArr
                     .map((res) => _buildListTile(res['image']!, res['name']!))
-                    .toList(),
+                    ,
                 const SizedBox(height: 24),
                 _buildSectionTitle("⭐ Most Loved Dishes"),
                 _buildHorizontalCardList(model.mostPopArr),
@@ -100,7 +99,7 @@ class _DashboardViewState extends State<DashboardView> {
                 _buildSectionTitle("🕘 Recently Ordered"),
                 ...model.recentArr
                     .map((item) => _buildListTile(item['image']!, item['name']!))
-                    .toList(),
+                    ,
                 const SizedBox(height: 100),
               ],
             ),

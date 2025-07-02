@@ -5,7 +5,7 @@ import 'package:fooddelivery_b/features/cart/presentation/state/cart_state.dart'
 import 'package:fooddelivery_b/features/cart/presentation/view/cart_view.dart';
 
 class CartIcon extends StatelessWidget {
-  const CartIcon({Key? key}) : super(key: key);
+  const CartIcon({super.key});
 
   @override
   Widget build(BuildContext context) {

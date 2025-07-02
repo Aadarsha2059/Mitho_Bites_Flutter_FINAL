@@ -11,7 +11,7 @@ import 'package:fooddelivery_b/features/payment/presentation/state/payment_state
 import 'package:cached_network_image/cached_network_image.dart';
 
 class CartView extends StatefulWidget {
-  const CartView({Key? key}) : super(key: key);
+  const CartView({super.key});
 
   @override
   State<CartView> createState() => _CartViewState();

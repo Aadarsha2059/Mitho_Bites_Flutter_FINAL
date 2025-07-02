@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/features/splash/presentation/view/splash_screen_view.dart';
-import 'package:fooddelivery_b/features/user/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:fooddelivery_b/theme/theme_data.dart';
-import 'package:fooddelivery_b/features/more_options_bottom_navigation/more_view.dart';
-import 'package:fooddelivery_b/view/partypalace_view.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 

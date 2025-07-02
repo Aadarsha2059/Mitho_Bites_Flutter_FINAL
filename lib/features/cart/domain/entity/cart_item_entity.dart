@@ -81,5 +81,49 @@ class CartItemEntity extends Equatable {
     updatedAt,
   ];
 
-  copyWith({required int quantity}) {}
+  CartItemEntity copyWith({
+    String? cartItemId,
+    String? productId,
+    String? productName,
+    String? productType,
+    double? productPrice,
+    String? productDescription,
+    String? productImage,
+    String? categoryId,
+    String? restaurantId,
+    bool? isAvailable,
+    String? categoryName,
+    String? categoryImage,
+    String? restaurantName,
+    String? restaurantImage,
+    String? restaurantLocation,
+    String? restaurantContact,
+    int? quantity,
+    double? price,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return CartItemEntity(
+      cartItemId: cartItemId ?? this.cartItemId,
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      productType: productType ?? this.productType,
+      productPrice: productPrice ?? this.productPrice,
+      productDescription: productDescription ?? this.productDescription,
+      productImage: productImage ?? this.productImage,
+      categoryId: categoryId ?? this.categoryId,
+      restaurantId: restaurantId ?? this.restaurantId,
+      isAvailable: isAvailable ?? this.isAvailable,
+      categoryName: categoryName ?? this.categoryName,
+      categoryImage: categoryImage ?? this.categoryImage,
+      restaurantName: restaurantName ?? this.restaurantName,
+      restaurantImage: restaurantImage ?? this.restaurantImage,
+      restaurantLocation: restaurantLocation ?? this.restaurantLocation,
+      restaurantContact: restaurantContact ?? this.restaurantContact,
+      quantity: quantity ?? this.quantity,
+      price: price ?? this.price,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

@@ -16,10 +16,10 @@ class ProductListView extends StatelessWidget {
   final String categoryId;
 
   const ProductListView({
-    Key? key,
+    super.key,
     required this.viewModel,
     required this.categoryId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
