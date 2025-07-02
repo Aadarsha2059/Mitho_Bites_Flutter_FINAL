@@ -6,6 +6,7 @@ import 'package:fooddelivery_b/features/food_products/data/model/product_hive_mo
 import 'package:fooddelivery_b/features/cart/data/model/cart_hive_model.dart';
 import 'package:fooddelivery_b/features/payment/data/model/payment_hive_model.dart';
 import 'package:fooddelivery_b/features/order/data/model/order_hive_model.dart';
+import 'package:fooddelivery_b/features/feedbacks/data/model/feedback_hive_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -57,9 +58,14 @@ class HiveService {
       print('Registering OrderHiveModelAdapter');
       Hive.registerAdapter(OrderHiveModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(8)) {
+      print('Registering FeedbackHiveModelAdapter');
+      Hive.registerAdapter(FeedbackHiveModelAdapter());
+    }
 
     // Open order box
     await Hive.openBox<OrderHiveModel>(HiveTableConstant.orderBox);
+    await Hive.openBox<FeedbackHiveModel>(HiveTableConstant.feedbackBox);
   }
 
   // User methods

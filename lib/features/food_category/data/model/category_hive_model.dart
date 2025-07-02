@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 part 'category_hive_model.g.dart';
 
-@HiveType(typeId: HiveTableConstant.categoryTableId)
+@HiveType(typeId: 1)
 class CategoryHiveModel extends Equatable {
   @HiveField(0)
   final String? categoryId;

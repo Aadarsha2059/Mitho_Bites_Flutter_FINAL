@@ -14,7 +14,9 @@ class CategoryLocalDatasource implements ICategoryDataSource {
   @override
   Future<List<FoodCategoryEntity>> getAllCategories() async {
     try {
-      var box = await Hive.openBox<CategoryHiveModel>(HiveTableConstant.categoryBox);
+      var box = await Hive.openBox<CategoryHiveModel>(
+        HiveTableConstant.categoryBox,
+      );
       return box.values.map((model) => model.toEntity()).toList();
     } catch (e) {
       throw Exception("Failed to get categories: $e");
@@ -24,7 +26,9 @@ class CategoryLocalDatasource implements ICategoryDataSource {
   @override
   Future<void> saveCategories(List<FoodCategoryEntity> categories) async {
     try {
-      var box = await Hive.openBox<CategoryHiveModel>(HiveTableConstant.categoryBox);
+      var box = await Hive.openBox<CategoryHiveModel>(
+        HiveTableConstant.categoryBox,
+      );
       await box.clear(); // Clear existing data
       for (var category in categories) {
         final hiveModel = CategoryHiveModel.fromEntity(category);
@@ -38,7 +42,9 @@ class CategoryLocalDatasource implements ICategoryDataSource {
   @override
   Future<void> clearCategories() async {
     try {
-      var box = await Hive.openBox<CategoryHiveModel>(HiveTableConstant.categoryBox);
+      var box = await Hive.openBox<CategoryHiveModel>(
+        HiveTableConstant.categoryBox,
+      );
       await box.clear();
     } catch (e) {
       throw Exception("Failed to clear categories: $e");

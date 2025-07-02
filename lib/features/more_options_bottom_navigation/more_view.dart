@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fooddelivery_b/features/order/presentation/view/more_orders_screen.dart';
 import 'package:fooddelivery_b/view/about_assignment.dart';
+import 'package:fooddelivery_b/features/user/presentation/view/login_view.dart';
+import 'package:fooddelivery_b/features/feedbacks/presentation/view/feedback_button.dart';
+import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
+import 'package:provider/provider.dart';
+import 'package:fooddelivery_b/features/order/presentation/view_model/order_view_model.dart';
+import 'package:fooddelivery_b/features/order/domain/entity/order_entity.dart';
+import 'package:fooddelivery_b/features/feedbacks/presentation/view_model/feedback_view_model.dart';
 
 class MoreView extends StatelessWidget {
   const MoreView({super.key});
@@ -91,12 +98,11 @@ class MoreView extends StatelessWidget {
           ),
           _buildMoreItem(
             icon: Icons.share,
-            title: 'Refer & Earn',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ReferEarnPage()),
-                ),
+            title: 'Give Feedbacks',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const GiveFeedbacksPage()),
+            ),
             iconColor: Colors.amber.shade100,
           ),
           _buildMoreItem(
@@ -114,9 +120,10 @@ class MoreView extends StatelessWidget {
             icon: Icons.logout,
             title: 'Logout',
             onTap: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-              // Optionally, you can navigate to a LoginPage if you have one:
-              // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => LoginView()),
+                (route) => false,
+              );
             },
             iconColor: Colors.grey.shade300,
           ),
@@ -265,47 +272,91 @@ class HelpSupportPage extends StatelessWidget {
   }
 }
 
-class ReferEarnPage extends StatelessWidget {
-  const ReferEarnPage({super.key});
+class GiveFeedbacksPage extends StatelessWidget {
+  const GiveFeedbacksPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Refer & Earn'),
-        backgroundColor: Colors.deepOrange,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text(
-              'Invite your friends & earn rewards!\n\nShare your referral code:',
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.orange.shade100,
-              ),
-              child: const Text(
-                'MITHO123',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.share),
-              label: const Text('Share'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
-              ),
-            ),
-          ],
+    return ChangeNotifierProvider(
+      create: (_) => serviceLocator<OrderViewModel>()..fetchOrders(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Give Feedbacks'),
+          backgroundColor: Colors.deepOrange,
+        ),
+        body: Consumer<OrderViewModel>(
+          builder: (context, viewModel, _) {
+            if (viewModel.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (viewModel.error != null) {
+              return Center(child: Text('Error: ${viewModel.error}'));
+            }
+            final receivedOrders = viewModel.orders.where((order) => order.orderStatus == 'received').toList();
+            if (receivedOrders.isEmpty) {
+              return const Center(child: Text('No received orders to give feedback on.'));
+            }
+            return ListView.builder(
+              itemCount: receivedOrders.length,
+              itemBuilder: (context, index) {
+                final order = receivedOrders[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Order #${order.id?.substring(order.id!.length - 5) ?? ''} • Placed: ${order.orderDate.toLocal().toString().split(' ')[0]}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        ...order.items.whereType<Map<String, dynamic>>().map((item) {
+                          final productId = item['productId'] is Map
+                              ? item['productId']['_id']?.toString() ?? ''
+                              : item['productId']?.toString() ?? '';
+                          final productName = item['productName']?.toString() ?? 'Food Item';
+                          final productImage = item['productImage']?.toString();
+                          final restaurantName = item['restaurantName']?.toString();
+                          return ListTile(
+                            leading: productImage != null && productImage.isNotEmpty
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      productImage,
+                                      height: 48,
+                                      width: 48,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 48, color: Colors.grey),
+                                    ),
+                                  )
+                                : const Icon(Icons.fastfood, size: 48, color: Colors.deepOrange),
+                            title: Text(productName),
+                            subtitle: restaurantName != null && restaurantName.isNotEmpty
+                                ? Text('From: $restaurantName', style: const TextStyle(fontSize: 13, color: Colors.grey))
+                                : null,
+                            trailing: ChangeNotifierProvider(
+                              create: (_) => serviceLocator<FeedbackViewModel>(),
+                              child: FeedbackButton(
+                                userId: order.userId,
+                                productId: productId,
+                                productName: productName,
+                                productImage: productImage,
+                                restaurantName: restaurantName,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );

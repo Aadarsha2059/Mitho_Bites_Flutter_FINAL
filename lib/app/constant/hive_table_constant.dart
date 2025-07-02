@@ -21,4 +21,7 @@ class HiveTableConstant {
 
   static const int orderTableId = 6;
   static const String orderBox = 'orderBox';
+
+  static const int feedbackTableId = 8;
+  static const String feedbackBox = 'feedbackBox';
 }

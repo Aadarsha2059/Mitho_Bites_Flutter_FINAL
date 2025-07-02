@@ -85,6 +85,16 @@ import 'package:fooddelivery_b/features/order/presentation/view_model/order_view
 
 import 'package:get_it/get_it.dart';
 
+// Feedback dependencies
+import 'package:fooddelivery_b/features/feedbacks/data/data_source/local_datasource/feedback_local_datasource.dart';
+import 'package:fooddelivery_b/features/feedbacks/data/data_source/remote_datasource/feedback_remote_datasource.dart';
+import 'package:fooddelivery_b/features/feedbacks/data/repository//local_repository/feedback_local_repository.dart';
+import 'package:fooddelivery_b/features/feedbacks/data/repository/remote_repository/feedback_remote_repository.dart';
+import 'package:fooddelivery_b/features/feedbacks/data/repository/feedback_repository_impl.dart';
+import 'package:fooddelivery_b/features/feedbacks/domain/use_case/get_feedbacks_for_product_usecase.dart';
+import 'package:fooddelivery_b/features/feedbacks/domain/use_case/submit_feedback_usecase.dart';
+import 'package:fooddelivery_b/features/feedbacks/presentation/view_model/feedback_view_model.dart';
+
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
@@ -99,6 +109,7 @@ Future<void> initDependencies() async {
   await _initCartModule();
   await _initPaymentModule();
   await _initOrderModule();
+  await _initFeedbackModule();
 }
 
 Future<void> _initHiveService() async {
@@ -495,6 +506,54 @@ Future<void> _initOrderModule() async {
       updateOrderStatusUsecase: serviceLocator<UpdateOrderStatusUsecase>(),
       cancelOrderUsecase: serviceLocator<CancelOrderUsecase>(),
       markOrderReceivedUsecase: serviceLocator<MarkOrderReceivedUsecase>(),
+    ),
+  );
+}
+
+Future<void> _initFeedbackModule() async {
+  // Data Sources
+  serviceLocator.registerLazySingleton<FeedbackLocalDatasource>(
+    () => FeedbackLocalDatasource(hiveService: serviceLocator<HiveService>()),
+  );
+  serviceLocator.registerLazySingleton<FeedbackRemoteDatasource>(
+    () => FeedbackRemoteDatasource(apiService: serviceLocator<ApiService>()),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<FeedbackLocalRepository>(
+    () => FeedbackLocalRepository(
+      feedbackLocalDatasource: serviceLocator<FeedbackLocalDatasource>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<FeedbackRemoteRepository>(
+    () => FeedbackRemoteRepository(
+      feedbackRemoteDatasource: serviceLocator<FeedbackRemoteDatasource>(),
+    ),
+  );
+  serviceLocator.registerLazySingleton(
+    () => FeedbackRepositoryImpl(
+      localRepository: serviceLocator<FeedbackLocalRepository>(),
+      remoteRepository: serviceLocator<FeedbackRemoteRepository>(),
+    ),
+  );
+
+  // Use Cases
+  serviceLocator.registerFactory(
+    () => GetFeedbacksForProductUsecase(
+      feedbackRepository: serviceLocator<FeedbackRepositoryImpl>(),
+    ),
+  );
+  serviceLocator.registerFactory(
+    () => SubmitFeedbackUsecase(
+      feedbackRepository: serviceLocator<FeedbackRepositoryImpl>(),
+    ),
+  );
+
+  // ViewModel
+  serviceLocator.registerFactory(
+    () => FeedbackViewModel(
+      getFeedbacksForProductUsecase: serviceLocator<GetFeedbacksForProductUsecase>(),
+      submitFeedbackUsecase: serviceLocator<SubmitFeedbackUsecase>(),
     ),
   );
 }

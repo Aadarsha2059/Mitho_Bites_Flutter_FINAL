@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/features/feedbacks/presentation/view/feedback_button.dart';
 import 'package:provider/provider.dart';
 import 'package:fooddelivery_b/features/order/presentation/view_model/order_view_model.dart';
 import 'package:fooddelivery_b/features/order/domain/entity/order_entity.dart';
+import 'package:fooddelivery_b/features/feedbacks/presentation/view_model/feedback_view_model.dart';
+import 'package:get_it/get_it.dart';
 
 class OrderHistoryView extends StatelessWidget {
   const OrderHistoryView({super.key});
@@ -244,6 +247,31 @@ class _OrderCard extends StatelessWidget {
                   );
                 },
               ),
+            ],
+            if (order.orderStatus == 'received') ...[
+              const SizedBox(height: 8),
+              const Text('Rate your food items:', style: TextStyle(fontWeight: FontWeight.bold)),
+              ...order.items.whereType<Map<String, dynamic>>().map<Widget>((item) {
+                final productId = item['productId'] is Map
+                    ? item['productId']['_id']?.toString() ?? ''
+                    : item['productId']?.toString() ?? '';
+                final productName = item['productName']?.toString() ?? 'Food Item';
+                final productImage = item['productImage']?.toString();
+                final restaurantName = item['restaurantName']?.toString();
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: ChangeNotifierProvider(
+                    create: (_) => GetIt.I<FeedbackViewModel>(),
+                    builder: (context, child) => FeedbackButton(
+                      userId: order.userId,
+                      productId: productId,
+                      productName: productName,
+                      productImage: productImage,
+                      restaurantName: restaurantName,
+                    ),
+                  ),
+                );
+              }).toList(),
             ],
           ],
         ),
