@@ -40,6 +40,51 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
     final submitError = feedbackViewModel.state.submitError;
     final submitSuccess = feedbackViewModel.state.submitSuccess;
 
+    Future<void> _showThankYouDialog() async {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 16),
+                    const Icon(Icons.emoji_emotions, color: Colors.amber, size: 64),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Thank you for your valuable ratings and feedbacks!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'We will improve our qualities in the days to come.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+              Positioned(
+                right: 0,
+                top: 0,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.grey, size: 28),
+                  onPressed: () => Navigator.of(ctx).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return AlertDialog(
       title: Text('Rate ${widget.productName}'),
       content: Column(
@@ -83,10 +128,6 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
             const SizedBox(height: 8),
             Text(submitError, style: const TextStyle(color: Colors.red)),
           ],
-          if (submitSuccess) ...[
-            const SizedBox(height: 8),
-            const Text('Feedback submitted!', style: TextStyle(color: Colors.green)),
-          ],
         ],
       ),
       actions: [
@@ -109,6 +150,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                   await feedbackViewModel.submitFeedback(feedback);
                   if (feedbackViewModel.state.submitSuccess && context.mounted) {
                     Navigator.of(context).pop(true);
+                    await _showThankYouDialog();
                   }
                 },
           child: isSubmitting
