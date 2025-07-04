@@ -16,6 +16,7 @@ import 'package:fooddelivery_b/features/cart/presentation/view/cart_view.dart';
 import 'package:fooddelivery_b/features/user/domain/use_case/user_get_current_usecase.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart';
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:async';
 
 
@@ -33,15 +34,24 @@ class MenuView extends StatefulWidget {
 class _MenuViewState extends State<MenuView> {
   String? userAddress;
   bool isLoadingAddress = true;
+  
+  // Barometer variables
+  BarometerEvent? _barometerEvent;
+  final List<StreamSubscription<dynamic>> _streamSubscriptions = [];
+  bool _isBarometerAvailable = true;
 
   @override
   void initState() {
     super.initState();
     _fetchUserAddress();
+    _initializeBarometer();
   }
 
   @override
   void dispose() {
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
     super.dispose();
   }
 
@@ -57,6 +67,24 @@ class _MenuViewState extends State<MenuView> {
     });
   }
 
+  void _initializeBarometer() {
+    _streamSubscriptions.add(
+      barometerEventStream().listen(
+        (BarometerEvent event) {
+          setState(() {
+            _barometerEvent = event;
+          });
+        },
+        onError: (e) {
+          setState(() {
+            _isBarometerAvailable = false;
+          });
+        },
+        cancelOnError: true,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -70,6 +98,7 @@ class _MenuViewState extends State<MenuView> {
               children: [
                 _buildTopBar(),
                 _buildSearchBar(),
+                _buildWeatherWidget(),
                 _buildCategoryChips(),
                 Expanded(child: _buildProductGrid()),
               ],
@@ -144,6 +173,161 @@ class _MenuViewState extends State<MenuView> {
         );
       },
     );
+  }
+
+  Widget _buildWeatherWidget() {
+    if (!_isBarometerAvailable) {
+      return const SizedBox.shrink();
+    }
+
+    final pressure = _barometerEvent?.pressure ?? 1013.25; // Default sea level pressure
+    final weatherCondition = _getWeatherCondition(pressure);
+    final foodRecommendations = _getFoodRecommendations(pressure);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.blue.shade50,
+            Colors.blue.shade100,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.shade200, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                _getWeatherIcon(pressure),
+                color: Colors.blue.shade700,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Weather & Food Recommendations',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Atmospheric Pressure',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${pressure.toStringAsFixed(1)} hPa',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      weatherCondition,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade700,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Recommended Foods',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      foodRecommendations,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade800,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getWeatherCondition(double pressure) {
+    if (pressure < 1000) {
+      return 'Low Pressure - Stormy weather likely';
+    } else if (pressure < 1013) {
+      return 'Below Average - Rain possible';
+    } else if (pressure < 1020) {
+      return 'Normal - Pleasant weather';
+    } else if (pressure < 1030) {
+      return 'Above Average - Clear skies';
+    } else {
+      return 'High Pressure - Very dry weather';
+    }
+  }
+
+  String _getFoodRecommendations(double pressure) {
+    if (pressure < 1000) {
+      return 'Warm soups, hot tea, comfort foods';
+    } else if (pressure < 1013) {
+      return 'Light meals, fresh salads, warm drinks';
+    } else if (pressure < 1020) {
+      return 'Balanced meals, grilled items, fresh fruits';
+    } else if (pressure < 1030) {
+      return 'Light snacks, cold drinks, fresh vegetables';
+    } else {
+      return 'Hydrating foods, cold dishes, fruits';
+    }
+  }
+
+  IconData _getWeatherIcon(double pressure) {
+    if (pressure < 1000) {
+      return Icons.thunderstorm;
+    } else if (pressure < 1013) {
+      return Icons.cloudy_snowing;
+    } else if (pressure < 1020) {
+      return Icons.wb_sunny;
+    } else if (pressure < 1030) {
+      return Icons.wb_sunny_outlined;
+    } else {
+      return Icons.wb_sunny_rounded;
+    }
   }
 
   Widget _buildCategoryChips() {
