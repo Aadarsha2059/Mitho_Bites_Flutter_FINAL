@@ -46,6 +46,7 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   sensors_plus: ^6.1.1
   local_auth: ^2.1.7
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +54,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.15
   hive_generator: ^2.0.1
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -72,3 +74,21 @@ flutter:
         - asset: assets/fonts/Metropolis-ExtraBold.otf
         - asset: assets/fonts/Metropolis-SemiBold.otf
         - asset: assets/fonts/Metropolis-Medium.otf
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/updated.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icons/updated.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/icons/updated.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/updated.png"
