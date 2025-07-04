@@ -8,6 +8,8 @@ import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
 import 'package:provider/provider.dart';
 import 'package:fooddelivery_b/features/order/presentation/view_model/order_view_model.dart';
 import 'package:fooddelivery_b/features/feedbacks/presentation/view_model/feedback_view_model.dart';
+import 'package:fooddelivery_b/features/more_options_bottom_navigation/update_profile/profile_view.dart';
+
 
 class MoreView extends StatelessWidget {
   const MoreView({super.key});
@@ -62,7 +64,7 @@ class MoreView extends StatelessWidget {
             onTap:
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const UpdateProfilePage()),
+                  MaterialPageRoute(builder: (_) => const UpdateProfilePageeWrapper()),
                 ),
             iconColor: Colors.green.shade100,
           ),
@@ -92,17 +94,20 @@ class MoreView extends StatelessWidget {
             onTap:
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const AboutAssignmentPage()),
+                  MaterialPageRoute(
+                    builder: (_) => const AboutAssignmentPage(),
+                  ),
                 ),
             iconColor: Colors.blue.shade100,
           ),
           _buildMoreItem(
             icon: Icons.share,
             title: 'Give Feedbacks',
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const GiveFeedbacksPage()),
-            ),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GiveFeedbacksPage()),
+                ),
             iconColor: Colors.amber.shade100,
           ),
           _buildMoreItem(
@@ -292,18 +297,28 @@ class GiveFeedbacksPage extends StatelessWidget {
             if (viewModel.error != null) {
               return Center(child: Text('Error: ${viewModel.error}'));
             }
-            final receivedOrders = viewModel.orders.where((order) => order.orderStatus == 'received').toList();
+            final receivedOrders =
+                viewModel.orders
+                    .where((order) => order.orderStatus == 'received')
+                    .toList();
             if (receivedOrders.isEmpty) {
-              return const Center(child: Text('No received orders to give feedback on.'));
+              return const Center(
+                child: Text('No received orders to give feedback on.'),
+              );
             }
             return ListView.builder(
               itemCount: receivedOrders.length,
               itemBuilder: (context, index) {
                 final order = receivedOrders[index];
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   elevation: 3,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Column(
@@ -314,32 +329,57 @@ class GiveFeedbacksPage extends StatelessWidget {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
-                        ...order.items.whereType<Map<String, dynamic>>().map((item) {
-                          final productId = item['productId'] is Map
-                              ? item['productId']['_id']?.toString() ?? ''
-                              : item['productId']?.toString() ?? '';
-                          final productName = item['productName']?.toString() ?? 'Food Item';
+                        ...order.items.whereType<Map<String, dynamic>>().map((
+                          item,
+                        ) {
+                          final productId =
+                              item['productId'] is Map
+                                  ? item['productId']['_id']?.toString() ?? ''
+                                  : item['productId']?.toString() ?? '';
+                          final productName =
+                              item['productName']?.toString() ?? 'Food Item';
                           final productImage = item['productImage']?.toString();
-                          final restaurantName = item['restaurantName']?.toString();
+                          final restaurantName =
+                              item['restaurantName']?.toString();
                           return ListTile(
-                            leading: productImage != null && productImage.isNotEmpty
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      productImage,
-                                      height: 48,
-                                      width: 48,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 48, color: Colors.grey),
+                            leading:
+                                productImage != null && productImage.isNotEmpty
+                                    ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        productImage,
+                                        height: 48,
+                                        width: 48,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const Icon(
+                                                  Icons.image,
+                                                  size: 48,
+                                                  color: Colors.grey,
+                                                ),
+                                      ),
+                                    )
+                                    : const Icon(
+                                      Icons.fastfood,
+                                      size: 48,
+                                      color: Colors.deepOrange,
                                     ),
-                                  )
-                                : const Icon(Icons.fastfood, size: 48, color: Colors.deepOrange),
                             title: Text(productName),
-                            subtitle: restaurantName != null && restaurantName.isNotEmpty
-                                ? Text('From: $restaurantName', style: const TextStyle(fontSize: 13, color: Colors.grey))
-                                : null,
+                            subtitle:
+                                restaurantName != null &&
+                                        restaurantName.isNotEmpty
+                                    ? Text(
+                                      'From: $restaurantName',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey,
+                                      ),
+                                    )
+                                    : null,
                             trailing: ChangeNotifierProvider(
-                              create: (_) => serviceLocator<FeedbackViewModel>(),
+                              create:
+                                  (_) => serviceLocator<FeedbackViewModel>(),
                               child: FeedbackButton(
                                 userId: order.userId,
                                 productId: productId,

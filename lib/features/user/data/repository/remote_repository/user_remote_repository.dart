@@ -42,4 +42,14 @@ class UserRemoteRepository implements IUserRepository {
       return Left(RemoteDatabaseFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, UserEntity>> updateUser(UserEntity user) async {
+    try {
+      final updatedUser = await _userRemoteDatasource.updateUser(user);
+      return Right(updatedUser);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
 }

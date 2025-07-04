@@ -13,21 +13,25 @@ class UserRemoteDatasource implements IUserDataSource {
   UserRemoteDatasource({
     required ApiService apiService,
     required TokenSharedPrefs tokenSharedPrefs,
-  }) : _apiService = apiService,
-       _tokenSharedPrefs = tokenSharedPrefs;
+  })  : _apiService = apiService,
+        _tokenSharedPrefs = tokenSharedPrefs;
 
+  /// Retrieves the current user's data from the remote API.
   @override
   Future<UserEntity> getCurrentUser() async {
     try {
       print('=== Remote Get Current User Started ===');
       print('Endpoint: ${ApiEndpoints.getCurrentUser}');
-      
+
+      final token = await _getStoredToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Authentication failed: No valid token found');
+      }
+
       final response = await _apiService.dio.get(
         ApiEndpoints.getCurrentUser,
         options: Options(
-          headers: {
-            'Authorization': 'Bearer ${await _getStoredToken()}',
-          },
+          headers: {'Authorization': 'Bearer $token'},
         ),
       );
 
@@ -35,99 +39,101 @@ class UserRemoteDatasource implements IUserDataSource {
       print('Response data: ${response.data}');
 
       if (response.statusCode == 200) {
-        final responseData = response.data;
-        
-        if (responseData['success'] == true && responseData['data'] != null) {
-          final userData = responseData['data'];
-          final userApiModel = UserApiModel.fromJson(userData);
-          final userEntity = userApiModel.toEntity();
-          
-          print('Get current user successful');
-          print('User address: ${userEntity.address}');
-          return userEntity;
-        } else {
+        final responseData = response.data as Map<String, dynamic>?;
+
+        if (responseData == null || responseData['success'] != true || responseData['data'] == null) {
           throw Exception('Get current user failed: Invalid response format');
         }
+
+        final userData = responseData['data'] as Map<String, dynamic>;
+        final userApiModel = UserApiModel.fromJson(userData);
+        final userEntity = userApiModel.toEntity();
+
+        print('Get current user successful');
+        print('User address: ${userEntity.address}');
+        return userEntity;
       } else {
-        throw Exception('Get current user failed: ${response.statusMessage}');
+        throw Exception('Get current user failed: ${response.statusMessage ?? "Unknown error"}');
       }
     } on DioException catch (e) {
       print('DioException during get current user: ${e.message}');
       print('DioException type: ${e.type}');
       print('DioException response: ${e.response?.data}');
-      
+
       if (e.response?.statusCode == 401) {
-        throw Exception('Authentication failed. Please login again.');
+        throw Exception('Authentication failed: Please login again');
       } else if (e.response?.statusCode == 403) {
-        throw Exception('Access denied. Token required.');
-      } else if (e.response != null && e.response!.data is Map<String, dynamic>) {
-        final errorData = e.response!.data;
-        if (errorData['message'] != null) {
-          throw Exception('Get current user failed: ${errorData['message']}');
-        }
+        throw Exception('Access denied: Token required');
       }
-      throw Exception('Get current user failed: ${e.message}');
+
+      final errorData = e.response?.data as Map<String, dynamic>?;
+      throw Exception('Get current user failed: ${errorData?['message'] ?? e.message ?? "Unknown error"}');
     } catch (e) {
       print('Unexpected error during get current user: $e');
       throw Exception('Unexpected error during get current user: $e');
     }
   }
 
+  /// Authenticates a user with the provided credentials and returns a token.
   @override
   Future<String> loginUser(String username, String password) async {
     try {
+      print('=== Remote Login Started ===');
+      print('Endpoint: ${ApiEndpoints.login}');
+
       final response = await _apiService.dio.post(
         ApiEndpoints.login,
         data: {'username': username, 'password': password},
       );
-      
+
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+
       if (response.statusCode == 200) {
-        final responseData = response.data;
-        
-        // Handle MERN backend response format
-        if (responseData['success'] == true && responseData['token'] != null) {
-          await _tokenSharedPrefs.saveToken(responseData['token'] as String);
-          return responseData['token'] as String;
-        } else if (responseData['token'] != null) {
-          // Direct token response
-          await _tokenSharedPrefs.saveToken(responseData['token'] as String);
-          return responseData['token'] as String;
-        } else {
+        final responseData = response.data as Map<String, dynamic>?;
+
+        if (responseData == null || responseData['token'] == null) {
           throw Exception('Login failed: No token received');
         }
+
+        final token = responseData['token'] as String;
+        await _tokenSharedPrefs.saveToken(token);
+
+        print('Login successful');
+        return token;
       } else {
-        throw Exception('Login failed: ${response.statusMessage}');
+        throw Exception('Login failed: ${response.statusMessage ?? "Unknown error"}');
       }
     } on DioException catch (e) {
-      if (e.response != null && e.response!.data is Map<String, dynamic>) {
-        final errorData = e.response!.data;
-        if (errorData['message'] != null) {
-          throw Exception('Login failed: ${errorData['message']}');
-        }
-      }
-      throw Exception('Login failed: ${e.message}');
+      print('DioException during login: ${e.message}');
+      print('DioException response: ${e.response?.data}');
+
+      final errorData = e.response?.data as Map<String, dynamic>?;
+      throw Exception('Login failed: ${errorData?['message'] ?? e.message ?? "Unknown error"}');
     } catch (e) {
+      print('Unexpected error during login: $e');
       throw Exception('Unexpected error during login: $e');
     }
   }
 
+  /// Registers a new user with the provided data.
   @override
   Future<void> registerUser(UserEntity userData) async {
     try {
       print('=== Remote Registration Started ===');
       print('Endpoint: ${ApiEndpoints.register}');
-      
+
       final userApiModel = UserApiModel.fromEntity(userData);
       final registrationData = userApiModel.toJson();
-      
-      // Ensure phone is sent as number to match backend validation
+
+      // Ensure phone is sent as a number if required by the backend
       if (registrationData['phone'] != null) {
         registrationData['phone'] = int.tryParse(registrationData['phone'].toString()) ?? 0;
       }
-      
-      // Ensure confirmpassword is set to match password for validation
+
+      // Ensure confirmpassword matches password for backend validation
       registrationData['confirmpassword'] = userData.password;
-      
+
       print('Registration data: $registrationData');
 
       final response = await _apiService.dio.post(
@@ -139,43 +145,100 @@ class UserRemoteDatasource implements IUserDataSource {
       print('Response data: ${response.data}');
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        final responseData = response.data;
-        
-        // Handle MERN backend response format
-        if (responseData is Map<String, dynamic>) {
-          if (responseData['success'] == true) {
-            print('Registration successful');
-            return;
-          } else if (responseData['message'] != null) {
-            print('Registration failed with message: ${responseData['message']}');
-            throw Exception('Registration failed: ${responseData['message']}');
-          }
+        final responseData = response.data as Map<String, dynamic>?;
+
+        if (responseData != null && responseData['success'] == true) {
+          print('Registration successful');
+          return;
         }
+
         print('Registration successful (no success flag)');
         return;
       } else {
-        print('Registration failed with status: ${response.statusMessage}');
-        throw Exception('Registration failed: ${response.statusMessage}');
+        throw Exception('Registration failed: ${response.statusMessage ?? "Unknown error"}');
       }
     } on DioException catch (e) {
       print('DioException during registration: ${e.message}');
-      print('DioException type: ${e.type}');
       print('DioException response: ${e.response?.data}');
-      
-      if (e.response != null && e.response!.data is Map<String, dynamic>) {
-        final errorData = e.response!.data;
-        if (errorData['message'] != null) {
-          throw Exception('Registration failed: ${errorData['message']}');
-        }
-      }
-      throw Exception('Registration failed: ${e.message}');
+
+      final errorData = e.response?.data as Map<String, dynamic>?;
+      throw Exception('Registration failed: ${errorData?['message'] ?? e.message ?? "Unknown error"}');
     } catch (e) {
       print('Unexpected error during registration: $e');
       throw Exception('Unexpected error during registration: $e');
     }
   }
 
-  // Helper method to get stored token
+  /// Updates the user data on the remote API.
+  @override
+  Future<UserEntity> updateUser(UserEntity user) async {
+    try {
+      print('=== Remote Update User Started ===');
+      print('Endpoint: ${ApiEndpoints.updateUser}');
+
+      final token = await _getStoredToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Authentication failed: No valid token found');
+      }
+
+      final userApiModel = UserApiModel.fromEntity(user);
+      final updateData = userApiModel.toJson();
+
+      // Remove password fields if not changed
+      if (user.password.isEmpty) {
+        updateData.remove('password');
+        updateData.remove('confirmpassword');
+      } else {
+        updateData['confirmpassword'] = user.password;
+      }
+
+      // Include userId if available
+      if (user.userId != null) {
+        updateData['_id'] = user.userId;
+      }
+
+      print('Update data to send: $updateData');
+
+      final response = await _apiService.dio.put(
+        ApiEndpoints.updateUser,
+        data: updateData,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        final responseData = response.data as Map<String, dynamic>?;
+
+        if (responseData == null || responseData['success'] != true || responseData['data'] == null) {
+          throw Exception('Update user failed: Invalid response format');
+        }
+
+        final userData = responseData['data'] as Map<String, dynamic>;
+        final userApiModel = UserApiModel.fromJson(userData);
+        final userEntity = userApiModel.toEntity();
+
+        print('Update user successful');
+        return userEntity;
+      } else {
+        throw Exception('Update user failed: ${response.statusMessage ?? "Unknown error"}');
+      }
+    } on DioException catch (e) {
+      print('DioException during update user: ${e.message}');
+      print('DioException response: ${e.response?.data}');
+
+      final errorData = e.response?.data as Map<String, dynamic>?;
+      throw Exception('Update user failed: ${errorData?['message'] ?? e.message ?? "Unknown error"}');
+    } catch (e) {
+      print('Unexpected error during update user: $e');
+      throw Exception('Unexpected error during update user: $e');
+    }
+  }
+
+  /// Helper method to retrieve the stored authentication token.
   Future<String?> _getStoredToken() async {
     try {
       final result = await _tokenSharedPrefs.getToken();

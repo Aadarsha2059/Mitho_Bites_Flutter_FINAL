@@ -38,4 +38,10 @@ class UserLocalDatasource implements IUserDataSource {
     // TODO: implement getCurrentUser
     throw UnimplementedError();
   }
+  
+  @override
+  Future<UserEntity> updateUser(UserEntity user) {
+    // TODO: implement updateUser
+    throw UnimplementedError();
+  }
 }

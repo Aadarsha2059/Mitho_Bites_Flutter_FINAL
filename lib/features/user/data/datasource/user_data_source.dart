@@ -6,4 +6,6 @@ abstract interface class IUserDataSource {
   Future<String> loginUser(String username, String password);
 
   Future<UserEntity> getCurrentUser();
+
+  Future<UserEntity> updateUser(UserEntity user);
 }

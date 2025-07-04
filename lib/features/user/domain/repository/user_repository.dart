@@ -11,6 +11,8 @@ abstract interface class IUserRepository {
   Future<Either<Failure, String>> loginUser(String username, String password);
 
   Future<Either<Failure, UserEntity>> getCurrentUser();
+
+  Future<Either<Failure, UserEntity>> updateUser(UserEntity user);
 }
 
 // Hybrid Repository Implementation
@@ -188,6 +190,21 @@ class UserRepository implements IUserRepository {
       }
     } catch (e) {
       print('Get current user unexpected error: $e');
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> updateUser(UserEntity user) async {
+    try {
+      final isNetwork = await _isNetworkConnected();
+      if (isNetwork) {
+        final updatedUser = await remoteDataSource.updateUser(user);
+        return Right(updatedUser);
+      } else {
+        return Left(RemoteDatabaseFailure(message: 'No network connection.'));
+      }
+    } catch (e) {
       return Left(RemoteDatabaseFailure(message: e.toString()));
     }
   }

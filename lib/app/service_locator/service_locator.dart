@@ -3,6 +3,7 @@ import 'package:fooddelivery_b/core/network/api_service.dart';
 import 'package:fooddelivery_b/core/network/hive_service.dart';
 import 'package:fooddelivery_b/app/shared_pref/token_shared_prefs.dart';
 import 'package:fooddelivery_b/features/order/domain/repository/order_repository.dart';
+import 'package:fooddelivery_b/features/user/domain/use_case/user_update_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fooddelivery_b/features/menu/menu_view_model.dart';
 import 'package:fooddelivery_b/features/restaurant/data/data_source/local_datasource/restaurannt_local_datasource.dart';
@@ -169,6 +170,10 @@ Future<void> _initAuthModule() async {
     () => UserGetCurrentUsecase(
       userRepository: serviceLocator<IUserRepository>(),
     ),
+  );
+
+  serviceLocator.registerFactory(
+    () => UserUpdateUsecase(userRepository: serviceLocator<IUserRepository>()),
   );
 
   serviceLocator.registerFactory(

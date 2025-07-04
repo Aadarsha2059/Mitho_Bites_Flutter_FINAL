@@ -18,6 +18,7 @@ class ApiEndpoints {
   static const String login = "auth/login";
   static const String register = "auth/register";
   static const String getCurrentUser = "auth/me";
+  static const String updateUser = "auth/update";
   // Note: getAllUsers endpoint does not exist in MERN backend
 
   // Public endpoints for categories and restaurants
