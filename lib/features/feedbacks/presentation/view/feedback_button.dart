@@ -11,13 +11,13 @@ class FeedbackButton extends StatelessWidget {
   final String? restaurantName;
 
   const FeedbackButton({
-    Key? key,
+    super.key,
     required this.userId,
     required this.productId,
     required this.productName,
     this.productImage,
     this.restaurantName,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

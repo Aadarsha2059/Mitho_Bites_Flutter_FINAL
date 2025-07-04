@@ -11,13 +11,13 @@ class FeedbackDialog extends StatefulWidget {
   final String? restaurantName;
 
   const FeedbackDialog({
-    Key? key,
+    super.key,
     required this.userId,
     required this.productId,
     required this.productName,
     this.productImage,
     this.restaurantName,
-  }) : super(key: key);
+  });
 
   @override
   State<FeedbackDialog> createState() => _FeedbackDialogState();
@@ -40,7 +40,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
     final submitError = feedbackViewModel.state.submitError;
     final submitSuccess = feedbackViewModel.state.submitSuccess;
 
-    Future<void> _showThankYouDialog() async {
+    Future<void> showThankYouDialog() async {
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -150,7 +150,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                   await feedbackViewModel.submitFeedback(feedback);
                   if (feedbackViewModel.state.submitSuccess && context.mounted) {
                     Navigator.of(context).pop(true);
-                    await _showThankYouDialog();
+                    await showThankYouDialog();
                   }
                 },
           child: isSubmitting

@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:fooddelivery_b/app/constant/hive_table_constant.dart';
 import 'package:fooddelivery_b/features/food_category/domain/entity/food_category_entity.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';

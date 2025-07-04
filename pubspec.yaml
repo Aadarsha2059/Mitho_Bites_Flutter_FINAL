@@ -44,6 +44,8 @@ dependencies:
   cached_network_image: ^3.3.0
   # Make sure to add font_awesome_flutter to your pubspec.yaml for About Assignment page icons
   font_awesome_flutter: ^10.7.0
+  sensors_plus: ^6.1.1
+  local_auth: ^2.1.7
 
 dev_dependencies:
   flutter_test:

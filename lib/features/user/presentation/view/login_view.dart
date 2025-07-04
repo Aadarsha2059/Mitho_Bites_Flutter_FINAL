@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
@@ -8,6 +7,7 @@ import 'package:fooddelivery_b/core/common/widgets/loading_overlay.dart';
 import 'package:fooddelivery_b/features/user/presentation/view_model/login_view_model/login_state.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 import 'package:fooddelivery_b/features/home/presentation/view/home_view.dart';
+import 'package:local_auth/local_auth.dart';
 
 class LoginView extends StatelessWidget {
   LoginView({super.key});
@@ -200,7 +200,55 @@ class LoginView extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 30),
+                                  const SizedBox(height: 16),
+
+                                  // Fingerprint Login Button
+                                  SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: IconButton(
+                                      icon: const Icon(Icons.fingerprint, size: 40, color: Color(0xffB81736)),
+                                      tooltip: 'Login with Fingerprint',
+                                      onPressed: () async {
+                                        final LocalAuthentication auth = LocalAuthentication();
+                                        bool canCheck = await auth.canCheckBiometrics;
+                                        bool isAvailable = await auth.isDeviceSupported();
+                                        if (!canCheck || !isAvailable) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Fingerprint not available on this device')),
+                                          );
+                                          return;
+                                        }
+                                        try {
+                                          bool didAuthenticate = await auth.authenticate(
+                                            localizedReason: 'Please authenticate to login',
+                                            options: const AuthenticationOptions(biometricOnly: true),
+                                          );
+                                          if (didAuthenticate) {
+                                            // Navigate to HomeView
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => HomeView(loginViewModel: context.read<LoginViewModel>()),
+                                              ),
+                                            );
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Fingerprint authentication successful!')),
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Fingerprint authentication failed.')),
+                                            );
+                                          }
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Error: \\${e.toString()}')),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
 
                                   // Register Prompt
                                   Align(

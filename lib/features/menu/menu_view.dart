@@ -16,6 +16,12 @@ import 'package:fooddelivery_b/features/cart/presentation/view/cart_view.dart';
 import 'package:fooddelivery_b/features/user/domain/use_case/user_get_current_usecase.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart';
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
+import 'dart:async';
+
+
+
+
+
 
 class MenuView extends StatefulWidget {
   const MenuView({super.key});
@@ -32,6 +38,11 @@ class _MenuViewState extends State<MenuView> {
   void initState() {
     super.initState();
     _fetchUserAddress();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _fetchUserAddress() async {

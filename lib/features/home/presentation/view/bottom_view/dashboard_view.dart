@@ -12,6 +12,7 @@ import 'package:fooddelivery_b/view/partypalace_view.dart';
 import 'package:fooddelivery_b/features/food_category/presentation/view/category_list_view.dart';
 import 'package:fooddelivery_b/features/restaurant/presentation/view_model/restaurant_view_model.dart';
 import 'package:fooddelivery_b/features/restaurant/presentation/state/restaurant_state.dart';
+import 'package:fooddelivery_b/features/restaurant/presentation/view_model/restaurant_event.dart';
 import 'dart:async';
 
 
@@ -35,6 +36,15 @@ class _DashboardViewState extends State<DashboardView> {
     'assets/homepage_images/yomariii.png',
     'assets/homepage_images/selroti.png',
   ];
+  
+  // Captions for each image
+  final List<String> _sliderCaptions = [
+    '🍛 Authentic Thakali Set - Traditional Nepali Delight',
+    '🥟 Steamed Momos - Perfect Dumplings Every Time',
+    '🍡 Sweet Yomari - Festive Rice Dumplings',
+    '🥖 Crispy Sel Roti - Traditional Rice Donuts',
+  ];
+  
   final PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _sliderTimer;
@@ -117,18 +127,70 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Widget _buildHomeContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
+    return RefreshIndicator(
+      onRefresh: () async {
+        // Refresh both categories and restaurants
+        final categoryViewModel = context.read<CategoryViewModel>();
+        final restaurantViewModel = context.read<RestaurantViewModel>();
+        
+        categoryViewModel.add(const LoadCategoriesEvent());
+        restaurantViewModel.add(const LoadRestaurantsEvent());
+        
+        // Wait a bit for the data to load
+        await Future.delayed(const Duration(milliseconds: 500));
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Namaste, ${widget.currentUsername}! 🙏",
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Montserrat',
-                  color: Colors.black87,
-                ),
+          // Welcome message with loading indicator
+          BlocBuilder<CategoryViewModel, CategoryState>(
+            builder: (context, categoryState) {
+              return BlocBuilder<RestaurantViewModel, RestaurantState>(
+                builder: (context, restaurantState) {
+                  final isLoading = categoryState.isLoading || restaurantState.isLoading;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Namaste, ${widget.currentUsername}! 🙏",
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Montserrat',
+                              color: Colors.black87,
+                            ),
+                      ),
+                      if (isLoading) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Loading delicious food for you...',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              );
+            },
           ),
           const SizedBox(height: 6),
           Row(
@@ -153,79 +215,7 @@ class _DashboardViewState extends State<DashboardView> {
           _buildHorizontalCategoryList(),
           const SizedBox(height: 24),
           _buildSectionTitle("🔥 Popular Restaurants"),
-          BlocBuilder<RestaurantViewModel, RestaurantState>(
-            builder: (context, state) {
-              if (state.isLoading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state.errorMessage != null) {
-                return Center(child: Text(state.errorMessage!));
-              } else if (state.restaurants.isEmpty) {
-                return const Center(child: Text("No restaurants found."));
-              }
-              return Column(
-                children: state.restaurants.map((restaurant) {
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(12),
-                      leading: restaurant.image != null && restaurant.image!.isNotEmpty
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: CachedNetworkImage(
-                                imageUrl: restaurant.image!,
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  width: 60,
-                                  height: 60,
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
-                                    ),
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) {
-                                  print('Error loading restaurant image: $url - $error');
-                                  return Container(
-                                    width: 60,
-                                    height: 60,
-                                    color: Colors.grey[200],
-                                    child: const Icon(Icons.restaurant, size: 30, color: Colors.grey),
-                                  );
-                                },
-                              ),
-                            )
-                          : Container(
-                              width: 60,
-                              height: 60,
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.restaurant, size: 30, color: Colors.grey),
-                            ),
-                      title: Text(
-                        restaurant.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(restaurant.location, style: const TextStyle(fontSize: 14)),
-                          const SizedBox(height: 4),
-                          Text('Contact: ${restaurant.contact}', style: const TextStyle(fontSize: 13)),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-          ),
+          _buildRestaurantList(),
           const SizedBox(height: 24),
           _buildSectionTitle("⭐ Most Loved Dishes"),
           _buildHorizontalCardList(model.mostPopArr),
@@ -236,6 +226,7 @@ class _DashboardViewState extends State<DashboardView> {
               ,
           const SizedBox(height: 100),
         ],
+      ),
       ),
     );
   }
@@ -276,10 +267,58 @@ class _DashboardViewState extends State<DashboardView> {
                     });
                   },
                   itemBuilder: (context, index) {
-                    return Image.asset(
-                      _sliderImages[index],
-                      fit: BoxFit.cover,
-                      width: double.infinity,
+                    return Stack(
+                      children: [
+                        Image.asset(
+                          _sliderImages[index],
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                        // Gradient overlay for better text readability
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            height: 80,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Colors.black.withOpacity(0.7),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Caption text
+                        Positioned(
+                          bottom: 16,
+                          left: 0,
+                          right: 0,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              _sliderCaptions[index],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(1, 1),
+                                    blurRadius: 3,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -429,65 +468,247 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  Widget _buildRestaurantList() {
+    return BlocBuilder<RestaurantViewModel, RestaurantState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const SizedBox(
+            height: 200,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.errorMessage != null) {
+          return SizedBox(
+            height: 200,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, color: Colors.red, size: 30),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Error: ${state.errorMessage}',
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<RestaurantViewModel>().add(const LoadRestaurantsEvent());
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (state.restaurants.isEmpty) {
+          return const SizedBox(
+            height: 200,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.restaurant, size: 50, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'No restaurants available',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Column(
+          children: state.restaurants.map((restaurant) {
+            return GestureDetector(
+              onTap: () {
+                // Navigate to restaurant menu
+                setState(() {
+                  _selectedIndex = 1; // Switch to menu tab
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Opening ${restaurant.name} menu'),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
+              child: Card(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(12),
+                  leading: restaurant.image != null && restaurant.image!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: CachedNetworkImage(
+                            imageUrl: restaurant.image!,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              width: 60,
+                              height: 60,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) {
+                              print('Error loading restaurant image: $url - $error');
+                              return Container(
+                                width: 60,
+                                height: 60,
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.restaurant, size: 30, color: Colors.grey),
+                              );
+                            },
+                          ),
+                        )
+                      : Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.restaurant, size: 30, color: Colors.grey),
+                        ),
+                  title: Text(
+                    restaurant.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              restaurant.location,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.phone, size: 14, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(
+                            restaurant.contact,
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.deepOrange),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
   Widget _buildCategoryCard(String image, String name) {
-    return Container(
-      width: 80,
-      margin: const EdgeInsets.only(right: 12),
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: SizedBox(
-              width: 60,
-              height: 60,
-              child: image.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: image,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+    return GestureDetector(
+      onTap: () {
+        // Navigate to menu with category filter
+        setState(() {
+          _selectedIndex = 1; // Switch to menu tab
+        });
+        // You can also pass the category name to filter menu items
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Browsing $name category'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      },
+      child: Container(
+        width: 80,
+        margin: const EdgeInsets.only(right: 12),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: image.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: image,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                            ),
                           ),
                         ),
+                        errorWidget: (context, url, error) {
+                          print('Error loading category image: $url - $error');
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.restaurant,
+                              size: 30,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.restaurant,
+                          size: 30,
+                          color: Colors.grey,
+                        ),
                       ),
-                      errorWidget: (context, url, error) {
-                        print('Error loading category image: $url - $error');
-                        return Container(
-                          color: Colors.grey[200],
-                          child: const Icon(
-                            Icons.image,
-                            size: 30,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      color: Colors.grey[200],
-                      child: const Icon(
-                        Icons.image,
-                        size: 30,
-                        color: Colors.grey,
-                      ),
-                    ),
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            name,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Montserrat',
+            const SizedBox(height: 6),
+            Text(
+              name,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat',
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -271,7 +271,7 @@ class _OrderCard extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ],
         ),
