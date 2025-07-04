@@ -40,19 +40,34 @@ class MenuViewModel extends Bloc<MenuEvent, MenuState> {
   ) {
     final searchQuery = event.searchQuery.toLowerCase();
     List<FoodCategoryEntity> filteredCategories;
+    List<String> filteredRestaurants;
+    String searchStatus = '';
 
     if (searchQuery.isEmpty) {
       filteredCategories = state.categories;
+      filteredRestaurants = state.restaurants;
+      searchStatus = '';
     } else {
       filteredCategories = state.categories
           .where((category) =>
               category.name.toLowerCase().contains(searchQuery))
           .toList();
+      filteredRestaurants = state.restaurants
+          .where((restaurant) =>
+              restaurant.toLowerCase().contains(searchQuery))
+          .toList();
+      if (filteredCategories.isNotEmpty || filteredRestaurants.isNotEmpty) {
+        searchStatus = 'available';
+      } else {
+        searchStatus = 'currently unavailable';
+      }
     }
 
     emit(state.copyWith(
       filteredCategories: filteredCategories,
+      filteredRestaurants: filteredRestaurants,
       searchQuery: searchQuery,
+      searchStatus: searchStatus,
     ));
   }
 

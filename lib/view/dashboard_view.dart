@@ -5,6 +5,7 @@ import 'package:fooddelivery_b/view/partypalace_view.dart';
 import 'package:fooddelivery_b/features/menu/menu_view.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 import 'package:fooddelivery_b/features/cart/presentation/view/cart_view.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -15,6 +16,15 @@ class DashboardView extends StatefulWidget {
 
 class _DashboardViewState extends State<DashboardView> {
   final DashboardModel model = DashboardModel();
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  String _voiceInput = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _speech = stt.SpeechToText();
+  }
 
   @override
   void dispose() {
@@ -89,9 +99,7 @@ class _DashboardViewState extends State<DashboardView> {
                 _buildHorizontalCategoryList(),
                 const SizedBox(height: 24),
                 _buildSectionTitle("🔥 Popular Restaurants"),
-                ...model.popArr
-                    .map((res) => _buildListTile(res['image']!, res['name']!))
-                    ,
+                _buildHorizontalRestaurantList(),
                 const SizedBox(height: 24),
                 _buildSectionTitle("⭐ Most Loved Dishes"),
                 _buildHorizontalCardList(model.mostPopArr),
@@ -116,9 +124,16 @@ class _DashboardViewState extends State<DashboardView> {
   Widget _buildSearchBar() {
     return TextField(
       controller: model.txtSearch,
+      onChanged: (value) {
+        model.filterSearch(value);
+      },
       decoration: InputDecoration(
         hintText: "Search for momo, thakali, sel roti...",
         prefixIcon: const Icon(Icons.search),
+        suffixIcon: IconButton(
+          icon: Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.orange),
+          onPressed: _listenVoiceSearch,
+        ),
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -128,6 +143,28 @@ class _DashboardViewState extends State<DashboardView> {
         ),
       ),
     );
+  }
+
+  void _listenVoiceSearch() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize();
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (val) {
+            setState(() {
+              _voiceInput = val.recognizedWords;
+              model.txtSearch.text = _voiceInput;
+              model.txtSearch.selection = TextSelection.fromPosition(TextPosition(offset: model.txtSearch.text.length));
+            });
+            model.filterSearch(_voiceInput);
+          },
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
   }
 
   Widget _buildSectionTitle(String title) {
@@ -157,16 +194,35 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Widget _buildHorizontalCategoryList() {
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: model.catArr.length,
-        itemBuilder: (context, index) {
-          var cat = model.catArr[index];
-          return _buildCategoryCard(cat['image']!, cat['name']!);
-        },
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (model.searchStatus.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+            child: Text(
+              model.searchStatus == 'available'
+                  ? 'Available'
+                  : 'Currently unavailable',
+              style: TextStyle(
+                color: model.searchStatus == 'available' ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: model.txtSearch.text.isNotEmpty ? model.filteredCatArr.length : model.catArr.length,
+            itemBuilder: (context, index) {
+              var cat = model.txtSearch.text.isNotEmpty ? model.filteredCatArr[index] : model.catArr[index];
+              return _buildCategoryCard(cat['image']!, cat['name']!);
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -279,6 +335,30 @@ class _DashboardViewState extends State<DashboardView> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildHorizontalRestaurantList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (model.searchStatus.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+            child: Text(
+              model.searchStatus == 'available'
+                  ? 'Available'
+                  : 'Currently unavailable',
+              style: TextStyle(
+                color: model.searchStatus == 'available' ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ...[for (var res in model.txtSearch.text.isNotEmpty ? model.filteredPopArr : model.popArr)
+          _buildListTile(res['image']!, res['name']!)],
+      ],
     );
   }
 

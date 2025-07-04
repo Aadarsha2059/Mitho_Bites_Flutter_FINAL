@@ -28,6 +28,32 @@ class DashboardModel extends ChangeNotifier {
     {"image": "assets/images/item_3.png", "name": "Sel Roti & Aloo Tarkari"},
   ];
 
+  // Add filtered lists and search logic
+  List<Map<String, String>> filteredCatArr = [];
+  List<Map<String, String>> filteredPopArr = [];
+  String searchStatus = '';
+
+  DashboardModel() {
+    filteredCatArr = List.from(catArr);
+    filteredPopArr = List.from(popArr);
+  }
+
+  void filterSearch(String query) {
+    final q = query.toLowerCase();
+    filteredCatArr = catArr.where((cat) => cat['name']!.toLowerCase().contains(q)).toList();
+    filteredPopArr = popArr.where((res) => res['name']!.toLowerCase().contains(q)).toList();
+    if (q.isEmpty) {
+      searchStatus = '';
+      filteredCatArr = List.from(catArr);
+      filteredPopArr = List.from(popArr);
+    } else if (filteredCatArr.isNotEmpty || filteredPopArr.isNotEmpty) {
+      searchStatus = 'available';
+    } else {
+      searchStatus = 'currently unavailable';
+    }
+    notifyListeners();
+  }
+
   void updateSelectedIndex(int index) {
     selectedIndex = index;
     notifyListeners();

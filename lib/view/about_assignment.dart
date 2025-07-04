@@ -1,6 +1,3 @@
-// Make sure to add font_awesome_flutter to your pubspec.yaml:
-// dependencies:
-//   font_awesome_flutter: ^10.7.0
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -33,9 +30,7 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
       title: 'Kiran Rana',
       subtitle: 'HOD, BSc (Hons) Computing',
       description: 'Supervisor for Mitho Bites.',
-      details: [
-        _DetailRow(icon: FontAwesomeIcons.userTie, text: 'Supervisor')
-      ],
+      details: [_DetailRow(icon: FontAwesomeIcons.userTie, text: 'Supervisor')],
       badge: 'Faculty',
       badgeColor: Colors.blueAccent,
     ),
@@ -44,9 +39,7 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
       title: 'Softwarica College',
       subtitle: 'Dillibazar, Kathmandu',
       description: 'Fostering innovation in IT education.',
-      details: [
-        _DetailRow(icon: FontAwesomeIcons.school, text: 'Institution')
-      ],
+      details: [_DetailRow(icon: FontAwesomeIcons.school, text: 'Institution')],
       badge: 'College',
       badgeColor: Colors.green,
     ),
@@ -122,16 +115,36 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
                             left: 0,
                             top: sliderHeight / 2 - 24,
                             child: IconButton(
-                              icon: Icon(Icons.arrow_back_ios, color: _currentPage > 0 ? Colors.deepOrange : Colors.grey, size: 28),
-                              onPressed: _currentPage > 0 ? () => _goToPage(_currentPage - 1) : null,
+                              icon: Icon(
+                                Icons.arrow_back_ios,
+                                color:
+                                    _currentPage > 0
+                                        ? Colors.deepOrange
+                                        : Colors.grey,
+                                size: 28,
+                              ),
+                              onPressed:
+                                  _currentPage > 0
+                                      ? () => _goToPage(_currentPage - 1)
+                                      : null,
                             ),
                           ),
                           Positioned(
                             right: 0,
                             top: sliderHeight / 2 - 24,
                             child: IconButton(
-                              icon: Icon(Icons.arrow_forward_ios, color: _currentPage < _slides.length - 1 ? Colors.deepOrange : Colors.grey, size: 28),
-                              onPressed: _currentPage < _slides.length - 1 ? () => _goToPage(_currentPage + 1) : null,
+                              icon: Icon(
+                                Icons.arrow_forward_ios,
+                                color:
+                                    _currentPage < _slides.length - 1
+                                        ? Colors.deepOrange
+                                        : Colors.grey,
+                                size: 28,
+                              ),
+                              onPressed:
+                                  _currentPage < _slides.length - 1
+                                      ? () => _goToPage(_currentPage + 1)
+                                      : null,
                             ),
                           ),
                           // Dots
@@ -144,13 +157,18 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
                               children: List.generate(_slides.length, (index) {
                                 return AnimatedContainer(
                                   duration: const Duration(milliseconds: 350),
-                                  margin: const EdgeInsets.symmetric(horizontal: 6),
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                  ),
                                   width: _currentPage == index ? 28 : 10,
                                   height: 10,
                                   decoration: BoxDecoration(
-                                    color: _currentPage == index
-                                        ? Colors.deepOrange
-                                        : Colors.deepOrange.withOpacity(0.3),
+                                    color:
+                                        _currentPage == index
+                                            ? Colors.deepOrange
+                                            : Colors.deepOrange.withOpacity(
+                                              0.3,
+                                            ),
                                     borderRadius: BorderRadius.circular(8),
                                     boxShadow: [
                                       if (_currentPage == index)
@@ -186,7 +204,11 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.info_outline, color: Colors.deepOrange, size: 20 * fontScale),
+                              Icon(
+                                Icons.info_outline,
+                                color: Colors.deepOrange,
+                                size: 20 * fontScale,
+                              ),
                               const SizedBox(width: 8),
                               ShaderMask(
                                 shaderCallback: (Rect bounds) {
@@ -268,9 +290,10 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
       vsync: this,
       duration: const Duration(seconds: 8),
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -292,7 +315,9 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
               colors: [
                 Colors.deepOrange.withOpacity(0.18 + 0.12 * _animation.value),
                 Colors.white,
-                const Color(0xFF1976D2).withOpacity(0.10 + 0.10 * (1 - _animation.value)),
+                const Color(
+                  0xFF1976D2,
+                ).withOpacity(0.10 + 0.10 * (1 - _animation.value)),
               ],
             ),
           ),
@@ -333,14 +358,18 @@ class _AnimatedSlide extends StatelessWidget {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: isActive ? Colors.deepOrange.withOpacity(0.18) : Colors.black12,
+              color:
+                  isActive
+                      ? Colors.deepOrange.withOpacity(0.18)
+                      : Colors.black12,
               blurRadius: isActive ? 32 : 12,
               offset: const Offset(0, 8),
             ),
           ],
-          border: isActive
-              ? Border.all(color: Colors.deepOrange, width: 2.5)
-              : Border.all(color: Colors.transparent, width: 1),
+          border:
+              isActive
+                  ? Border.all(color: Colors.deepOrange, width: 2.5)
+                  : Border.all(color: Colors.transparent, width: 1),
           backgroundBlendMode: BlendMode.overlay,
         ),
         child: Column(
@@ -354,10 +383,7 @@ class _AnimatedSlide extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(18),
-                child: Image.asset(
-                  slide.image,
-                  fit: BoxFit.contain,
-                ),
+                child: Image.asset(slide.image, fit: BoxFit.contain),
               ),
             ),
             const SizedBox(height: 14),
@@ -390,7 +416,10 @@ class _AnimatedSlide extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: Text(
                 slide.description,
-                style: TextStyle(fontSize: 12.5 * fontScale, color: Colors.black87),
+                style: TextStyle(
+                  fontSize: 12.5 * fontScale,
+                  color: Colors.black87,
+                ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -409,12 +438,20 @@ class _Badge extends StatelessWidget {
   final String text;
   final Color color;
   final double fontScale;
-  const _Badge({super.key, required this.text, required this.color, required this.fontScale});
+  const _Badge({
+    super.key,
+    required this.text,
+    required this.color,
+    required this.fontScale,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 18 * fontScale, vertical: 7 * fontScale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 18 * fontScale,
+        vertical: 7 * fontScale,
+      ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(16),
@@ -434,8 +471,8 @@ class _Badge extends StatelessWidget {
             text == 'Student'
                 ? FontAwesomeIcons.userGraduate
                 : text == 'Faculty'
-                    ? FontAwesomeIcons.userTie
-                    : FontAwesomeIcons.school,
+                ? FontAwesomeIcons.userTie
+                : FontAwesomeIcons.school,
             color: color,
             size: 18 * fontScale,
           ),
@@ -501,4 +538,4 @@ class _DetailRow extends StatelessWidget {
       ),
     );
   }
-} 
+}

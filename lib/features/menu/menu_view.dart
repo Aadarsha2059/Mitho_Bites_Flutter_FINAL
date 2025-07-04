@@ -18,6 +18,8 @@ import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:async';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+
 
 
 
@@ -39,12 +41,17 @@ class _MenuViewState extends State<MenuView> {
   BarometerEvent? _barometerEvent;
   final List<StreamSubscription<dynamic>> _streamSubscriptions = [];
   bool _isBarometerAvailable = true;
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  String _voiceInput = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchUserAddress();
     _initializeBarometer();
+    _speech = stt.SpeechToText();
   }
 
   @override
@@ -52,6 +59,7 @@ class _MenuViewState extends State<MenuView> {
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -147,12 +155,17 @@ class _MenuViewState extends State<MenuView> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
           child: TextField(
+            controller: _searchController,
             onChanged: (value) {
               context.read<MenuViewModel>().add(SearchCategoriesEvent(value));
             },
             decoration: InputDecoration(
               hintText: "Search...",
               prefixIcon: const Icon(Icons.search, color: Colors.orange),
+              suffixIcon: IconButton(
+                icon: Icon(_isListening ? Icons.mic : Icons.mic_none, color: Colors.orange),
+                onPressed: _listenVoiceSearch,
+              ),
               filled: true,
               fillColor: Colors.white,
               contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -173,6 +186,28 @@ class _MenuViewState extends State<MenuView> {
         );
       },
     );
+  }
+
+  void _listenVoiceSearch() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize();
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (val) {
+            setState(() {
+              _voiceInput = val.recognizedWords;
+              _searchController.text = _voiceInput;
+              _searchController.selection = TextSelection.fromPosition(TextPosition(offset: _searchController.text.length));
+            });
+            context.read<MenuViewModel>().add(SearchCategoriesEvent(_voiceInput));
+          },
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
   }
 
   Widget _buildWeatherWidget() {
@@ -339,7 +374,82 @@ class _MenuViewState extends State<MenuView> {
             child: Center(child: CircularProgressIndicator(color: Colors.orange)),
           );
         }
-        if (state.filteredCategories.isEmpty) {
+        // Show status message if searching
+        if (state.searchQuery.isNotEmpty)
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 24, bottom: 4),
+                child: Text(
+                  state.searchStatus == 'available'
+                      ? 'Available'
+                      : 'Currently unavailable',
+                  style: TextStyle(
+                    color: state.searchStatus == 'available' ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              if (state.filteredCategories.isNotEmpty)
+                SizedBox(
+                  height: 44,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    itemCount: state.filteredCategories.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final category = state.filteredCategories[index];
+                      final isSelected = category.categoryId == state.selectedCategoryId;
+                      return ChoiceChip(
+                        label: Text(category.name, style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.brown[700],
+                          fontWeight: FontWeight.bold,
+                        )),
+                        selected: isSelected,
+                        selectedColor: Colors.orange,
+                        backgroundColor: Colors.brown[50],
+                        onSelected: (_) {
+                          context.read<MenuViewModel>().add(SelectCategoryEvent(category.categoryId!));
+                        },
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: isSelected ? 4 : 0,
+                      );
+                    },
+                  ),
+                ),
+              if (state.filteredRestaurants.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, top: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Restaurants:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      ...state.filteredRestaurants.map((r) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.restaurant, size: 18, color: Colors.orange),
+                            const SizedBox(width: 6),
+                            Text(r, style: const TextStyle(fontSize: 13)),
+                          ],
+                        ),
+                      )),
+                    ],
+                  ),
+                ),
+              if (state.filteredCategories.isEmpty && state.filteredRestaurants.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, top: 8),
+                  child: Text('No categories or restaurants found.', style: TextStyle(color: Colors.red[400], fontSize: 13)),
+                ),
+            ],
+          );
+        // Default: show all categories as chips
+        final categoriesToShow = state.searchQuery.isNotEmpty ? state.filteredCategories : state.categories;
+        if (categoriesToShow.isEmpty) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Center(child: Text('No categories available', style: TextStyle(color: Colors.grey))),
@@ -350,10 +460,10 @@ class _MenuViewState extends State<MenuView> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            itemCount: state.filteredCategories.length,
+            itemCount: categoriesToShow.length,
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
-              final category = state.filteredCategories[index];
+              final category = categoriesToShow[index];
               final isSelected = category.categoryId == state.selectedCategoryId;
               return ChoiceChip(
                 label: Text(category.name, style: TextStyle(
@@ -399,7 +509,10 @@ class _MenuViewState extends State<MenuView> {
         }
         return ChangeNotifierProvider<ProductViewModel>(
           create: (_) => serviceLocator<ProductViewModel>(),
-          child: _ProductGrid(categoryId: state.selectedCategoryId!),
+          child: _ProductGrid(
+            categoryId: state.selectedCategoryId!,
+            searchQuery: state.searchQuery,
+          ),
         );
       },
     );
@@ -463,7 +576,8 @@ class _MenuViewState extends State<MenuView> {
 
 class _ProductGrid extends StatelessWidget {
   final String categoryId;
-  const _ProductGrid({required this.categoryId});
+  final String searchQuery;
+  const _ProductGrid({required this.categoryId, required this.searchQuery});
 
   @override
   Widget build(BuildContext context) {
@@ -471,7 +585,6 @@ class _ProductGrid extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       viewModel.onEvent(LoadProductsByCategory(categoryId));
     });
-    
     return AnimatedBuilder(
       animation: viewModel,
       builder: (context, _) {
@@ -479,7 +592,11 @@ class _ProductGrid extends StatelessWidget {
         if (state is ProductLoading) {
           return const Center(child: CircularProgressIndicator(color: Colors.orange));
         } else if (state is ProductLoaded) {
-          if (state.products.isEmpty) {
+          // Filter products by search query if present
+          final products = searchQuery.isNotEmpty
+              ? state.products.where((p) => p.name.toLowerCase().contains(searchQuery.toLowerCase())).toList()
+              : state.products;
+          if (products.isEmpty) {
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -494,12 +611,10 @@ class _ProductGrid extends StatelessWidget {
               ),
             );
           }
-          
           // Calculate responsive grid parameters
           final screenWidth = MediaQuery.of(context).size.width;
           final crossAxisCount = screenWidth > 600 ? 3 : 2;
           final childAspectRatio = screenWidth > 600 ? 0.75 : 0.72;
-          
           return GridView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -508,9 +623,9 @@ class _ProductGrid extends StatelessWidget {
               crossAxisSpacing: 16,
               childAspectRatio: childAspectRatio,
             ),
-            itemCount: state.products.length,
+            itemCount: products.length,
             itemBuilder: (context, index) {
-              final product = state.products[index];
+              final product = products[index];
               return _ProductCard(product: product);
             },
           );
