@@ -5,7 +5,7 @@ import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
 
 class MithoPoints extends StatefulWidget {
   final int itemsReceived;
-  const MithoPoints({Key? key, required this.itemsReceived}) : super(key: key);
+  const MithoPoints({super.key, required this.itemsReceived});
 
   @override
   State<MithoPoints> createState() => _MithoPointsState();

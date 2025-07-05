@@ -833,7 +833,7 @@ class _KhanaKhajanaViewState extends State<KhanaKhajanaView>
 }
 
 extension on Color {
-  get shade700 => null;
+  Null get shade700 => null;
 }
 
 class FoodCategory {

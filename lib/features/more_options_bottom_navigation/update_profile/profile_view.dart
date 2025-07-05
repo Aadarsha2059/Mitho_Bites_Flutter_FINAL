@@ -6,7 +6,7 @@ import 'package:fooddelivery_b/features/more_options_bottom_navigation/update_pr
 import 'package:fooddelivery_b/features/user/domain/entity/user_entity.dart';
 
 class UpdateProfilePageeWrapper extends StatelessWidget {
-  const UpdateProfilePageeWrapper({Key? key}) : super(key: key);
+  const UpdateProfilePageeWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class UpdateProfilePageeWrapper extends StatelessWidget {
 }
 
 class UpdateProfilePagee extends StatefulWidget {
-  const UpdateProfilePagee({Key? key}) : super(key: key);
+  const UpdateProfilePagee({super.key});
 
   @override
   State<UpdateProfilePagee> createState() => _UpdateProfilePageState();

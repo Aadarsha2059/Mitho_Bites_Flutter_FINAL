@@ -802,7 +802,7 @@ class _DashboardViewState extends State<DashboardView> {
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Colors.white,
         borderRadius: BorderRadius.circular(30),
         boxShadow: const [
           BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 3)),

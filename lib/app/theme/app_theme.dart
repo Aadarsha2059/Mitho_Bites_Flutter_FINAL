@@ -36,15 +36,43 @@ class AppTheme {
         ),
       ),
       // Change text field theme
-      inputDecorationTheme: const InputDecorationTheme(
-        contentPadding: EdgeInsets.all(15),
-        border: OutlineInputBorder(),
-        labelStyle: TextStyle(fontSize: 20),
-        errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.red),
+      inputDecorationTheme: InputDecorationTheme(
+        contentPadding: const EdgeInsets.all(15),
+        filled: true,
+        fillColor: isDarkMode ? const Color(0xFF222222) : Colors.white,
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300,
+          ),
+          borderRadius: BorderRadius.circular(10),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: ThemeConstant.primaryColor),
+          borderSide: BorderSide(
+            color: isDarkMode ? ThemeConstant.darkPrimaryColor : ThemeConstant.primaryColor,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.red),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        labelStyle: TextStyle(
+          fontSize: 16,
+          color: isDarkMode ? Colors.grey[200] : Colors.grey[800],
+        ),
+        hintStyle: TextStyle(
+          fontSize: 16,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+        ),
+        helperStyle: TextStyle(
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
         ),
       ),
       // Circular progress bar theme

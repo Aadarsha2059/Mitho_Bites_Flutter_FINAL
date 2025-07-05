@@ -375,7 +375,7 @@ class _MenuViewState extends State<MenuView> {
           );
         }
         // Show status message if searching
-        if (state.searchQuery.isNotEmpty)
+        if (state.searchQuery.isNotEmpty) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -447,6 +447,7 @@ class _MenuViewState extends State<MenuView> {
                 ),
             ],
           );
+        }
         // Default: show all categories as chips
         final categoriesToShow = state.searchQuery.isNotEmpty ? state.filteredCategories : state.categories;
         if (categoriesToShow.isEmpty) {

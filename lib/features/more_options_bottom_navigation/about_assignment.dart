@@ -68,19 +68,30 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
       builder: (context, constraints) {
         final double maxWidth = constraints.maxWidth;
         final double maxHeight = constraints.maxHeight;
-        final double sliderHeight = maxHeight * 0.48;
-        final double imageMaxHeight = sliderHeight * 0.6;
-        final double imageMaxWidth = maxWidth * 0.7;
-        final double cardWidth = maxWidth * 0.92;
-        final double cardPadding = maxWidth * 0.04;
-        final double fontScale = maxWidth < 350 ? 0.85 : 1.0;
+        final double sliderHeight = maxHeight * 0.45; // Reduced slightly for better fit
+        final double imageMaxHeight = sliderHeight * 0.50; // Further reduced
+        final double imageMaxWidth = maxWidth * 0.60; // Adjusted for smaller screens
+        final double cardWidth = maxWidth * 0.88; // Adjusted for padding
+        final double cardPadding = maxWidth * 0.06; // Increased for balance
+        final double fontScale = maxWidth < 360 ? 0.85 : 1.0; // Refined scaling
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: AppBar(
-            title: const Text('Help & Support'),
+            title: const Text(
+              'Help & Support',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 20,
+                letterSpacing: 0.5,
+              ),
+            ),
             backgroundColor: Colors.deepOrange.withOpacity(0.95),
-            elevation: 0,
+            elevation: 3,
+            shadowColor: Colors.black38,
             centerTitle: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+            ),
           ),
           body: Stack(
             children: [
@@ -88,7 +99,7 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
               SafeArea(
                 child: Column(
                   children: [
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 20),
                     SizedBox(
                       height: sliderHeight,
                       child: Stack(
@@ -116,24 +127,32 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
                           ),
                           // Next/Prev arrows
                           Positioned(
-                            left: 0,
+                            left: 10,
                             top: sliderHeight / 2 - 24,
                             child: IconButton(
-                              icon: Icon(Icons.arrow_back_ios, color: _currentPage > 0 ? Colors.deepOrange : Colors.grey, size: 28),
+                              icon: Icon(
+                                Icons.arrow_back_ios,
+                                color: _currentPage > 0 ? Colors.deepOrange : Colors.grey,
+                                size: 30,
+                              ),
                               onPressed: _currentPage > 0 ? () => _goToPage(_currentPage - 1) : null,
                             ),
                           ),
                           Positioned(
-                            right: 0,
+                            right: 10,
                             top: sliderHeight / 2 - 24,
                             child: IconButton(
-                              icon: Icon(Icons.arrow_forward_ios, color: _currentPage < _slides.length - 1 ? Colors.deepOrange : Colors.grey, size: 28),
+                              icon: Icon(
+                                Icons.arrow_forward_ios,
+                                color: _currentPage < _slides.length - 1 ? Colors.deepOrange : Colors.grey,
+                                size: 30,
+                              ),
                               onPressed: _currentPage < _slides.length - 1 ? () => _goToPage(_currentPage + 1) : null,
                             ),
                           ),
                           // Dots
                           Positioned(
-                            bottom: 18,
+                            bottom: 12,
                             left: 0,
                             right: 0,
                             child: Row(
@@ -142,19 +161,19 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
                                 return AnimatedContainer(
                                   duration: const Duration(milliseconds: 350),
                                   margin: const EdgeInsets.symmetric(horizontal: 6),
-                                  width: _currentPage == index ? 28 : 10,
-                                  height: 10,
+                                  width: _currentPage == index ? 30 : 12,
+                                  height: 12,
                                   decoration: BoxDecoration(
                                     color: _currentPage == index
                                         ? Colors.deepOrange
-                                        : Colors.deepOrange.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(8),
+                                        : Colors.deepOrange.withOpacity(0.4),
+                                    borderRadius: BorderRadius.circular(10),
                                     boxShadow: [
                                       if (_currentPage == index)
                                         const BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 6,
-                                          offset: Offset(0, 2),
+                                          color: Colors.black38,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 3),
                                         ),
                                     ],
                                   ),
@@ -165,9 +184,18 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 600),
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: ScaleTransition(
+                            scale: animation.drive(Tween(begin: 0.8, end: 1.0)),
+                            child: child,
+                          ),
+                        );
+                      },
                       child: _Badge(
                         key: ValueKey(_slides[_currentPage].badge),
                         text: _slides[_currentPage].badge,
@@ -177,56 +205,60 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
                     ),
                     const Spacer(),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
+                      padding: const EdgeInsets.only(bottom: 20.0),
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.info_outline, color: Colors.deepOrange, size: 20 * fontScale),
-                              const SizedBox(width: 8),
-                              ShaderMask(
-                                shaderCallback: (Rect bounds) {
-                                  return const LinearGradient(
-                                    colors: [
-                                      Colors.deepOrange,
-                                      Color(0xFF1976D2),
-                                    ],
-                                  ).createShader(bounds);
-                                },
-                                child: Text(
-                                  'Assignment 2025 | Fifth Semester | BSc (Hons) Computing',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16 * fontScale,
-                                    color: Colors.white,
-                                    letterSpacing: 1.1,
+                              const SizedBox(width: 10),
+                              Flexible(
+                                child: ShaderMask(
+                                  shaderCallback: (Rect bounds) {
+                                    return const LinearGradient(
+                                      colors: [
+                                        Colors.deepOrange,
+                                        Color(0xFF1976D2),
+                                      ],
+                                    ).createShader(bounds);
+                                  },
+                                  child: Text(
+                                    'Assignment 2025 | Fifth Semester | BSc (Hons) Computing',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14 * fontScale,
+                                      color: Colors.white,
+                                      letterSpacing: 1.2,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
                                   ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
                                 'assets/homepage_images/softwaricaa.png',
-                                height: 28 * fontScale,
-                                width: 28 * fontScale,
+                                height: 30 * fontScale,
+                                width: 30 * fontScale,
                                 fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, color: Colors.red),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 10),
                               Flexible(
                                 child: Text(
                                   'Softwarica College, Dillibazar, Kathmandu',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 13.5 * fontScale,
+                                    fontSize: 12.5 * fontScale,
                                     color: Colors.black87,
                                   ),
+                                  textAlign: TextAlign.center,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -263,7 +295,7 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 8),
+      duration: const Duration(seconds: 10),
     )..repeat(reverse: true);
     _animation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
@@ -287,9 +319,9 @@ class _AnimatedBackgroundState extends State<_AnimatedBackground>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.deepOrange.withOpacity(0.18 + 0.12 * _animation.value),
+                Colors.deepOrange.withOpacity(0.15 + 0.10 * _animation.value),
                 Colors.white,
-                const Color(0xFF1976D2).withOpacity(0.10 + 0.10 * (1 - _animation.value)),
+                const Color(0xFF1976D2).withOpacity(0.08 + 0.08 * (1 - _animation.value)),
               ],
             ),
           ),
@@ -321,24 +353,25 @@ class _AnimatedSlide extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOut,
         width: cardWidth,
         padding: EdgeInsets.all(cardPadding),
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8), // Adjusted margins
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(28),
+          color: Colors.white.withOpacity(0.9), // Increased opacity for better contrast
+          borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: isActive ? Colors.deepOrange.withOpacity(0.18) : Colors.black12,
-              blurRadius: isActive ? 32 : 12,
-              offset: const Offset(0, 8),
+              color: isActive ? Colors.deepOrange.withOpacity(0.25) : Colors.black12,
+              blurRadius: isActive ? 40 : 16,
+              offset: const Offset(0, 10),
+              spreadRadius: 1,
             ),
           ],
           border: isActive
-              ? Border.all(color: Colors.deepOrange, width: 2.5)
-              : Border.all(color: Colors.transparent, width: 1),
-          backgroundBlendMode: BlendMode.overlay,
+              ? Border.all(color: Colors.deepOrange, width: 3)
+              : Border.all(color: Colors.grey.withOpacity(0.2), width: 1.5),
         ),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -350,11 +383,27 @@ class _AnimatedSlide extends StatelessWidget {
                   maxHeight: imageMaxHeight,
                   maxWidth: imageMaxWidth,
                 ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(20),
                   child: Image.asset(
                     slide.image,
-                    fit: BoxFit.contain,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.error, color: Colors.red, size: 40),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -362,40 +411,47 @@ class _AnimatedSlide extends StatelessWidget {
               Text(
                 slide.title,
                 style: TextStyle(
-                  fontSize: 19 * fontScale,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 17 * fontScale,
+                  fontWeight: FontWeight.w800,
                   color: Colors.deepOrange,
-                  letterSpacing: 1.1,
+                  letterSpacing: 1.2,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 6),
               Text(
                 slide.subtitle,
                 style: TextStyle(
-                  fontSize: 13.5 * fontScale,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 12.5 * fontScale,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black54,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Text(
                   slide.description,
-                  style: TextStyle(fontSize: 12.5 * fontScale, color: Colors.black87),
+                  style: TextStyle(
+                    fontSize: 11.5 * fontScale,
+                    color: Colors.black87,
+                    height: 1.5,
+                  ),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(height: 8),
-              ...slide.details,
+              const SizedBox(height: 10),
+              ...slide.details.map((detail) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    child: detail,
+                  )),
             ],
           ),
         ),
@@ -413,16 +469,16 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 18 * fontScale, vertical: 7 * fontScale),
+      padding: EdgeInsets.symmetric(horizontal: 14 * fontScale, vertical: 7 * fontScale), // Fixed EdgeInsets syntax
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color, width: 1.5),
+        color: color.withOpacity(0.25),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color, width: 2),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.18),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: color.withOpacity(0.25),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -438,14 +494,14 @@ class _Badge extends StatelessWidget {
             color: color,
             size: 18 * fontScale,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Text(
             text,
             style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15.5 * fontScale,
+              fontWeight: FontWeight.w800,
+              fontSize: 14.5 * fontScale,
               color: color,
-              letterSpacing: 1.1,
+              letterSpacing: 1.2,
             ),
           ),
         ],
@@ -482,18 +538,21 @@ class _DetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.deepOrange, size: 16),
+          Icon(icon, color: Colors.deepOrange, size: 15),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 12.5, color: Colors.black87),
+              style: const TextStyle(
+                fontSize: 11.5,
+                color: Colors.black87,
+                overflow: TextOverflow.ellipsis,
+              ),
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
