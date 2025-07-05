@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/features/more_options_bottom_navigation/khana_khajana_view.dart';
 import 'package:fooddelivery_b/features/more_options_bottom_navigation/mitho_points_view.dart';
 import 'package:fooddelivery_b/features/order/presentation/view/more_orders_screen.dart';
 import 'package:fooddelivery_b/view/about_assignment.dart';
@@ -74,7 +75,7 @@ class MoreView extends StatelessWidget {
             onTap:
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const KhanaKhajanaPage()),
+                  MaterialPageRoute(builder: (_) => const KhanaKhajanaView()),
                 ),
             iconColor: Colors.red.shade100,
           ),
