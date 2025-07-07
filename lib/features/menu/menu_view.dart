@@ -583,9 +583,14 @@ class _ProductGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<ProductViewModel>(context, listen: false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      viewModel.onEvent(LoadProductsByCategory(categoryId));
-    });
+    final shouldReload = !(viewModel.state is ProductLoaded) ||
+        (viewModel.state is ProductLoaded && (viewModel.state as ProductLoaded).products.isEmpty) ||
+        (viewModel.state is ProductLoaded && (viewModel.state as ProductLoaded).products.first.categoryId != categoryId);
+    if (shouldReload) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        viewModel.onEvent(LoadProductsByCategory(categoryId));
+      });
+    }
     return AnimatedBuilder(
       animation: viewModel,
       builder: (context, _) {

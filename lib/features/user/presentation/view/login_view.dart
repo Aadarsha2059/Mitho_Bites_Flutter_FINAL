@@ -8,6 +8,7 @@ import 'package:fooddelivery_b/features/user/presentation/view_model/login_view_
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 import 'package:fooddelivery_b/features/home/presentation/view/home_view.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:dio/dio.dart';
 
 class LoginView extends StatelessWidget {
   LoginView({super.key});
@@ -159,6 +160,156 @@ class LoginView extends StatelessWidget {
                                       }
                                       return null;
                                     },
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton(
+                                      onPressed: () async {
+                                        final emailController = TextEditingController();
+                                        await showDialog<String>(
+                                          context: context,
+                                          builder: (context) => Dialog(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(24),
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(24),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(24),
+                                                gradient: const LinearGradient(
+                                                  colors: [Color(0xffB81736), Color(0xff281537)],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withOpacity(0.08),
+                                                    blurRadius: 16,
+                                                    offset: const Offset(0, 4),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      const Icon(Icons.lock_reset, color: Colors.white, size: 32),
+                                                      const SizedBox(width: 12),
+                                                      Expanded(
+                                                        child: Text(
+                                                          'Forgot Password?',
+                                                          style: TextStyle(
+                                                            fontSize: 22,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 12),
+                                                  const Text(
+                                                    'Enter your registered email address and we\'ll send you a password reset link.',
+                                                    style: TextStyle(color: Colors.white70, fontSize: 15),
+                                                  ),
+                                                  const SizedBox(height: 18),
+                                                  TextField(
+                                                    controller: emailController,
+                                                    keyboardType: TextInputType.emailAddress,
+                                                    style: const TextStyle(color: Colors.white),
+                                                    decoration: InputDecoration(
+                                                      labelText: 'Email',
+                                                      labelStyle: const TextStyle(color: Colors.white70),
+                                                      prefixIcon: const Icon(Icons.email, color: Colors.white70),
+                                                      filled: true,
+                                                      fillColor: Colors.white.withOpacity(0.08),
+                                                      border: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(16),
+                                                        borderSide: BorderSide.none,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 24),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    children: [
+                                                      TextButton(
+                                                        onPressed: () => Navigator.pop(context),
+                                                        child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      ElevatedButton.icon(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor: Colors.white,
+                                                          foregroundColor: const Color(0xffB81736),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(16),
+                                                          ),
+                                                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                                                        ),
+                                                        icon: const Icon(Icons.send),
+                                                        label: const Text('Send Reset Link', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        onPressed: () async {
+                                                          final email = emailController.text.trim();
+                                                          if (email.isEmpty || !email.contains('@')) {
+                                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                              const SnackBar(content: Text('Please enter a valid email.')),
+                                                            );
+                                                            return;
+                                                          }
+                                                          try {
+                                                            final dio = Dio();
+                                                            final response = await dio.post(
+                                                              'http://10.0.2.2:5050/api/auth/forgot-password',
+                                                              data: {'email': email},
+                                                            );
+                                                            Navigator.pop(context);
+                                                            showDialog(
+                                                              context: context,
+                                                              builder: (context) => AlertDialog(
+                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                                                title: const Text('Check Your Email'),
+                                                                content: Text(response.data['message'] ?? 'If an account with this email exists, you will receive a password reset link.'),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () => Navigator.pop(context),
+                                                                    child: const Text('OK'),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                          } catch (e) {
+                                                            Navigator.pop(context);
+                                                            showDialog(
+                                                              context: context,
+                                                              builder: (context) => AlertDialog(
+                                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                                                title: const Text('Error'),
+                                                                content: const Text('Failed to send reset link. Please try again.'),
+                                                                actions: [
+                                                                  TextButton(
+                                                                    onPressed: () => Navigator.pop(context),
+                                                                    child: const Text('OK'),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('Forgot Password?'),
+                                    ),
                                   ),
                                   const SizedBox(height: 20),
 
