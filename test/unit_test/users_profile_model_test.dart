@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fooddelivery_b/model/users_profile_model.dart';
+import 'package:fooddelivery_b/miscellaneous/model/users_profile_model.dart';
 
 void main() {
   group('UserProfile', () {

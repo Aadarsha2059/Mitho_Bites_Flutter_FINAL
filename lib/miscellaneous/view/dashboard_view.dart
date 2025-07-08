@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:fooddelivery_b/model/dashboard_model.dart';
+import 'package:fooddelivery_b/miscellaneous/model/dashboard_model.dart';
 import 'package:fooddelivery_b/features/more_options_bottom_navigation/more_view.dart';
-import 'package:fooddelivery_b/view/partypalace_view.dart';
+import 'package:fooddelivery_b/miscellaneous/view/partypalace_view.dart';
 import 'package:fooddelivery_b/features/menu/menu_view.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 import 'package:fooddelivery_b/features/cart/presentation/view/cart_view.dart';

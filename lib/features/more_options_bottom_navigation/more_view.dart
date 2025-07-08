@@ -3,7 +3,7 @@ import 'package:fooddelivery_b/features/more_options_bottom_navigation/khana_kha
 import 'package:fooddelivery_b/features/more_options_bottom_navigation/mitho_points_view.dart';
 import 'package:fooddelivery_b/features/more_options_bottom_navigation/settings_page/setting_page_view.dart';
 import 'package:fooddelivery_b/features/order/presentation/view/more_orders_screen.dart';
-import 'package:fooddelivery_b/view/about_assignment.dart';
+import 'package:fooddelivery_b/miscellaneous/view/about_assignment.dart';
 import 'package:fooddelivery_b/features/user/presentation/view/login_view.dart';
 import 'package:fooddelivery_b/features/feedbacks/presentation/view/feedback_button.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';

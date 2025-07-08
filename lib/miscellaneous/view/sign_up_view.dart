@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fooddelivery_b/model/sign_up_model.dart';
+import 'package:fooddelivery_b/miscellaneous/model/sign_up_model.dart';
 import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.dart';
 
 

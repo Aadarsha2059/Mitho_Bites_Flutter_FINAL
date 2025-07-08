@@ -7,7 +7,7 @@ import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_m
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
 import 'package:fooddelivery_b/features/cart/domain/entity/cart_item_entity.dart';
 import 'package:fooddelivery_b/features/food_products/domain/entity/products_entity.dart';
-import 'package:fooddelivery_b/widgets/product_card.dart';
+import 'package:fooddelivery_b/miscellaneous/widgets/product_card.dart';
 
 // Example of how to integrate cart functionality with existing ProductCard
 class CartIntegrationExample extends StatelessWidget {
