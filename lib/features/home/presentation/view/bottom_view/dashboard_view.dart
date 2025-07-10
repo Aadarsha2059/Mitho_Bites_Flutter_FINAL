@@ -14,6 +14,10 @@ import 'package:fooddelivery_b/features/restaurant/presentation/view_model/resta
 import 'package:fooddelivery_b/features/restaurant/presentation/state/restaurant_state.dart';
 import 'package:fooddelivery_b/features/restaurant/presentation/view_model/restaurant_event.dart';
 import 'dart:async';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
 
 
 class DashboardView extends StatefulWidget {
@@ -48,11 +52,49 @@ class _DashboardViewState extends State<DashboardView> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _sliderTimer;
+  StreamSubscription<AccelerometerEvent>? _accelSub;
+  AccelerometerEvent? _lastAccel;
+  DateTime? _lastShakeTime;
+  Map<String, String?>? _latestAdditions;
+  bool _showLatestBanner = true;
 
   @override
   void initState() {
     super.initState();
     _startSlider();
+    _fetchLatestAdditions();
+    _accelSub = accelerometerEvents.listen((event) {
+      if (_lastAccel != null) {
+        final dx = (event.x - _lastAccel!.x).abs();
+        final dy = (event.y - _lastAccel!.y).abs();
+        final dz = (event.z - _lastAccel!.z).abs();
+        final now = DateTime.now();
+        if ((dx > 8.0 || dy > 8.0 || dz > 8.0) && (_lastShakeTime == null || now.difference(_lastShakeTime!) > Duration(seconds: 2))) {
+          _lastShakeTime = now;
+          // Trigger refresh logic and snackbar
+          if (mounted) {
+            setState(() {}); // Optionally trigger loading state
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: const [
+                    Icon(Icons.check_circle, color: Colors.white, size: 22),
+                    SizedBox(width: 10),
+                    Text('Dashboard refreshed!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  ],
+                ),
+                backgroundColor: Colors.deepOrange,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                duration: const Duration(seconds: 2),
+                elevation: 8,
+              ),
+            );
+          }
+        }
+      }
+      _lastAccel = event;
+    });
   }
 
   void _startSlider() {
@@ -70,8 +112,60 @@ class _DashboardViewState extends State<DashboardView> {
     });
   }
 
+  Future<void> _fetchLatestAdditions() async {
+    try {
+      String baseUrl;
+      if (Platform.isAndroid) {
+        baseUrl = 'http://10.0.2.2:5050';
+      } else {
+        baseUrl = 'http://localhost:5050';
+      }
+      final response = await http.get(Uri.parse('{baseUrl}/api/dashboard/latest-additions'));
+      print('Latest additions response: ${response.body}');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true && data['data'] != null) {
+          final additions = {
+            'restaurant': data['data']['restaurant'],
+            'category': data['data']['category'],
+            'food': data['data']['food'],
+          };
+          // Only show notification if at least one is non-null
+          if (additions.values.any((v) => v != null && v.toString().trim().isNotEmpty)) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final msg = [
+                if (additions['restaurant'] != null) 'Restaurant: ${additions['restaurant']}',
+                if (additions['category'] != null) 'Category: ${additions['category']}',
+                if (additions['food'] != null) 'Food: ${additions['food']}',
+              ].join('  |  ');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.notifications_active, color: Colors.white),
+                      const SizedBox(width: 10),
+                      Expanded(child: Text('New on Mitho Bites! $msg', style: const TextStyle(fontWeight: FontWeight.bold))),
+                    ],
+                  ),
+                  backgroundColor: Colors.deepOrange,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  duration: const Duration(seconds: 5),
+                  elevation: 8,
+                ),
+              );
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print('Error fetching latest additions: $e');
+    }
+  }
+
   @override
   void dispose() {
+    _accelSub?.cancel();
     model.disposeControllers();
     _sliderTimer?.cancel();
     _pageController.dispose();
@@ -145,6 +239,31 @@ class _DashboardViewState extends State<DashboardView> {
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (_latestAdditions != null && _showLatestBanner)
+            MaterialBanner(
+              backgroundColor: Colors.deepOrange.shade50,
+              leading: const Icon(Icons.new_releases, color: Colors.deepOrange, size: 36),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('New on Mitho Bites!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.deepOrange)),
+                  if (_latestAdditions!['restaurant'] != null)
+                    Text('Restaurant: ${_latestAdditions!['restaurant']}', style: const TextStyle(fontSize: 15)),
+                  if (_latestAdditions!['category'] != null)
+                    Text('Category: ${_latestAdditions!['category']}', style: const TextStyle(fontSize: 15)),
+                  if (_latestAdditions!['food'] != null)
+                    Text('Food: ${_latestAdditions!['food']}', style: const TextStyle(fontSize: 15)),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => setState(() => _showLatestBanner = false),
+                  child: const Text('Dismiss', style: TextStyle(color: Colors.deepOrange)),
+                ),
+              ],
+              elevation: 2,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            ),
           // Welcome message with loading indicator
           BlocBuilder<CategoryViewModel, CategoryState>(
             builder: (context, categoryState) {
@@ -154,13 +273,49 @@ class _DashboardViewState extends State<DashboardView> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Namaste, ${widget.currentUsername}! 🙏",
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Montserrat',
-                              color: Colors.black87,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Namaste, "+widget.currentUsername+"! 🙏",
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Montserrat',
+                                    color: Colors.black87,
+                                  ),
                             ),
+                            const SizedBox(width: 8),
+                            _RefreshDashboardIcon(onRefresh: () async {
+                              if (mounted) {
+                                setState(() {
+                                  // Optionally trigger a loading state or reload logic here
+                                });
+                              }
+                              // Add your dashboard refresh logic here if needed
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: const [
+                                        Icon(Icons.check_circle, color: Colors.white, size: 22),
+                                        SizedBox(width: 10),
+                                        Text('Dashboard refreshed!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                      ],
+                                    ),
+                                    backgroundColor: Colors.deepOrange,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    duration: const Duration(seconds: 2),
+                                    elevation: 8,
+                                  ),
+                                );
+                              }
+                            }),
+                          ],
+                        ),
                       ),
                       if (isLoading) ...[
                         const SizedBox(height: 8),
@@ -824,6 +979,72 @@ class _DashboardViewState extends State<DashboardView> {
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore"),
           BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: "More"),
         ],
+      ),
+    );
+  }
+}
+
+class _RefreshDashboardIcon extends StatefulWidget {
+  final Future<void> Function() onRefresh;
+  const _RefreshDashboardIcon({Key? key, required this.onRefresh}) : super(key: key);
+
+  @override
+  State<_RefreshDashboardIcon> createState() => _RefreshDashboardIconState();
+}
+
+class _RefreshDashboardIconState extends State<_RefreshDashboardIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isRefreshing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRefresh() async {
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    _controller.repeat();
+    await widget.onRefresh();
+    await Future.delayed(const Duration(milliseconds: 600));
+    _controller.stop();
+    setState(() => _isRefreshing = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _handleRefresh,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Opacity(
+            opacity: _isRefreshing ? 0.7 + 0.3 * (0.5 + 0.5 * (1 + _controller.value).abs()) : 1.0,
+            child: Transform.rotate(
+              angle: _controller.value * 6.3,
+              child: Icon(
+                Icons.refresh,
+                color: _isRefreshing ? Colors.deepOrange : Colors.grey[700],
+                size: 26,
+                shadows: _isRefreshing
+                    ? [
+                        Shadow(
+                          color: Colors.deepOrangeAccent.withOpacity(0.5),
+                          blurRadius: 12,
+                        ),
+                      ]
+                    : [],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

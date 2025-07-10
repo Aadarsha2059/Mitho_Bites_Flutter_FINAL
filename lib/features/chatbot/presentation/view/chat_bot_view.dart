@@ -300,14 +300,21 @@ class _ChatBotSheetState extends State<_ChatBotSheet> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.7,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
+      initialChildSize: 0.9,
+      minChildSize: 0.7,
+      maxChildSize: 0.98,
       builder:
           (context, scrollController) => Container(
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFFF8F8F8),
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               children: [
@@ -367,14 +374,16 @@ class _ChatBotSheetState extends State<_ChatBotSheet> {
                             color:
                                 msg['isUser']
                                     ? const Color(0xFFFF6B6B)
-                                    : Colors.grey[200],
+                                    : const Color(0xFFE0E0E0),
                             borderRadius: BorderRadius.circular(16),
                           ),
+                          constraints: const BoxConstraints(maxWidth: 320),
                           child: Text(
                             msg['text'],
                             style: TextStyle(
-                              color:
-                                  msg['isUser'] ? Colors.white : Colors.black87,
+                              fontSize: 17,
+                              color: msg['isUser'] ? Colors.white : Colors.black,
+                              fontWeight: msg['isUser'] ? FontWeight.normal : FontWeight.w600,
                             ),
                           ),
                         ),

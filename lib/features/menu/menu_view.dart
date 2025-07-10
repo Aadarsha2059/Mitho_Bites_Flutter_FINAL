@@ -19,6 +19,7 @@ import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart'
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:async';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:fooddelivery_b/features/menu/light_sensor_view.dart';
 
 
 
@@ -102,14 +103,33 @@ class _MenuViewState extends State<MenuView> {
         child: Scaffold(
           backgroundColor: const Color(0xFFF7F6F2),
           body: SafeArea(
-            child: Column(
-              children: [
-                _buildTopBar(),
-                _buildSearchBar(),
-                _buildWeatherWidget(),
-                _buildCategoryChips(),
-                Expanded(child: _buildProductGrid()),
-              ],
+            child: GyroscopeMenuSwitcher(
+              dayMenu: Column(
+                children: [
+                  _buildTopBar(),
+                  _buildSearchBar(),
+                  _buildWeatherWidget(),
+                  _buildCategoryChips(),
+                  Expanded(child: _buildProductGrid()),
+                ],
+              ),
+              nightMenu: Container(
+                color: Colors.black,
+                child: Column(
+                  children: [
+                    _buildTopBar(),
+                    _buildSearchBar(),
+                    _buildWeatherWidget(),
+                    _buildCategoryChips(),
+                    Expanded(
+                      child: ColorFiltered(
+                        colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.7), BlendMode.darken),
+                        child: _buildProductGrid(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           floatingActionButton: _buildFloatingCartIcon(),

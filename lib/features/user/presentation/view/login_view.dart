@@ -11,7 +11,8 @@ import 'package:local_auth/local_auth.dart';
 import 'package:dio/dio.dart';
 
 class LoginView extends StatelessWidget {
-  LoginView({super.key});
+  final LoginViewModel? injectedViewModel;
+  LoginView({super.key, this.injectedViewModel});
 
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController(text: 'aadarsha2059');
@@ -19,8 +20,8 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => serviceLocator<LoginViewModel>(),
+    return BlocProvider<LoginViewModel>.value(
+      value: injectedViewModel ?? serviceLocator<LoginViewModel>(),
       child: BlocListener<LoginViewModel, LoginState>(
         listener: (context, state) {
           if (state.isSuccess) {
@@ -361,41 +362,8 @@ class LoginView extends StatelessWidget {
                                       icon: const Icon(Icons.fingerprint, size: 40, color: Color(0xffB81736)),
                                       tooltip: 'Login with Fingerprint',
                                       onPressed: () async {
-                                        final LocalAuthentication auth = LocalAuthentication();
-                                        bool canCheck = await auth.canCheckBiometrics;
-                                        bool isAvailable = await auth.isDeviceSupported();
-                                        if (!canCheck || !isAvailable) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Fingerprint not available on this device')),
-                                          );
-                                          return;
-                                        }
-                                        try {
-                                          bool didAuthenticate = await auth.authenticate(
-                                            localizedReason: 'Please authenticate to login',
-                                            options: const AuthenticationOptions(biometricOnly: true),
-                                          );
-                                          if (didAuthenticate) {
-                                            // Navigate to HomeView
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) => HomeView(loginViewModel: context.read<LoginViewModel>()),
-                                              ),
-                                            );
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Fingerprint authentication successful!')),
-                                            );
-                                          } else {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Fingerprint authentication failed.')),
-                                            );
-                                          }
-                                        } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Error: \\${e.toString()}')),
-                                          );
-                                        }
+                                        final loginViewModel = context.read<LoginViewModel>();
+                                        await _handleFingerprintLogin(context, loginViewModel);
                                       },
                                     ),
                                   ),
@@ -442,8 +410,16 @@ class LoginView extends StatelessWidget {
                         ),
                       ),
                       
-                      // Chatbot
-                      const ChatBotView(),
+                      // Chatbot (bottom left)
+                      Stack(
+                        children: [
+                          Positioned(
+                            bottom: 30,
+                            left: 30,
+                            child: ChatBotView(),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -453,5 +429,43 @@ class LoginView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleFingerprintLogin(BuildContext context, LoginViewModel loginViewModel) async {
+    final LocalAuthentication auth = LocalAuthentication();
+    bool canCheck = await auth.canCheckBiometrics;
+    bool isAvailable = await auth.isDeviceSupported();
+    if (!canCheck || !isAvailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Fingerprint not available on this device')),
+      );
+      return;
+    }
+    try {
+      bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Please authenticate to login',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+      if (didAuthenticate) {
+        // Navigate to HomeView
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => HomeView(loginViewModel: loginViewModel),
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fingerprint authentication successful!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fingerprint authentication failed.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: \\${e.toString()}')),
+      );
+    }
   }
 }

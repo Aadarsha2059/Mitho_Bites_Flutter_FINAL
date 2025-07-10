@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:fooddelivery_b/features/order/presentation/view_model/order_view_model.dart';
 import 'package:fooddelivery_b/features/feedbacks/presentation/view_model/feedback_view_model.dart';
 import 'package:fooddelivery_b/features/more_options_bottom_navigation/update_profile/profile_view.dart';
+import 'package:fooddelivery_b/features/more_options_bottom_navigation/purchase_trend_page.dart';
 
 
 class MoreView extends StatelessWidget {
@@ -79,6 +80,17 @@ class MoreView extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => const KhanaKhajanaView()),
                 ),
             iconColor: Colors.red.shade100,
+          ),
+          _buildMoreItem(
+            icon: Icons.show_chart,
+            title: 'My Purchase Trend',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PurchaseTrendPage()),
+              );
+            },
+            iconColor: Colors.indigo.shade100,
           ),
           _buildMoreItem(
             icon: Icons.stars,
