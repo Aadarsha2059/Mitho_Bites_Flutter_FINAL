@@ -201,10 +201,21 @@ class _KhanaKhajanaViewState extends State<KhanaKhajanaView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Khana Khajana',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+          semanticsLabel: 'Khana Khajana',
+        ),
+        backgroundColor: Colors.orange,
+      ),
       backgroundColor: const Color(0xFFF8F9FA),
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
           SliverToBoxAdapter(
             child: Column(
               children: [

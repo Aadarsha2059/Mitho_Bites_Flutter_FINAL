@@ -266,25 +266,27 @@ class HelpSupportPage extends StatelessWidget {
         title: const Text('Help & Support'),
         backgroundColor: Colors.deepOrange,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'FAQs:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text('- How do I place an order?'),
-            Text('- How can I track my delivery?'),
-            Text('- What if I face payment issues?'),
-            SizedBox(height: 20),
-            Text(
-              'Contact us: support@mithobites.com',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                'FAQs:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              Text('- How do I place an order?'),
+              Text('- How can I track my delivery?'),
+              Text('- What if I face payment issues?'),
+              SizedBox(height: 20),
+              Text(
+                'Contact us: support@mithobites.com',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
         ),
       ),
     );
