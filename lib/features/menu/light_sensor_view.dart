@@ -5,7 +5,7 @@ import 'dart:async';
 class GyroscopeMenuSwitcher extends StatefulWidget {
   final Widget dayMenu;
   final Widget nightMenu;
-  const GyroscopeMenuSwitcher({required this.dayMenu, required this.nightMenu, Key? key}) : super(key: key);
+  const GyroscopeMenuSwitcher({required this.dayMenu, required this.nightMenu, super.key});
 
   @override
   State<GyroscopeMenuSwitcher> createState() => _GyroscopeMenuSwitcherState();

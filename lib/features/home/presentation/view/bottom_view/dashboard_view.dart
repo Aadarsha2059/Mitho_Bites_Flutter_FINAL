@@ -280,7 +280,7 @@ class _DashboardViewState extends State<DashboardView> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              "Namaste, "+widget.currentUsername+"! 🙏",
+                              "Namaste, ${widget.currentUsername}! 🙏",
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Montserrat',
@@ -986,7 +986,7 @@ class _DashboardViewState extends State<DashboardView> {
 
 class _RefreshDashboardIcon extends StatefulWidget {
   final Future<void> Function() onRefresh;
-  const _RefreshDashboardIcon({Key? key, required this.onRefresh}) : super(key: key);
+  const _RefreshDashboardIcon({required this.onRefresh});
 
   @override
   State<_RefreshDashboardIcon> createState() => _RefreshDashboardIconState();

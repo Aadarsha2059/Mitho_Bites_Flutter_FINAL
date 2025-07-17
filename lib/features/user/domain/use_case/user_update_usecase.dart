@@ -10,8 +10,15 @@ class UserUpdateUsecase implements UseCaseWithParams<UserEntity, UserEntity> {
   UserUpdateUsecase({required IUserRepository userRepository})
       : _userRepository = userRepository;
 
-  @override
-  Future<Either<Failure, UserEntity>> call(UserEntity params) {
+  Future<Either<Failure, UserEntity>> call(UserEntity params, {String? currentPassword}) {
+    // If the repository supports currentPassword, pass it; otherwise, fallback
+    if (_userRepository is dynamic) {
+      try {
+        return (_userRepository as dynamic).updateUser(params, currentPassword: currentPassword);
+      } catch (_) {
+        return _userRepository.updateUser(params);
+      }
+    }
     return _userRepository.updateUser(params);
   }
 } 

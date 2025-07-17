@@ -33,8 +33,8 @@ class ApiEndpoints {
     }
   }
 
-  static String get baseUrl => "${serverAddress}/api/";
-  static String get imageUrl => "${serverAddress}/uploads/";
+  static String get baseUrl => "$serverAddress/api/";
+  static String get imageUrl => "$serverAddress/uploads/";
 
   // Auth - MERN Backend endpoints (CONFIRMED)
   static const String login = "auth/login";

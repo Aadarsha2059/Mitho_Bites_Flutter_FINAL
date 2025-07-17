@@ -171,10 +171,11 @@ class UserRemoteDatasource implements IUserDataSource {
 
   /// Updates the user data on the remote API.
   @override
-  Future<UserEntity> updateUser(UserEntity user) async {
+  Future<UserEntity> updateUser(UserEntity user, {String? currentPassword}) async {
     try {
       print('=== Remote Update User Started ===');
-      print('Endpoint: ${ApiEndpoints.updateUser}');
+      final endpoint = '${ApiEndpoints.updateUser}/${user.userId}';
+      print('Endpoint: $endpoint');
 
       final token = await _getStoredToken();
       if (token == null || token.isEmpty) {
@@ -192,15 +193,15 @@ class UserRemoteDatasource implements IUserDataSource {
         updateData['confirmpassword'] = user.password;
       }
 
-      // Include userId if available
-      if (user.userId != null) {
-        updateData['_id'] = user.userId;
+      // Add currentPassword if provided (for sensitive changes)
+      if (currentPassword != null && currentPassword.isNotEmpty) {
+        updateData['currentPassword'] = currentPassword;
       }
 
       print('Update data to send: $updateData');
 
       final response = await _apiService.dio.put(
-        ApiEndpoints.updateUser,
+        endpoint,
         data: updateData,
         options: Options(
           headers: {'Authorization': 'Bearer $token'},
@@ -213,12 +214,15 @@ class UserRemoteDatasource implements IUserDataSource {
       if (response.statusCode == 200) {
         final responseData = response.data as Map<String, dynamic>?;
 
-        if (responseData == null || responseData['success'] != true || responseData['data'] == null) {
+        if (responseData == null || responseData['success'] != true) {
           throw Exception('Update user failed: Invalid response format');
         }
-
-        final userData = responseData['data'] as Map<String, dynamic>;
-        final userApiModel = UserApiModel.fromJson(userData);
+        // Accept both 'user' and 'data' as the user object
+        final userData = responseData['user'] ?? responseData['data'];
+        if (userData == null) {
+          throw Exception('Update user failed: Invalid response format');
+        }
+        final userApiModel = UserApiModel.fromJson(userData as Map<String, dynamic>);
         final userEntity = userApiModel.toEntity();
 
         print('Update user successful');

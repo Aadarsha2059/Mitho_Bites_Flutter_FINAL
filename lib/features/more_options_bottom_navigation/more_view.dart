@@ -259,35 +259,240 @@ class MithoPointsPage extends StatelessWidget {
 class HelpSupportPage extends StatelessWidget {
   const HelpSupportPage({super.key});
 
+  // Only three main support members
+  static final List<_SupportMember> _team = [
+    _SupportMember(
+      name: 'Aadarsha Sharma',
+      role: 'Lead Developer',
+      image: 'assets/homepage_images/aadarshaaaaaaaa.png',
+    ),
+    _SupportMember(
+      name: 'Prof. Sir',
+      role: 'Project Supervisor',
+      image: 'assets/homepage_images/sir.png',
+    ),
+    _SupportMember(
+      name: 'Softwarica College',
+      role: 'Institution',
+      image: 'assets/homepage_images/softwaricaa.png',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Help & Support'),
         backgroundColor: Colors.deepOrange,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'FAQs:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Text('- How do I place an order?'),
-              Text('- How can I track my delivery?'),
-              Text('- What if I face payment issues?'),
-              SizedBox(height: 20),
-              Text(
-                'Contact us: support@mithobites.com',
-                style: TextStyle(color: Colors.grey),
-              ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFFE0B2), // light orange
+              Color(0xFFE3F2FD), // light blue
             ],
           ),
         ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Meet Our Support Team',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepOrange.shade700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Responsive vertical cards for each member
+                ..._team.map((member) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.asset(
+                              member.image,
+                              height: 64,
+                              width: 64,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  member.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  member.role,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 13,
+                                    color: Colors.deepOrange,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )),
+                const SizedBox(height: 24),
+                Text(
+                  'FAQs',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepOrange.shade700,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _FaqItem(question: 'How do I place an order?'),
+                _FaqItem(question: 'How can I track my delivery?'),
+                _FaqItem(question: 'What if I face payment issues?'),
+                _FaqItem(question: 'How do I contact support?'),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    const Icon(Icons.email, color: Colors.deepOrange),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Contact us: support@mithobites.com',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey.shade800,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SupportMember {
+  final String name;
+  final String role;
+  final String image;
+  const _SupportMember({required this.name, required this.role, required this.image});
+}
+
+class _SupportCard extends StatelessWidget {
+  final _SupportMember member;
+  const _SupportCard({required this.member});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 120,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.deepOrange.withOpacity(0.10),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(50),
+            child: Image.asset(
+              member.image,
+              height: 64,
+              width: 64,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            member.name,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: Colors.black87,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            member.role,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 12,
+              color: Colors.deepOrange,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FaqItem extends StatelessWidget {
+  final String question;
+  const _FaqItem({required this.question});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.help_outline, color: Colors.deepOrange, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              question,
+              style: const TextStyle(fontSize: 15),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -13,11 +13,11 @@ class ProfileViewModel extends ChangeNotifier {
   final UserGetCurrentUsecase _getCurrentUser = serviceLocator<UserGetCurrentUsecase>();
   final UserUpdateUsecase _updateUser = serviceLocator<UserUpdateUsecase>();
 
-  void onEvent(ProfileEvent event) {
+  void onEvent(ProfileEvent event, {String? currentPassword}) {
     if (event is LoadProfile) {
       _loadProfile();
     } else if (event is UpdateProfile) {
-      _updateProfile(event.updatedUser);
+      _updateProfile(event.updatedUser, currentPassword: currentPassword);
     }
   }
 
@@ -37,10 +37,10 @@ class ProfileViewModel extends ChangeNotifier {
     );
   }
 
-  Future<void> _updateProfile(UserEntity user) async {
+  Future<void> _updateProfile(UserEntity user, {String? currentPassword}) async {
     _state = ProfileUpdating();
     notifyListeners();
-    final result = await _updateUser(user);
+    final result = await _updateUser(user, currentPassword: currentPassword);
     result.fold(
       (failure) {
         _state = ProfileError(failure.message);

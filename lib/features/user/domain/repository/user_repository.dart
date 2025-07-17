@@ -12,7 +12,7 @@ abstract interface class IUserRepository {
 
   Future<Either<Failure, UserEntity>> getCurrentUser();
 
-  Future<Either<Failure, UserEntity>> updateUser(UserEntity user);
+  Future<Either<Failure, UserEntity>> updateUser(UserEntity user, {String? currentPassword});
 }
 
 // Hybrid Repository Implementation
@@ -195,11 +195,11 @@ class UserRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> updateUser(UserEntity user) async {
+  Future<Either<Failure, UserEntity>> updateUser(UserEntity user, {String? currentPassword}) async {
     try {
       final isNetwork = await _isNetworkConnected();
       if (isNetwork) {
-        final updatedUser = await remoteDataSource.updateUser(user);
+        final updatedUser = await remoteDataSource.updateUser(user, currentPassword: currentPassword);
         return Right(updatedUser);
       } else {
         return Left(RemoteDatabaseFailure(message: 'No network connection.'));

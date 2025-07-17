@@ -603,7 +603,7 @@ class _ProductGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<ProductViewModel>(context, listen: false);
-    final shouldReload = !(viewModel.state is ProductLoaded) ||
+    final shouldReload = viewModel.state is! ProductLoaded ||
         (viewModel.state is ProductLoaded && (viewModel.state as ProductLoaded).products.isEmpty) ||
         (viewModel.state is ProductLoaded && (viewModel.state as ProductLoaded).products.first.categoryId != categoryId);
     if (shouldReload) {

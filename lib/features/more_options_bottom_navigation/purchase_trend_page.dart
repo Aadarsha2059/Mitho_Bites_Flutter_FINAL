@@ -4,8 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 import 'package:fooddelivery_b/app/shared_pref/token_shared_prefs.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
-import 'dart:math' as math;
-import 'package:flutter/foundation.dart'; // Added for debugPrint
+// Added for debugPrint
 
 class PurchaseTrendPage extends StatefulWidget {
   const PurchaseTrendPage({super.key});
@@ -43,7 +42,7 @@ class _PurchaseTrendPageState extends State<PurchaseTrendPage> {
       }
 
       _dio.options.headers['Authorization'] = 'Bearer $token';
-      final url = ApiEndpoints.baseUrl + 'orders/trend';
+      final url = '${ApiEndpoints.baseUrl}orders/trend';
       final response = await _dio.get(url);
 
       if (response.statusCode == 200 && response.data['success'] == true) {

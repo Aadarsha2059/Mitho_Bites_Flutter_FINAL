@@ -44,9 +44,9 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> updateUser(UserEntity user) async {
+  Future<Either<Failure, UserEntity>> updateUser(UserEntity user, {String? currentPassword}) async {
     try {
-      final updatedUser = await _userRemoteDatasource.updateUser(user);
+      final updatedUser = await _userRemoteDatasource.updateUser(user, currentPassword: currentPassword);
       return Right(updatedUser);
     } catch (e) {
       return Left(RemoteDatabaseFailure(message: e.toString()));

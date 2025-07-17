@@ -82,186 +82,193 @@ class _AboutAssignmentPageState extends State<AboutAssignmentPage> {
             children: [
               const _AnimatedBackground(),
               SafeArea(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      height: sliderHeight,
-                      child: Stack(
-                        children: [
-                          PageView.builder(
-                            controller: _pageController,
-                            itemCount: _slides.length,
-                            onPageChanged: (index) {
-                              setState(() {
-                                _currentPage = index;
-                              });
-                            },
-                            itemBuilder: (context, index) {
-                              final slide = _slides[index];
-                              return _AnimatedSlide(
-                                slide: slide,
-                                isActive: _currentPage == index,
-                                cardWidth: cardWidth,
-                                cardPadding: cardPadding,
-                                imageMaxHeight: imageMaxHeight,
-                                imageMaxWidth: imageMaxWidth,
-                                fontScale: fontScale,
-                              );
-                            },
-                          ),
-                          // Next/Prev arrows
-                          Positioned(
-                            left: 0,
-                            top: sliderHeight / 2 - 24,
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.arrow_back_ios,
-                                color:
-                                    _currentPage > 0
-                                        ? Colors.deepOrange
-                                        : Colors.grey,
-                                size: 28,
-                              ),
-                              onPressed:
-                                  _currentPage > 0
-                                      ? () => _goToPage(_currentPage - 1)
-                                      : null,
-                            ),
-                          ),
-                          Positioned(
-                            right: 0,
-                            top: sliderHeight / 2 - 24,
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.arrow_forward_ios,
-                                color:
-                                    _currentPage < _slides.length - 1
-                                        ? Colors.deepOrange
-                                        : Colors.grey,
-                                size: 28,
-                              ),
-                              onPressed:
-                                  _currentPage < _slides.length - 1
-                                      ? () => _goToPage(_currentPage + 1)
-                                      : null,
-                            ),
-                          ),
-                          // Dots
-                          Positioned(
-                            bottom: 18,
-                            left: 0,
-                            right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(_slides.length, (index) {
-                                return AnimatedContainer(
-                                  duration: const Duration(milliseconds: 350),
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                  ),
-                                  width: _currentPage == index ? 28 : 10,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        _currentPage == index
-                                            ? Colors.deepOrange
-                                            : Colors.deepOrange.withOpacity(
-                                              0.3,
-                                            ),
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: [
-                                      if (_currentPage == index)
-                                        const BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 6,
-                                          offset: Offset(0, 2),
-                                        ),
-                                    ],
-                                  ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 18),
+                      SizedBox(
+                        height: sliderHeight,
+                        child: Stack(
+                          children: [
+                            PageView.builder(
+                              controller: _pageController,
+                              itemCount: _slides.length,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentPage = index;
+                                });
+                              },
+                              itemBuilder: (context, index) {
+                                final slide = _slides[index];
+                                return _AnimatedSlide(
+                                  slide: slide,
+                                  isActive: _currentPage == index,
+                                  cardWidth: cardWidth,
+                                  cardPadding: cardPadding,
+                                  imageMaxHeight: imageMaxHeight,
+                                  imageMaxWidth: imageMaxWidth,
+                                  fontScale: fontScale,
                                 );
-                              }),
+                              },
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 500),
-                      child: _Badge(
-                        key: ValueKey(_slides[_currentPage].badge),
-                        text: _slides[_currentPage].badge,
-                        color: _slides[_currentPage].badgeColor,
-                        fontScale: fontScale,
-                      ),
-                    ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: Colors.deepOrange,
-                                size: 20 * fontScale,
-                              ),
-                              const SizedBox(width: 8),
-                              ShaderMask(
-                                shaderCallback: (Rect bounds) {
-                                  return const LinearGradient(
-                                    colors: [
-                                      Colors.deepOrange,
-                                      Color(0xFF1976D2),
-                                    ],
-                                  ).createShader(bounds);
-                                },
-                                child: Text(
-                                  'Assignment 2025 | Fifth Semester | BSc (Hons) Computing',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16 * fontScale,
-                                    color: Colors.white,
-                                    letterSpacing: 1.1,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                            // Next/Prev arrows
+                            Positioned(
+                              left: 0,
+                              top: sliderHeight / 2 - 24,
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.arrow_back_ios,
+                                  color:
+                                      _currentPage > 0
+                                          ? Colors.deepOrange
+                                          : Colors.grey,
+                                  size: 28,
                                 ),
+                                onPressed:
+                                    _currentPage > 0
+                                        ? () => _goToPage(_currentPage - 1)
+                                        : null,
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                'assets/homepage_images/softwaricaa.png',
-                                height: 28 * fontScale,
-                                width: 28 * fontScale,
-                                fit: BoxFit.contain,
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  'Softwarica College, Dillibazar, Kathmandu',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13.5 * fontScale,
-                                    color: Colors.black87,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                            ),
+                            Positioned(
+                              right: 0,
+                              top: sliderHeight / 2 - 24,
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.arrow_forward_ios,
+                                  color:
+                                      _currentPage < _slides.length - 1
+                                          ? Colors.deepOrange
+                                          : Colors.grey,
+                                  size: 28,
                                 ),
+                                onPressed:
+                                    _currentPage < _slides.length - 1
+                                        ? () => _goToPage(_currentPage + 1)
+                                        : null,
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            // Dots
+                            Positioned(
+                              bottom: 18,
+                              left: 0,
+                              right: 0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(_slides.length, (index) {
+                                  return AnimatedContainer(
+                                    duration: const Duration(milliseconds: 350),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                    ),
+                                    width: _currentPage == index ? 28 : 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          _currentPage == index
+                                              ? Colors.deepOrange
+                                              : Colors.deepOrange.withOpacity(
+                                                0.3,
+                                              ),
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        if (_currentPage == index)
+                                          const BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 6,
+                                            offset: Offset(0, 2),
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 24),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        child: _Badge(
+                          key: ValueKey(_slides[_currentPage].badge),
+                          text: _slides[_currentPage].badge,
+                          color: _slides[_currentPage].badgeColor,
+                          fontScale: fontScale,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: Colors.deepOrange,
+                                  size: 20 * fontScale,
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: ShaderMask(
+                                    shaderCallback: (Rect bounds) {
+                                      return const LinearGradient(
+                                        colors: [
+                                          Colors.deepOrange,
+                                          Color(0xFF1976D2),
+                                        ],
+                                      ).createShader(bounds);
+                                    },
+                                    child: Text(
+                                      'Assignment 2025 | Fifth Semester | BSc (Hons) Computing',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16 * fontScale,
+                                        color: Colors.white,
+                                        letterSpacing: 1.1,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  flex: 0,
+                                  child: Image.asset(
+                                    'assets/homepage_images/softwaricaa.png',
+                                    height: 28 * fontScale,
+                                    width: 28 * fontScale,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  flex: 1,
+                                  child: Text(
+                                    'Softwarica College, Dillibazar, Kathmandu',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13.5 * fontScale,
+                                      color: Colors.black87,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -372,62 +379,64 @@ class _AnimatedSlide extends StatelessWidget {
                   : Border.all(color: Colors.transparent, width: 1),
           backgroundBlendMode: BlendMode.overlay,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              constraints: BoxConstraints(
-                maxHeight: imageMaxHeight,
-                maxWidth: imageMaxWidth,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: imageMaxHeight,
+                  maxWidth: imageMaxWidth,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: Image.asset(slide.image, fit: BoxFit.contain),
+                ),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
-                child: Image.asset(slide.image, fit: BoxFit.contain),
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              slide.title,
-              style: TextStyle(
-                fontSize: 19 * fontScale,
-                fontWeight: FontWeight.bold,
-                color: Colors.deepOrange,
-                letterSpacing: 1.1,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              slide.subtitle,
-              style: TextStyle(
-                fontSize: 13.5 * fontScale,
-                fontWeight: FontWeight.w500,
-                color: Colors.black54,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: Text(
-                slide.description,
+              const SizedBox(height: 14),
+              Text(
+                slide.title,
                 style: TextStyle(
-                  fontSize: 12.5 * fontScale,
-                  color: Colors.black87,
+                  fontSize: 19 * fontScale,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepOrange,
+                  letterSpacing: 1.1,
                 ),
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(height: 8),
-            ...slide.details,
-          ],
+              const SizedBox(height: 2),
+              Text(
+                slide.subtitle,
+                style: TextStyle(
+                  fontSize: 13.5 * fontScale,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Text(
+                  slide.description,
+                  style: TextStyle(
+                    fontSize: 12.5 * fontScale,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...slide.details,
+            ],
+          ),
         ),
       ),
     );

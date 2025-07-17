@@ -25,93 +25,156 @@ class UpdateProfilePagee extends StatefulWidget {
   const UpdateProfilePagee({super.key});
 
   @override
-  State<UpdateProfilePagee> createState() => _UpdateProfilePageState();
+  State<UpdateProfilePagee> createState() => _UpdateProfilePageeState();
 }
 
-class _UpdateProfilePageState extends State<UpdateProfilePagee> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _fullnameController;
-  late TextEditingController _usernameController;
-  late TextEditingController _phoneController;
-  late TextEditingController _addressController;
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
-  late TextEditingController _confirmPasswordController;
+class _UpdateProfilePageeState extends State<UpdateProfilePagee> {
   UserEntity? _originalUser;
-  bool _controllersInitialized = false;
+  String? _editingField;
+  String _fieldValue = '';
+  String _currentPassword = '';
+  String _successMsg = '';
+  String _errorMsg = '';
+  bool _showPassword = false;
+  final _scrollController = ScrollController();
 
-  @override
-  void initState() {
-    super.initState();
-    _fullnameController = TextEditingController();
-    _usernameController = TextEditingController();
-    _phoneController = TextEditingController();
-    _addressController = TextEditingController();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
-    _confirmPasswordController = TextEditingController();
-    _controllersInitialized = false;
+  void _startEdit(String field, UserEntity user) {
+    setState(() {
+      _editingField = field;
+      switch (field) {
+        case 'fullname':
+          _fieldValue = user.fullname;
+          break;
+        case 'username':
+          _fieldValue = user.username;
+          break;
+        case 'email':
+          _fieldValue = user.email;
+          break;
+        case 'phone':
+          _fieldValue = user.phone;
+          break;
+        case 'address':
+          _fieldValue = user.address;
+          break;
+        case 'password':
+          _fieldValue = '';
+          break;
+        default:
+          _fieldValue = '';
+      }
+      _currentPassword = '';
+      _successMsg = '';
+      _errorMsg = '';
+    });
   }
 
-  @override
-  void dispose() {
-    _fullnameController.dispose();
-    _usernameController.dispose();
-    _phoneController.dispose();
-    _addressController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
+  void _cancelEdit() {
+    setState(() {
+      _editingField = null;
+      _fieldValue = '';
+      _currentPassword = '';
+      _successMsg = '';
+      _errorMsg = '';
+    });
   }
 
-  bool _hasChanges() {
-    if (_originalUser == null) return false;
-    return _fullnameController.text.trim() != _originalUser!.fullname ||
-        _usernameController.text.trim() != _originalUser!.username ||
-        _phoneController.text.trim() != _originalUser!.phone ||
-        _addressController.text.trim() != _originalUser!.address ||
-        _emailController.text.trim() != _originalUser!.email ||
-        _passwordController.text.trim().isNotEmpty;
-  }
-
-  void _fillControllers(UserEntity user) {
-    _fullnameController.text = user.fullname;
-    _usernameController.text = user.username;
-    _phoneController.text = user.phone;
-    _addressController.text = user.address;
-    _emailController.text = user.email;
-    _originalUser = user;
-    _controllersInitialized = true;
-  }
-
-  void _onSave(UserEntity oldUser) {
-    if (!_hasChanges()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No changes to save.')),
-      );
+  void _submitEdit(UserEntity user) {
+    setState(() {
+      _successMsg = '';
+      _errorMsg = '';
+    });
+    if (_editingField == null) return;
+    if ((_editingField == 'email' || _editingField == 'password') && _currentPassword.isEmpty) {
+      setState(() { _errorMsg = 'Current password is required for sensitive changes.'; });
       return;
     }
-    if (_formKey.currentState?.validate() ?? false) {
-      final newPassword = _passwordController.text.trim();
-      final confirmPassword = _confirmPasswordController.text.trim();
-      if (newPassword.isNotEmpty && newPassword != confirmPassword) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match')),
-        );
+    if (_editingField == 'password' && _fieldValue.length < 6) {
+      setState(() { _errorMsg = 'Password must be at least 6 characters.'; });
+      return;
+    }
+    if (_editingField == 'phone') {
+      final phoneNum = int.tryParse(_fieldValue);
+      if (_fieldValue.isEmpty || phoneNum == null || _fieldValue.length < 7) {
+        setState(() { _errorMsg = 'Please enter a valid phone number.'; });
         return;
       }
-      final updatedUser = UserEntity(
-        userId: oldUser.userId,
-        fullname: _fullnameController.text.trim(),
-        username: _usernameController.text.trim(),
-        password: newPassword.isNotEmpty ? newPassword : oldUser.password,
-        phone: _phoneController.text.trim(),
-        address: _addressController.text.trim(),
-        email: _emailController.text.trim(),
-      );
-      Provider.of<ProfileViewModel>(context, listen: false)
-          .onEvent(UpdateProfile(updatedUser));
+    }
+    UserEntity updated;
+    switch (_editingField) {
+      case 'fullname':
+        updated = UserEntity(
+          userId: user.userId,
+          fullname: _fieldValue,
+          username: user.username,
+          password: '',
+          phone: user.phone,
+          address: user.address,
+          email: user.email,
+        );
+        break;
+      case 'username':
+        updated = UserEntity(
+          userId: user.userId,
+          fullname: user.fullname,
+          username: _fieldValue,
+          password: '',
+          phone: user.phone,
+          address: user.address,
+          email: user.email,
+        );
+        break;
+      case 'email':
+        updated = UserEntity(
+          userId: user.userId,
+          fullname: user.fullname,
+          username: user.username,
+          password: '',
+          phone: user.phone,
+          address: user.address,
+          email: _fieldValue,
+        );
+        break;
+      case 'phone':
+        updated = UserEntity(
+          userId: user.userId,
+          fullname: user.fullname,
+          username: user.username,
+          password: '',
+          phone: _fieldValue,
+          address: user.address,
+          email: user.email,
+        );
+        break;
+      case 'address':
+        updated = UserEntity(
+          userId: user.userId,
+          fullname: user.fullname,
+          username: user.username,
+          password: '',
+          phone: user.phone,
+          address: _fieldValue,
+          email: user.email,
+        );
+        break;
+      case 'password':
+        updated = UserEntity(
+          userId: user.userId,
+          fullname: user.fullname,
+          username: user.username,
+          password: _fieldValue,
+          phone: user.phone,
+          address: user.address,
+          email: user.email,
+        );
+        break;
+      default:
+        return;
+    }
+    if (_editingField == 'email' || _editingField == 'password') {
+      Provider.of<ProfileViewModel>(context, listen: false).onEvent(UpdateProfile(updated), currentPassword: _currentPassword);
+    } else {
+      Provider.of<ProfileViewModel>(context, listen: false).onEvent(UpdateProfile(updated));
     }
   }
 
@@ -131,19 +194,18 @@ class _UpdateProfilePageState extends State<UpdateProfilePagee> {
             body: Center(child: Text(state.message)),
           );
         } else if (state is ProfileLoaded || state is ProfileUpdateSuccess) {
-          final user = state is ProfileLoaded
-              ? state.user
-              : (state as ProfileUpdateSuccess).user;
-          if (!_controllersInitialized) {
-            _fillControllers(user);
-          }
+          final user = state is ProfileLoaded ? state.user : (state as ProfileUpdateSuccess).user;
+          _originalUser ??= user;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (state is ProfileUpdateSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile updated successfully!')),
-              );
-              _passwordController.clear();
-              _confirmPasswordController.clear();
+              setState(() {
+                _successMsg = 'Profile updated successfully!';
+                _editingField = null;
+                _fieldValue = '';
+                _currentPassword = '';
+              });
+            } else if (state is ProfileError) {
+              setState(() { _errorMsg = state.message; });
             }
           });
           return Scaffold(
@@ -161,165 +223,189 @@ class _UpdateProfilePageState extends State<UpdateProfilePagee> {
                 ),
               ),
               child: Center(
-                child: SingleChildScrollView(
-                  child: Card(
-                    elevation: 8,
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundColor: Colors.deepOrange.shade100,
-                              child: Icon(Icons.person, size: 48, color: Colors.deepOrange.shade400),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Edit your profile',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepOrange.shade700,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            TextFormField(
-                              controller: _fullnameController,
-                              decoration: InputDecoration(
-                                labelText: 'Full Name',
-                                prefixIcon: const Icon(Icons.person),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                                filled: true,
-                                fillColor: Colors.orange.shade50,
-                              ),
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _usernameController,
-                              decoration: InputDecoration(
-                                labelText: 'Username',
-                                prefixIcon: const Icon(Icons.verified_user),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                                filled: true,
-                                fillColor: Colors.orange.shade50,
-                              ),
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _phoneController,
-                              decoration: InputDecoration(
-                                labelText: 'Phone',
-                                prefixIcon: const Icon(Icons.phone),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                                filled: true,
-                                fillColor: Colors.orange.shade50,
-                              ),
-                              keyboardType: TextInputType.phone,
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _addressController,
-                              decoration: InputDecoration(
-                                labelText: 'Address',
-                                prefixIcon: const Icon(Icons.home),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                                filled: true,
-                                fillColor: Colors.orange.shade50,
-                              ),
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _emailController,
-                              decoration: InputDecoration(
-                                labelText: 'Email',
-                                prefixIcon: const Icon(Icons.email),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                                filled: true,
-                                fillColor: Colors.orange.shade50,
-                              ),
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _passwordController,
-                              decoration: InputDecoration(
-                                labelText: 'New Password (leave blank to keep unchanged)',
-                                prefixIcon: const Icon(Icons.lock),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                                filled: true,
-                                fillColor: Colors.orange.shade50,
-                              ),
-                              obscureText: true,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _confirmPasswordController,
-                              decoration: InputDecoration(
-                                labelText: 'Confirm New Password',
-                                prefixIcon: const Icon(Icons.lock_outline),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                                filled: true,
-                                fillColor: Colors.orange.shade50,
-                              ),
-                              obscureText: true,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                            const SizedBox(height: 28),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                icon: const Icon(Icons.save, color: Colors.white),
-                                label: const Text('Save Changes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                onPressed: _hasChanges() ? () => _onSave(user) : null,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: _hasChanges() ? Colors.deepOrange : Colors.orange.shade200,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                                  elevation: 4,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 8),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: 480,
+                          minWidth: 260,
+                        ),
+                        child: Card(
+                          elevation: 8,
+                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: Colors.deepOrange.shade100,
+                                  child: Icon(Icons.person, size: 48, color: Colors.deepOrange.shade400),
                                 ),
-                              ),
+                                const SizedBox(height: 16),
+                                Text('Edit your profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepOrange.shade700)),
+                                const SizedBox(height: 24),
+                                ...['fullname', 'username', 'email', 'phone', 'address', 'password'].map((field) {
+                                  final label = {
+                                    'fullname': 'Full Name',
+                                    'username': 'Username',
+                                    'email': 'Email',
+                                    'phone': 'Phone',
+                                    'address': 'Address',
+                                    'password': 'Password',
+                                  }[field]!;
+                                  final isEditing = _editingField == field;
+                                  String value = '';
+                                  switch (field) {
+                                    case 'fullname':
+                                      value = user.fullname;
+                                      break;
+                                    case 'username':
+                                      value = user.username;
+                                      break;
+                                    case 'email':
+                                      value = user.email;
+                                      break;
+                                    case 'phone':
+                                      value = user.phone;
+                                      break;
+                                    case 'address':
+                                      value = user.address;
+                                      break;
+                                    case 'password':
+                                      value = '••••••••';
+                                      break;
+                                    default:
+                                      value = '';
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: isEditing
+                                              ? Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: Colors.deepOrange)),
+                                                    const SizedBox(height: 6),
+                                                    TextField(
+                                                      obscureText: field == 'password' && !_showPassword,
+                                                      keyboardType: field == 'email' ? TextInputType.emailAddress : TextInputType.text,
+                                                      decoration: InputDecoration(
+                                                        hintText: 'Enter $label',
+                                                        suffixIcon: field == 'password'
+                                                            ? IconButton(
+                                                                icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
+                                                                onPressed: () => setState(() => _showPassword = !_showPassword),
+                                                              )
+                                                            : null,
+                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                                        filled: true,
+                                                        fillColor: Colors.orange.shade50,
+                                                      ),
+                                                      onChanged: (v) => setState(() => _fieldValue = v),
+                                                      controller: TextEditingController(text: _fieldValue),
+                                                    ),
+                                                    if (field == 'email' || field == 'password') ...[
+                                                      const SizedBox(height: 8),
+                                                      TextField(
+                                                        obscureText: true,
+                                                        decoration: InputDecoration(
+                                                          hintText: 'Current Password',
+                                                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                                          filled: true,
+                                                          fillColor: Colors.orange.shade50,
+                                                        ),
+                                                        onChanged: (v) => setState(() => _currentPassword = v),
+                                                      ),
+                                                    ],
+                                                    Row(
+                                                      children: [
+                                                        ElevatedButton(
+                                                          onPressed: () => _submitEdit(user),
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor: Colors.deepOrange,
+                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                          ),
+                                                          child: const Text('Save'),
+                                                        ),
+                                                        const SizedBox(width: 8),
+                                                        OutlinedButton(
+                                                          onPressed: _cancelEdit,
+                                                          style: OutlinedButton.styleFrom(
+                                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                          ),
+                                                          child: const Text('Cancel'),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                )
+                                              : Row(
+                                                  children: [
+                                                    Expanded(child: Text('$label: $value', style: const TextStyle(fontSize: 16))),
+                                                    IconButton(
+                                                      icon: const Icon(Icons.edit, color: Colors.deepOrange),
+                                                      onPressed: () => _startEdit(field, user),
+                                                    ),
+                                                  ],
+                                                ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                                if (_successMsg.isNotEmpty)
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 18),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.shade50,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: Colors.green.shade200),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.check_circle, color: Colors.green),
+                                        const SizedBox(width: 8),
+                                        Expanded(child: Text(_successMsg, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w600))),
+                                      ],
+                                    ),
+                                  ),
+                                if (_errorMsg.isNotEmpty)
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 18),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red.shade50,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: Colors.red.shade200),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.error, color: Colors.red),
+                                        const SizedBox(width: 8),
+                                        Expanded(child: Text(_errorMsg, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600))),
+                                      ],
+                                    ),
+                                  ),
+                              ],
                             ),
-                            if (state is ProfileUpdateSuccess)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 18.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.check_circle, color: Colors.green[700]),
-                                    const SizedBox(width: 8),
-                                    Text('Profile updated successfully!', style: TextStyle(color: Colors.green[700], fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                              ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
-          );
-        } else if (state is ProfileUpdating) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Update Profile')),
-            body: const Center(child: CircularProgressIndicator()),
           );
         }
         return const SizedBox.shrink();

@@ -40,7 +40,7 @@ class UserLocalRepository implements IUserRepository {
   }
   
   @override
-  Future<Either<Failure, UserEntity>> updateUser(UserEntity user) {
+  Future<Either<Failure, UserEntity>> updateUser(UserEntity user, {String? currentPassword}) {
     // TODO: implement updateUser
     throw UnimplementedError();
   }
