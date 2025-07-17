@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:lottie/lottie.dart';
 
 class PartyPalaceView extends StatefulWidget {
-  PartyPalaceView({super.key});
+  const PartyPalaceView({super.key});
 
   @override
   State<PartyPalaceView> createState() => _PartyPalaceViewState();
@@ -388,7 +388,7 @@ class AnimatedBalloon extends StatelessWidget {
   final double top;
   final double size;
   final Color color;
-  const AnimatedBalloon({Key? key, required this.left, required this.top, required this.size, required this.color}) : super(key: key);
+  const AnimatedBalloon({super.key, required this.left, required this.top, required this.size, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -412,7 +412,7 @@ class AnimatedBalloon extends StatelessWidget {
 }
 
 class FallingBalloons extends StatefulWidget {
-  const FallingBalloons({Key? key}) : super(key: key);
+  const FallingBalloons({super.key});
 
   @override
   State<FallingBalloons> createState() => _FallingBalloonsState();

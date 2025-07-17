@@ -361,7 +361,7 @@ class _UpdateProfilePageeState extends State<UpdateProfilePagee> {
                                       ],
                                     ),
                                   );
-                                }).toList(),
+                                }),
                                 if (_successMsg.isNotEmpty)
                                   Container(
                                     margin: const EdgeInsets.only(top: 18),
