@@ -9,14 +9,15 @@ import 'package:fooddelivery_b/features/chatbot/presentation/view/chat_bot_view.
 import 'package:fooddelivery_b/features/home/presentation/view/home_view.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:dio/dio.dart';
+import 'package:fooddelivery_b/miscellaneous/view/app_tour.dart';
 
 class LoginView extends StatelessWidget {
   final LoginViewModel? injectedViewModel;
   LoginView({super.key, this.injectedViewModel});
 
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController(text: 'aadarsha2059');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _usernameController = TextEditingController(text: '');
+  final _passwordController = TextEditingController(text: '');
 
   @override
   Widget build(BuildContext context) {
@@ -55,20 +56,20 @@ class LoginView extends StatelessWidget {
                       // Header
                       SafeArea(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 22,
-                            vertical: 20,
-                          ),
-                          child: const Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              'Hello\nSign in!',
-                              style: TextStyle(
-                                fontSize: 30,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Hello\nSign in!',
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
@@ -402,7 +403,7 @@ class LoginView extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 16),
                                 ],
                               ),
                             ),
@@ -419,6 +420,75 @@ class LoginView extends StatelessWidget {
                             child: ChatBotView(),
                           ),
                         ],
+                      ),
+                      // Move the App Tour button to the end so it is always on top
+                      Positioned(
+                        top: MediaQuery.of(context).padding.top + 12,
+                        right: 18,
+                        child: Material(
+                          color: Colors.transparent,
+                          elevation: 10,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(32),
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) => DraggableScrollableSheet(
+                                  expand: false,
+                                  initialChildSize: 0.85,
+                                  minChildSize: 0.6,
+                                  maxChildSize: 0.95,
+                                  builder: (context, scrollController) => Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                                      boxShadow: [
+                                        BoxShadow(color: Colors.black26, blurRadius: 16, offset: Offset(0, -4)),
+                                      ],
+                                    ),
+                                    child: SingleChildScrollView(
+                                      controller: scrollController,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 8.0),
+                                        child: AppTour(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFFFD166), Color(0xFFFF6B35)],
+                                ),
+                                borderRadius: BorderRadius.circular(32),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.deepOrange.withOpacity(0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Container(
+                                constraints: const BoxConstraints(minWidth: 90, minHeight: 40),
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(Icons.emoji_transportation, color: Colors.white, size: 24, shadows: [Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0,2))]),
+                                    SizedBox(width: 8),
+                                    Text('App Tour', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 0.5, color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -447,16 +517,20 @@ class LoginView extends StatelessWidget {
         options: const AuthenticationOptions(biometricOnly: true),
       );
       if (didAuthenticate) {
-        // Navigate to HomeView
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => HomeView(loginViewModel: loginViewModel),
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fingerprint authentication successful!')),
-        );
+        // Trigger the same login event as the login button
+        if (_formKey.currentState!.validate()) {
+          loginViewModel.add(
+            LoginWithUsernameAndPasswordEvent(
+              context: context,
+              username: _usernameController.text.trim(),
+              password: _passwordController.text.trim(),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please enter valid username and password.')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Fingerprint authentication failed.')),

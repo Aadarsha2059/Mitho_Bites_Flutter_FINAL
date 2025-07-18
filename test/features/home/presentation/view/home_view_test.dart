@@ -18,7 +18,7 @@ class DummyUserRepository implements IUserRepository {
   @override
   Future<Either<Failure, UserEntity>> getCurrentUser() async => Right(const UserEntity(fullname: '', username: '', password: '', phone: '', address: '', email: ''));
   @override
-  Future<Either<Failure, UserEntity>> updateUser(user) async => Right(const UserEntity(fullname: '', username: '', password: '', phone: '', address: '', email: ''));
+  Future<Either<Failure, UserEntity>> updateUser(user, {String? currentPassword}) async => Right(const UserEntity(fullname: '', username: '', password: '', phone: '', address: '', email: ''));
 }
 
 void main() {
