@@ -18,6 +18,9 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+import 'package:provider/provider.dart';
+import 'package:fooddelivery_b/features/order/presentation/view_model/order_view_model.dart';
+
 
 
 class DashboardView extends StatefulWidget {
@@ -32,6 +35,9 @@ class DashboardView extends StatefulWidget {
 class _DashboardViewState extends State<DashboardView> {
   final DashboardModel model = DashboardModel();
   int _selectedIndex = 0;
+  List<Map<String, String>>? _recentlyOrderedDynamic;
+  bool _isFetchingOrders = false;
+  String? _orderFetchError;
 
   // Image slider state
   final List<String> _sliderImages = [
@@ -71,9 +77,10 @@ class _DashboardViewState extends State<DashboardView> {
         final now = DateTime.now();
         if ((dx > 8.0 || dy > 8.0 || dz > 8.0) && (_lastShakeTime == null || now.difference(_lastShakeTime!) > Duration(seconds: 2))) {
           _lastShakeTime = now;
-          // Trigger refresh logic and snackbar
           if (mounted) {
-            setState(() {}); // Optionally trigger loading state
+            _fetchRecentlyOrdered(context);
+            setState(() {});
+            ScaffoldMessenger.of(context).clearSnackBars();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
@@ -163,6 +170,57 @@ class _DashboardViewState extends State<DashboardView> {
     }
   }
 
+  Future<void> _fetchRecentlyOrdered(BuildContext context) async {
+    setState(() {
+      _isFetchingOrders = true;
+      _orderFetchError = null;
+    });
+    try {
+      final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+      await orderViewModel.fetchOrders();
+      final orders = orderViewModel.orders;
+      if (orders.isNotEmpty) {
+        final recent = orders.take(2).map((order) {
+          final firstItem = order.items.isNotEmpty ? order.items[0] : null;
+          String image = "assets/images/item_1.png";
+          if (firstItem != null) {
+            if (firstItem['productId'] is Map && firstItem['productId']['image'] != null) {
+              image = firstItem['productId']['image'];
+            }
+          }
+          String name = "Ordered Item";
+          if (firstItem != null) {
+            if (firstItem['productName'] != null && firstItem['productName'] is String) {
+              name = firstItem['productName'] as String;
+            } else if (firstItem['productId'] is Map && firstItem['productId']['name'] != null) {
+              name = firstItem['productId']['name'].toString();
+            }
+          }
+          return {
+            "image": image,
+            "name": name
+          };
+        }).toList();
+        setState(() {
+          _recentlyOrderedDynamic = recent.cast<Map<String, String>>();
+        });
+      } else {
+        setState(() {
+          _recentlyOrderedDynamic = null;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _orderFetchError = "Failed to fetch orders";
+        _recentlyOrderedDynamic = null;
+      });
+    } finally {
+      setState(() {
+        _isFetchingOrders = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _accelSub?.cancel();
@@ -223,14 +281,11 @@ class _DashboardViewState extends State<DashboardView> {
   Widget _buildHomeContent() {
     return RefreshIndicator(
       onRefresh: () async {
-        // Refresh both categories and restaurants
         final categoryViewModel = context.read<CategoryViewModel>();
         final restaurantViewModel = context.read<RestaurantViewModel>();
-        
         categoryViewModel.add(const LoadCategoriesEvent());
         restaurantViewModel.add(const LoadRestaurantsEvent());
-        
-        // Wait a bit for the data to load
+        await _fetchRecentlyOrdered(context);
         await Future.delayed(const Duration(milliseconds: 500));
       },
       child: SingleChildScrollView(
@@ -296,6 +351,7 @@ class _DashboardViewState extends State<DashboardView> {
                               }
                               // Add your dashboard refresh logic here if needed
                               if (mounted) {
+                                ScaffoldMessenger.of(context).clearSnackBars();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Row(
@@ -376,9 +432,13 @@ class _DashboardViewState extends State<DashboardView> {
           _buildHorizontalCardList(model.mostPopArr),
           const SizedBox(height: 24),
           _buildSectionTitle("🕘 Recently Ordered"),
-          ...model.recentArr
-              .map((item) => _buildListTile(item['image']!, item['name']!))
-              ,
+          if (_isFetchingOrders)
+            const Center(child: CircularProgressIndicator())
+          else ...[
+            ...model.recentArr.map((item) => _buildListTile(item['image']!, item['name']!)),
+            if (_recentlyOrderedDynamic != null && _recentlyOrderedDynamic!.isNotEmpty)
+              ..._recentlyOrderedDynamic!.map((item) => _buildListTile(item['image']!, item['name']!)),
+          ],
           const SizedBox(height: 100),
         ],
       ),
@@ -869,6 +929,7 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Widget _buildListTile(String image, String title) {
+    final bool isNetwork = image.startsWith('http://') || image.startsWith('https://');
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -876,7 +937,31 @@ class _DashboardViewState extends State<DashboardView> {
       child: ListTile(
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.asset(image, width: 60, height: 60, fit: BoxFit.cover),
+          child: isNetwork
+              ? CachedNetworkImage(
+                  imageUrl: image,
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    width: 60,
+                    height: 60,
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 60,
+                    height: 60,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.fastfood, size: 30, color: Colors.grey),
+                  ),
+                )
+              : Image.asset(image, width: 60, height: 60, fit: BoxFit.cover),
         ),
         title: Text(
           title,
@@ -910,6 +995,7 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Widget _buildHorizontalCard(String image, String title) {
+    final bool isNetwork = image.startsWith('http://') || image.startsWith('https://');
     return Container(
       width: 150,
       margin: const EdgeInsets.only(right: 12),
@@ -925,7 +1011,31 @@ class _DashboardViewState extends State<DashboardView> {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.asset(image, height: 100, width: 150, fit: BoxFit.cover),
+            child: isNetwork
+                ? CachedNetworkImage(
+                    imageUrl: image,
+                    height: 100,
+                    width: 150,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      height: 100,
+                      width: 150,
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      height: 100,
+                      width: 150,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.fastfood, size: 30, color: Colors.grey),
+                    ),
+                  )
+                : Image.asset(image, height: 100, width: 150, fit: BoxFit.cover),
           ),
           Padding(
             padding: const EdgeInsets.all(8),
@@ -1012,10 +1122,32 @@ class _RefreshDashboardIconState extends State<_RefreshDashboardIcon> with Singl
     if (_isRefreshing) return;
     setState(() => _isRefreshing = true);
     _controller.repeat();
+    // Remove all SnackBars before refresh to avoid red background
+    ScaffoldMessenger.of(context).clearSnackBars();
     await widget.onRefresh();
     await Future.delayed(const Duration(milliseconds: 600));
     _controller.stop();
     setState(() => _isRefreshing = false);
+    // Show dashboard refreshed message after refresh is complete
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.white, size: 22),
+              SizedBox(width: 10),
+              Text('Dashboard refreshed!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            ],
+          ),
+          backgroundColor: Colors.deepOrange,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          duration: const Duration(seconds: 2),
+          elevation: 8,
+        ),
+      );
+    }
   }
 
   @override

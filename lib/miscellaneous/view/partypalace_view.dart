@@ -46,6 +46,23 @@ class _PartyPalaceViewState extends State<PartyPalaceView> {
       "seats": 200,
       "price": "Rs. 55,000",
     },
+    // Added new party palaces
+    {
+      "name": "Royal Palace",
+      "image": "assets/images/royal_palace.png",
+      "location": "Maharajgunj, Kathmandu",
+      "rating": 4.7,
+      "seats": 280,
+      "price": "Rs. 70,000",
+    },
+    {
+      "name": "Buddha Palace",
+      "image": "assets/images/buddha_palace.png",
+      "location": "Bouddha, Kathmandu",
+      "rating": 4.85,
+      "seats": 320,
+      "price": "Rs. 88,000",
+    },
   ];
 
   bool _sortAscending = true;

@@ -170,7 +170,7 @@ class _PurchaseTrendPageState extends State<PurchaseTrendPage> {
                                         minX: 0,
                                         maxX: (_trend.length - 1).toDouble(),
                                         minY: 0,
-                                        maxY: 5,
+                                        maxY: 10, // Changed from 5 to 10
                                         lineBarsData: [
                                           LineChartBarData(
                                             spots: [
@@ -266,7 +266,7 @@ class _PurchaseTrendPageState extends State<PurchaseTrendPage> {
                                         minX: 0,
                                         maxX: (_trend.length - 1).toDouble(),
                                         minY: 0,
-                                        maxY: 1500,
+                                        maxY: 2000, // Changed from 1500 to 2000
                                         lineBarsData: [
                                           LineChartBarData(
                                             spots: [
