@@ -1,5 +1,5 @@
 package com.aadarsha.fooddelivery_b.fooddelivery_b
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+class MainActivity : FlutterFragmentActivity()

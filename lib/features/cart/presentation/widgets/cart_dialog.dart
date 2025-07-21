@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 import 'package:fooddelivery_b/features/cart/presentation/view_model/cart_view_model.dart';
 import 'package:fooddelivery_b/features/cart/presentation/state/cart_state.dart';
 import 'package:fooddelivery_b/features/cart/presentation/event/cart_event.dart';
@@ -591,6 +592,6 @@ class CartDialogItem extends StatelessWidget {
     }
     
     // If it's a relative path, construct full URL
-    return 'http://localhost:5000/uploads/$image';
+    return '${ApiEndpoints.serverAddress}/uploads/$image';
   }
 } 

@@ -13,24 +13,20 @@ class ApiEndpoints {
   // For iOS Simulator
   static const String _iosSimulatorAddress = "http://localhost:5050";
   // For real device 
-  static const String _realDeviceAddress = "http://192.168.1.80:5050"; // Use your actual local IP and port 5050 for real device
+  static const String _realDeviceAddress = "http://192.168.1.80:5050";
 
   static String get serverAddress {
-    if (kIsWeb) {
-      
-      return _realDeviceAddress;
-    }
-    if (Platform.isAndroid) {
-      // Check for emulator
-      
-      return _emulatorAddress;
-    } else if (Platform.isIOS) {
-    
-      return _iosSimulatorAddress;
-    } else {
-      // Fallback for other platforms
-      return _realDeviceAddress;
-    }
+    //  the real device IP for Android (real device testing)
+    return _realDeviceAddress;
+    // To run on emulator
+    // if (Platform.isAndroid) {
+    //   return _emulatorAddress;
+    // }
+    // else if (Platform.isIOS) {
+    //   return _iosSimulatorAddress;
+    // } else {
+    //   return _realDeviceAddress;
+    // }
   }
 
   static String get baseUrl => "$serverAddress/api/";

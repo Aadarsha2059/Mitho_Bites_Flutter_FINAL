@@ -3,7 +3,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'dart:math';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:async';
-import 'package:lottie/lottie.dart';
 
 class PartyPalaceView extends StatefulWidget {
   const PartyPalaceView({super.key});
@@ -12,7 +11,7 @@ class PartyPalaceView extends StatefulWidget {
   State<PartyPalaceView> createState() => _PartyPalaceViewState();
 }
 
-class _PartyPalaceViewState extends State<PartyPalaceView> {
+class _PartyPalaceViewState extends State<PartyPalaceView> with WidgetsBindingObserver {
   List<Map<String, dynamic>> palaces = [
     {
       "name": "Imperial Palace",
@@ -73,17 +72,32 @@ class _PartyPalaceViewState extends State<PartyPalaceView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Shuffle palaces on first load
     palaces.shuffle();
     _gyroscopeStream = gyroscopeEvents;
+    _startGyroListener();
+  }
+
+  void _startGyroListener() {
+    _subscription?.cancel();
     _subscription = _gyroscopeStream.listen(_onGyroEvent);
   }
 
   @override
   void dispose() {
-    
-    _subscription = null;
+    WidgetsBinding.instance.removeObserver(this);
+    _subscription?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _startGyroListener();
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _subscription?.cancel();
+    }
   }
 
   void _onGyroEvent(GyroscopeEvent event) {
@@ -105,6 +119,21 @@ class _PartyPalaceViewState extends State<PartyPalaceView> {
           _sortAscending = !_sortAscending;
         }
       });
+      // Show a SnackBar to indicate sorting was triggered
+      if (mounted) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_sortAscending
+                ? 'Sorted party palaces by price (ascending)' 
+                : 'Sorted party palaces by price (descending)'),
+            duration: const Duration(seconds: 1),
+            backgroundColor: Colors.deepOrange,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
     }
   }
 

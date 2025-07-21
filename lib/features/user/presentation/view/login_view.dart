@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 import 'package:fooddelivery_b/app/service_locator/service_locator.dart';
 import 'package:fooddelivery_b/features/user/presentation/view_model/login_view_model/login_event.dart';
 import 'package:fooddelivery_b/features/user/presentation/view_model/login_view_model/login_view_model.dart';
@@ -10,6 +11,7 @@ import 'package:fooddelivery_b/features/home/presentation/view/home_view.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:dio/dio.dart';
 import 'package:fooddelivery_b/miscellaneous/view/app_tour.dart';
+
 
 class LoginView extends StatelessWidget {
   final LoginViewModel? injectedViewModel;
@@ -265,7 +267,7 @@ class LoginView extends StatelessWidget {
                                                           try {
                                                             final dio = Dio();
                                                             final response = await dio.post(
-                                                              'http://10.0.2.2:5050/api/auth/forgot-password',
+                                                              '${ApiEndpoints.serverAddress}/api/auth/forgot-password',
                                                               data: {'email': email},
                                                             );
                                                             Navigator.pop(context);

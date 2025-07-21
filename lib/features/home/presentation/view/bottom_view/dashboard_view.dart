@@ -20,7 +20,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:fooddelivery_b/features/order/presentation/view_model/order_view_model.dart';
-
+import 'package:fooddelivery_b/app/constant/api_endpoints.dart';
 
 
 class DashboardView extends StatefulWidget {
@@ -32,7 +32,7 @@ class DashboardView extends StatefulWidget {
   State<DashboardView> createState() => _DashboardViewState();
 }
 
-class _DashboardViewState extends State<DashboardView> {
+class _DashboardViewState extends State<DashboardView> with WidgetsBindingObserver {
   final DashboardModel model = DashboardModel();
   int _selectedIndex = 0;
   List<Map<String, String>>? _recentlyOrderedDynamic;
@@ -67,41 +67,14 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _startSlider();
     _fetchLatestAdditions();
-    _accelSub = accelerometerEvents.listen((event) {
-      if (_lastAccel != null) {
-        final dx = (event.x - _lastAccel!.x).abs();
-        final dy = (event.y - _lastAccel!.y).abs();
-        final dz = (event.z - _lastAccel!.z).abs();
-        final now = DateTime.now();
-        if ((dx > 8.0 || dy > 8.0 || dz > 8.0) && (_lastShakeTime == null || now.difference(_lastShakeTime!) > Duration(seconds: 2))) {
-          _lastShakeTime = now;
-          if (mounted) {
-            _fetchRecentlyOrdered(context);
-            setState(() {});
-            ScaffoldMessenger.of(context).clearSnackBars();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: const [
-                    Icon(Icons.check_circle, color: Colors.white, size: 22),
-                    SizedBox(width: 10),
-                    Text('Dashboard refreshed!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                  ],
-                ),
-                backgroundColor: Colors.deepOrange,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                duration: const Duration(seconds: 2),
-                elevation: 8,
-              ),
-            );
-          }
-        }
-      }
-      _lastAccel = event;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CategoryViewModel>().add(const LoadCategoriesEvent());
+      context.read<RestaurantViewModel>().add(const LoadRestaurantsEvent());
     });
+    _startAccelListener();
   }
 
   void _startSlider() {
@@ -121,13 +94,7 @@ class _DashboardViewState extends State<DashboardView> {
 
   Future<void> _fetchLatestAdditions() async {
     try {
-      String baseUrl;
-      if (Platform.isAndroid) {
-        baseUrl = 'http://10.0.2.2:5050';
-      } else {
-        baseUrl = 'http://localhost:5050';
-      }
-      final response = await http.get(Uri.parse('{baseUrl}/api/dashboard/latest-additions'));
+      final response = await http.get(Uri.parse('${ApiEndpoints.serverAddress}/api/dashboard/latest-additions'));
       print('Latest additions response: ${response.body}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -221,13 +188,60 @@ class _DashboardViewState extends State<DashboardView> {
     }
   }
 
+  void _startAccelListener() {
+    _accelSub?.cancel();
+    _accelSub = accelerometerEvents.listen((event) {
+      if (_lastAccel != null) {
+        final dx = (event.x - _lastAccel!.x).abs();
+        final dy = (event.y - _lastAccel!.y).abs();
+        final dz = (event.z - _lastAccel!.z).abs();
+        final now = DateTime.now();
+        if ((dx > 8.0 || dy > 8.0 || dz > 8.0) && (_lastShakeTime == null || now.difference(_lastShakeTime!) > Duration(seconds: 2))) {
+          _lastShakeTime = now;
+          if (mounted) {
+            _fetchRecentlyOrdered(context);
+            setState(() {});
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: const [
+                    Icon(Icons.check_circle, color: Colors.white, size: 22),
+                    SizedBox(width: 10),
+                    Text('Dashboard refreshed!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  ],
+                ),
+                backgroundColor: Colors.deepOrange,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                duration: const Duration(seconds: 2),
+                elevation: 8,
+              ),
+            );
+          }
+        }
+      }
+      _lastAccel = event;
+    });
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _accelSub?.cancel();
     model.disposeControllers();
     _sliderTimer?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _startAccelListener();
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _accelSub?.cancel();
+    }
   }
 
   @override

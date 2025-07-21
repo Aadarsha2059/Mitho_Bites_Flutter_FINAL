@@ -188,7 +188,7 @@ class _AppTourState extends State<AppTour> {
 class AnimatedTurningHighway extends StatefulWidget {
   final List<Map<String, String>> stops;
   final int currentStop;
-  const AnimatedTurningHighway({required this.stops, required this.currentStop, Key? key}) : super(key: key);
+  const AnimatedTurningHighway({required this.stops, required this.currentStop, super.key});
 
   @override
   State<AnimatedTurningHighway> createState() => _AnimatedTurningHighwayState();
